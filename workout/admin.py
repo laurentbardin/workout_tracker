@@ -18,6 +18,9 @@ class WorkoutAdmin(admin.ModelAdmin):
     inlines = [
         # This creates many duplicated SQL requests. Investigate to find out
         # why, and how to prevent it.
+        #
+        # Check
+        # https://docs.djangoproject.com/en/5.2/ref/models/querysets/#prefetch-related
         ProgramInline,
     ]
 
