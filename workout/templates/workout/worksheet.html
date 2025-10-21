@@ -1,0 +1,9 @@
+<h1>Worksheet for {{ worksheet.date }}</h1>
+{% if created %}
+<p>Just created!</p>
+{% elif worksheet.in_progress %}
+<p>Already in progress</p>
+{% else %}
+<p>Already done</p>
+{% endif %}
+<p>List of exercises coming soon...</p>
