@@ -1,6 +1,8 @@
 from django.contrib import admin
 from django.core import validators
 from django.db import models
+from django.db.models import F
+from django.db.models.functions import TruncDate
 
 # Create your models here.
 class Exercise(models.Model):
@@ -57,9 +59,15 @@ class Schedule(models.Model):
         return f"{self.DAY_CHOICES[self.day]}: {self.workout.name}"
 
 class Worksheet(models.Model):
-    date = models.DateField(auto_now_add=True)
-    in_progress = models.BooleanField(default=True)
     workout = models.ForeignKey(Workout, on_delete=models.PROTECT)
+    in_progress = models.BooleanField(default=True)
+    started_at = models.DateTimeField(auto_now_add=True)
+    ended_at = models.DateTimeField(blank=True, null=True)
+    date = models.GeneratedField(
+        expression=TruncDate(F("started_at")),
+        output_field=models.DateField(),
+        db_persist=True
+    )
 
     def __str__(self):
         return f"{self.workout} ({self.date})"
