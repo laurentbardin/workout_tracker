@@ -1,5 +1,7 @@
-from django.http import HttpResponse
-from django.views import View
+from django.utils import timezone
+from django.views.generic import TemplateView
+
+from .models import Workout
 
 # SQL requests reference
 # * List of exercises for the current session with their reps and weight (if
@@ -12,6 +14,16 @@ from django.views import View
 #   WHERE w.status = 'In progress' ORDER BY p._order;
 
 # Create your views here.
-class Index(View):
-    def get(self, request):
-        return HttpResponse('This is the index')
+class Index(TemplateView):
+    template_name = 'workout/index.html'
+
+    def render_to_response(self, context, **response_kwargs):
+        today = timezone.now().isoweekday()
+        try:
+            workout = Workout.objects.get(schedule__day=today)
+        except Workout.DoesNotExist:
+            workout = None
+
+        context['workout'] = workout
+
+        return super().render_to_response(context, **response_kwargs)
