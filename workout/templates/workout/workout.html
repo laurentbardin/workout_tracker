@@ -1,5 +1,8 @@
 {% if worksheet is None %}
 <p>No workout for {{ date }}. <a href="{% url 'workout:index' %}">Go back.</a></p>
 {% else %}
-<p>Workout for {{ worksheet.date }}</p>
+<p>Workout for {{ worksheet.date }}: {{ worksheet.workout }}</p>
+{% for exercise in exercises %}
+<p>{{ exercise.name }}: {{ exercise.reps|default:0 }} reps @{{ exercise.weight|default:0 }}kg</p>
+{% endfor %}
 {% endif %}

@@ -5,17 +5,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.generic import TemplateView
 
-from .models import Workout, Worksheet
-
-# SQL requests reference
-# * List of exercises for the current session with their reps and weight (if
-# available)
-#
-#   SELECT e.name, r.reps, r.weight, w.status FROM workout_exercise AS e
-#       LEFT JOIN workout_result AS r ON r.exercise_id = e.id
-#       JOIN workout_program AS p ON p.exercise_id = e.id
-#       JOIN workout_worksheet AS w ON w.workout_id = p.workout_id
-#   WHERE w.status = 'In progress' ORDER BY p._order;
+from .models import Exercise, Workout, Worksheet
 
 # Create your views here.
 class Index(TemplateView):
@@ -79,10 +69,21 @@ class Archive(TemplateView):
     def render_to_response(self, context, **response_kwargs):
         date = datetime.date(context['year'], context['month'], context['day'])
         try:
-            context['worksheet'] = Worksheet.objects.select_related('workout').get(date=date)
+            worksheet = Worksheet.objects.select_related('workout').get(date=date)
         except Worksheet.DoesNotExist:
-            pass
+            context['date'] = date
+            return super().render_to_response(context, **response_kwargs)
 
-        context['date'] = date
+        # TODO Try and build this query using Django's ORM when bored
+        query = """
+        SELECT e.id, e.name, r.reps, r.weight FROM workout_exercise AS e
+            LEFT JOIN workout_result AS r ON r.exercise_id = e.id
+            JOIN workout_program AS p ON p.exercise_id = e.id
+            JOIN workout_worksheet AS w ON w.workout_id = p.workout_id
+        WHERE w.id = %s ORDER BY p._order;
+        """
+
+        context['exercises'] = Exercise.objects.raw(query, [worksheet.id, ])
+        context['worksheet'] = worksheet
 
         return super().render_to_response(context, **response_kwargs)
