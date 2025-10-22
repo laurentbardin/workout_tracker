@@ -1,7 +1,9 @@
-from django.http import HttpResponse, HttpResponseRedirect
+import datetime
+
+from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils import timezone
-from django.views.generic import TemplateView, View
+from django.views.generic import TemplateView
 
 from .models import Workout, Worksheet
 
@@ -45,10 +47,10 @@ class Current(TemplateView):
     template_name = 'workout/worksheet.html'
 
     def render_to_response(self, context, **response_kwargs):
-        active_worksheets = Worksheet.objects.get_active().select_related('workout')
+        active_worksheets = Worksheet.objects.get_active().count()
 
-        if len(active_worksheets) > 0:
-            context['active_worksheets'] = active_worksheets
+        if active_worksheets > 0:
+            context['active_worksheets'] = Worksheet.objects.get_active().select_related('workout')
             return super().render_to_response(context, **response_kwargs)
 
         weekday = timezone.now().isoweekday()
@@ -67,10 +69,20 @@ class Current(TemplateView):
             args=[ worksheet.date.year, worksheet.date.month, worksheet.date.day, ]
         ))
 
-class Archive(View):
+class Archive(TemplateView):
     """
     Show a workout for a specific date. Using the current date should be
     equivalent to using the 'Current' view.
     """
-    def get(self, request, **kwargs):
-        return HttpResponse(f"Worksheet for {kwargs['year']}/{kwargs['month']}/{kwargs['day']}")
+    template_name = 'workout/workout.html'
+
+    def render_to_response(self, context, **response_kwargs):
+        date = datetime.date(context['year'], context['month'], context['day'])
+        try:
+            context['worksheet'] = Worksheet.objects.select_related('workout').get(date=date)
+        except Worksheet.DoesNotExist:
+            pass
+
+        context['date'] = date
+
+        return super().render_to_response(context, **response_kwargs)
