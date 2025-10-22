@@ -77,6 +77,13 @@ class Worksheet(models.Model):
     def __str__(self):
         return f"{self.workout} ({self.date})"
 
+    def close(self):
+        self.in_progress = False
+        if self.ended_at is None:
+            self.ended_at = timezone.now()
+
+        return self
+
     class Meta:
         constraints = [
             models.UniqueConstraint(

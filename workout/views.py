@@ -3,7 +3,7 @@ import datetime
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils import timezone
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, View
 
 from .models import Exercise, Workout, Worksheet
 
@@ -87,3 +87,12 @@ class Archive(TemplateView):
         context['worksheet'] = worksheet
 
         return super().render_to_response(context, **response_kwargs)
+
+class Close(View):
+    def post(self, request, worksheet_id=None):
+        try:
+            Worksheet.objects.close(pk=worksheet_id)
+        except Worksheet.DoesNotExist:
+            pass
+
+        return HttpResponseRedirect(reverse('workout:index'))

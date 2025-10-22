@@ -13,3 +13,8 @@ class WorksheetManager(models.Manager):
             before = timezone.now().date()
 
         return super().get_queryset().filter(in_progress=True, date__lt=before)
+
+    def close(self, pk=None):
+        if pk is not None:
+            worksheet = super().get_queryset().get(pk=pk, in_progress=True)
+            worksheet.close().save()
