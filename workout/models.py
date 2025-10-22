@@ -3,6 +3,9 @@ from django.core import validators
 from django.db import models
 from django.db.models import F
 from django.db.models.functions import TruncDate
+from django.utils import timezone
+
+from .managers import WorksheetManager
 
 # Create your models here.
 class Exercise(models.Model):
@@ -68,6 +71,8 @@ class Worksheet(models.Model):
         output_field=models.DateField(),
         db_persist=True
     )
+
+    objects = WorksheetManager()
 
     def __str__(self):
         return f"{self.workout} ({self.date})"

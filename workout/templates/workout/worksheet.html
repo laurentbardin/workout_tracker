@@ -1,9 +1,8 @@
-<h1>Worksheet for {{ worksheet.date }}</h1>
-{% if created %}
-<p>Just created!</p>
-{% elif worksheet.in_progress %}
-<p>Already in progress</p>
-{% else %}
-<p>Already done</p>
+{% if active_worksheets %}
+<p>Found some workouts still in progress:</p>
+<ul>
+    {% for worksheet in active_worksheets %}
+    <li>{{ worksheet.date }}: <a href="{% url 'workout:worksheet' worksheet.date.year worksheet.date.month worksheet.date.day %}">{{ worksheet.workout }}</a></li>
+    {% endfor %}
+</ul>
 {% endif %}
-<p>List of exercises coming soon...</p>

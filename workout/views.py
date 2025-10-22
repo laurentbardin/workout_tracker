@@ -36,27 +36,36 @@ class Index(TemplateView):
 
 class Current(TemplateView):
     """
-    The current workout page displays the one currently in progress, or creates
-    it if it doesn't exist yet.
+    The current workout page checks if workouts are still in progress. If there
+    are, it offers to close them by pointing to their specific page. In case
+    there are none, it checks if a workout is scheduled for today: if that's
+    the case, it creates a worksheet and redirects to its page; otherwise, it
+    redirects to the index page.
     """
     template_name = 'workout/worksheet.html'
 
     def render_to_response(self, context, **response_kwargs):
+        active_worksheets = Worksheet.objects.get_active().select_related('workout')
+
+        if len(active_worksheets) > 0:
+            context['active_worksheets'] = active_worksheets
+            return super().render_to_response(context, **response_kwargs)
+
         weekday = timezone.now().isoweekday()
         try:
             workout = Workout.objects.get(schedule__day=weekday)
         except Workout.DoesNotExist:
             return HttpResponseRedirect(reverse('workout:index'))
 
-        worksheet, created = Worksheet.objects.get_or_create(
+        worksheet, _ = Worksheet.objects.get_or_create(
             workout=workout,
             date=timezone.localdate(),
         )
 
-        context['worksheet'] = worksheet
-        context['created'] = created
-
-        return super().render_to_response(context, **response_kwargs)
+        return HttpResponseRedirect(reverse(
+            'workout:worksheet',
+            args=[ worksheet.date.year, worksheet.date.month, worksheet.date.day, ]
+        ))
 
 class Archive(View):
     """
