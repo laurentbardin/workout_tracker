@@ -77,6 +77,13 @@ class Worksheet(models.Model):
     def __str__(self):
         return f"{self.workout} ({self.date})"
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["date"], name="unique_worsheet_per_day",
+            )
+        ]
+
 class Result(models.Model):
     reps = models.SmallIntegerField(validators=[validators.MinValueValidator(0)])
     weight = models.SmallIntegerField(validators=[validators.MinValueValidator(0)], blank=True, null=True)
