@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Exercise, Workout, Program, Schedule
+from .models import Exercise, Workout, Worksheet, Program, Schedule
 
 class ProgramInline(admin.TabularInline):
     model = Program
@@ -31,7 +31,34 @@ class ScheduleAdmin(admin.ModelAdmin):
     #list_select_related = ['workout']
     ordering = ['day']
 
+class WorksheetAdmin(admin.ModelAdmin):
+    list_display = ['date', 'workout', 'started_at', 'ended_at', 'in_progress']
+    ordering = ['-date']
+    sortable_by = ['date']
+    date_hierarchy = 'date'
+
+    fieldsets = [
+        (
+            None,
+            {
+                'fields': ['workout', 'in_progress'],
+            }
+        ),
+        (
+            "Dates",
+            {
+                'fields': [('started_at', 'date'), 'ended_at'],
+                'classes': ['collapse'],
+            }
+        ),
+    ]
+    readonly_fields = ['started_at', 'date']
+
+    def has_add_permission(self, request):
+        return False
+
 # Register your models here.
 admin.site.register(Exercise, ExerciseAdmin)
 admin.site.register(Workout, WorkoutAdmin)
 admin.site.register(Schedule, ScheduleAdmin)
+admin.site.register(Worksheet, WorksheetAdmin)

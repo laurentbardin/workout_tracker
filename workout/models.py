@@ -3,6 +3,7 @@ from django.core import validators
 from django.db import models
 from django.db.models import F
 from django.db.models.functions import TruncDate
+from django.urls import reverse
 from django.utils import timezone
 
 from .managers import WorksheetManager
@@ -83,6 +84,9 @@ class Worksheet(models.Model):
             self.ended_at = timezone.now()
 
         return self
+
+    def get_absolute_url(self):
+        return reverse("workout:worksheet", args=[self.date.year, self.date.month, self.date.day])
 
     class Meta:
         constraints = [
