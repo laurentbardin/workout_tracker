@@ -64,7 +64,7 @@ class Schedule(models.Model):
 
 class Worksheet(models.Model):
     workout = models.ForeignKey(Workout, on_delete=models.PROTECT)
-    in_progress = models.BooleanField(default=True)
+    done = models.BooleanField(default=False)
     started_at = models.DateTimeField(auto_now_add=True)
     ended_at = models.DateTimeField(blank=True, null=True)
     date = models.GeneratedField(
@@ -79,7 +79,7 @@ class Worksheet(models.Model):
         return f"{self.workout} ({self.date})"
 
     def close(self):
-        self.in_progress = False
+        self.done = True
         if self.ended_at is None:
             self.ended_at = timezone.now()
 

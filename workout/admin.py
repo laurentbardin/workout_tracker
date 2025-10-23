@@ -32,7 +32,7 @@ class ScheduleAdmin(admin.ModelAdmin):
     ordering = ['day']
 
 class WorksheetAdmin(admin.ModelAdmin):
-    list_display = ['date', 'workout', 'started_at', 'ended_at', 'in_progress']
+    list_display = ['date', 'workout', 'started_at', 'ended_at', 'done']
     ordering = ['-date']
     sortable_by = ['date']
     date_hierarchy = 'date'
@@ -41,7 +41,7 @@ class WorksheetAdmin(admin.ModelAdmin):
         (
             None,
             {
-                'fields': ['workout', 'in_progress'],
+                'fields': ['workout', 'done'],
             }
         ),
         (

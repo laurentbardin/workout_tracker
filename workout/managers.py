@@ -12,9 +12,9 @@ class WorksheetManager(models.Manager):
         if before is None or not isinstance(before, (datetime.datetime, datetime.date)):
             before = timezone.now().date()
 
-        return super().get_queryset().filter(in_progress=True, date__lt=before)
+        return super().get_queryset().filter(done=False, date__lt=before)
 
     def close(self, pk=None):
         if pk is not None:
-            worksheet = super().get_queryset().get(pk=pk, in_progress=True)
+            worksheet = super().get_queryset().get(pk=pk, done=False)
             worksheet.close().save()

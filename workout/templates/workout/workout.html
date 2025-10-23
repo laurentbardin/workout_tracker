@@ -6,7 +6,7 @@
 <p>{{ exercise.name }}: {{ exercise.reps|default:0 }} reps @{{ exercise.weight|default:0 }}kg</p>
 {% endfor %}
 
-{% if worksheet.in_progress %}
+{% if not worksheet.done %}
 <form action="{% url 'workout:close' worksheet.id %}" method="POST">
     {% csrf_token %}
     <input type="submit" value="Close">
