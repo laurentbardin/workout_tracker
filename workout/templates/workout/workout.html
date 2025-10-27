@@ -12,10 +12,23 @@
     </thead>
     <tbody>
         {% for exercise in exercises %}
-        <tr>
-            <th scope="row">{{ exercise.name }}</th>
-            <td>{{ exercise.reps|default:0 }}</td>
-            <td>{{ exercise.weight|default:0 }}kg</td>
+            {% if worksheet.workout.repeat %}
+            <tr>
+                <th scope="row" rowspan="2">{{ forloop.counter }}. {{ exercise.name }}</th>
+                <td>{{ exercise.reps|default:0 }}</td>
+                <td>{{ exercise.weight|default:0 }}kg</td>
+            </tr>
+            <tr>
+                <td>{{ exercise.reps|default:0 }}</td>
+                <td>{{ exercise.weight|default:0 }}kg</td>
+            </tr>
+            {% else %}
+            <tr>
+                <th scope="row">{{ exercise.name }}</th>
+                <td>{{ exercise.reps|default:0 }}</td>
+                <td>{{ exercise.weight|default:0 }}kg</td>
+            </tr>
+            {% endif %}
         </tr>
         {% endfor %}
     </tbody>
