@@ -1,10 +1,25 @@
 {% if worksheet is None %}
 <p>No workout for {{ date }}. <a href="{% url 'workout:index' %}">Go back.</a></p>
 {% else %}
-<p>Workout for {{ worksheet.date }}: {{ worksheet.workout }}</p>
-{% for exercise in exercises %}
-<p>{{ exercise.name }}: {{ exercise.reps|default:0 }} reps @{{ exercise.weight|default:0 }}kg</p>
-{% endfor %}
+<table border="1">
+    <caption>Workout for {{ worksheet.date }}: {{ worksheet.workout }}</caption>
+    <thead>
+        <tr>
+            <th scope="col">Exercise</th>
+            <th scope="col">Reps</th>
+            <th scope="col">Weight</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for exercise in exercises %}
+        <tr>
+            <th scope="row">{{ exercise.name }}</th>
+            <td>{{ exercise.reps|default:0 }}</td>
+            <td>{{ exercise.weight|default:0 }}kg</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 
 {% if not worksheet.done %}
 <form action="{% url 'workout:close' worksheet.id %}" method="POST">
