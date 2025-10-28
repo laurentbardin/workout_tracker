@@ -6,7 +6,7 @@ from django.db.models.functions import TruncDate
 from django.urls import reverse
 from django.utils import timezone
 
-from .managers import WorksheetManager
+from .managers import ResultRelatedManager, WorksheetManager
 
 # Create your models here.
 class Exercise(models.Model):
@@ -25,6 +25,11 @@ class Workout(models.Model):
     @admin.display(description="Workout")
     def __str__(self):
         return self.name
+
+    def get_exercises_in_order(self):
+        exercises = self.exercises.filter(workout=self)
+
+        return exercises
 
 class Program(models.Model):
     workout = models.ForeignKey(Workout, on_delete=models.CASCADE)
@@ -100,6 +105,9 @@ class Result(models.Model):
     weight = models.SmallIntegerField(validators=[validators.MinValueValidator(0)], blank=True, null=True)
     exercise = models.ForeignKey(Exercise, on_delete=models.PROTECT)
     worksheet = models.ForeignKey(Worksheet, on_delete=models.CASCADE)
+
+    objects = models.Manager()
+    results = ResultRelatedManager()
 
     class Meta:
         order_with_respect_to = "worksheet"

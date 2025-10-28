@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.generic import TemplateView, View
 
-from .models import Exercise, Workout, Worksheet
+from .models import Workout, Worksheet
 
 # Create your views here.
 class Index(TemplateView):
@@ -74,21 +74,12 @@ class Archive(TemplateView):
             context['date'] = date
             return super().render_to_response(context, **response_kwargs)
 
-        # TODO Try and build this query using Django's ORM when bored
-        query = """
-        SELECT e.id, e.name, r.reps, r.weight FROM workout_exercise AS e
-            LEFT JOIN workout_result AS r ON r.exercise_id = e.id
-            JOIN workout_program AS p ON p.exercise_id = e.id
-            JOIN workout_worksheet AS w ON w.workout_id = p.workout_id
-        WHERE w.id = %s ORDER BY p._order;
-        """
-
-        context['exercises'] = Exercise.objects.raw(query, [worksheet.id, ])
+        worksheet.results = worksheet.result_set.select_related("exercise").all()
         context['worksheet'] = worksheet
 
         return super().render_to_response(context, **response_kwargs)
 
-class Close(View):
+class CloseAction(View):
     def post(self, request, worksheet_id=None):
         try:
             Worksheet.objects.close(pk=worksheet_id)
@@ -96,3 +87,18 @@ class Close(View):
             pass
 
         return HttpResponseRedirect(reverse('workout:index'))
+
+class ResultAction(View):
+    def post(self, request, worksheet_id=None):
+        try:
+            worksheet = Worksheet.objects.filter(done=False).get(pk=worksheet_id)
+        except Worksheet.DoesNotExist:
+            return HttpResponseRedirect(reverse('workout:index'))
+
+        print(request.POST)
+
+        return HttpResponseRedirect(reverse(
+            'workout:worksheet',
+            args=[ worksheet.date.year, worksheet.date.month, worksheet.date.day, ]
+        ))
+

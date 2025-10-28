@@ -11,25 +11,42 @@
         </tr>
     </thead>
     <tbody>
-        {% for exercise in exercises %}
+        {% for result in worksheet.results %}
             {% if worksheet.workout.repeat %}
             <tr>
-                <th scope="row" rowspan="2">{{ forloop.counter }}. {{ exercise.name }}</th>
-                <td>{{ exercise.reps|default:0 }}</td>
-                <td>{{ exercise.weight|default:0 }}kg</td>
+                <th scope="row" rowspan="2">
+                    {{ forloop.counter }}. {{ result.exercise.name }}
+                    <input type="hidden" name="result" value="{{ result.id }}" form="resultForm">
+                </th>
+                <td><input type="number" name="reps" value="{{ result.reps|default:0 }}" form="resultForm"></td>
+                <td>
+                    {% if result.exercise.weight %}
+                    <input type="number" name="weight" value="{{ result.weight|default:None }}" form="resultForm">kg
+                    {% endif %}
+                </td>
             </tr>
             <tr>
-                <td>{{ exercise.reps|default:0 }}</td>
-                <td>{{ exercise.weight|default:0 }}kg</td>
+                <td><input type="number" name="reps" value="{{ result.reps|default:0 }}" form="resultForm"></td>
+                <td>
+                    {% if result.exercise.weight %}
+                    <input type="number" name="weight" value="{{ result.weight|default:None }}" form="resultForm">kg
+                    {% endif %}
+                </td>
             </tr>
             {% else %}
             <tr>
-                <th scope="row">{{ exercise.name }}</th>
-                <td>{{ exercise.reps|default:0 }}</td>
-                <td>{{ exercise.weight|default:0 }}kg</td>
+                <th scope="row">
+                    {{ forloop.counter }}. {{ result.exercise.name }}
+                    <input type="hidden" name="result" value="{{ result.id }}" form="resultForm">
+                </th>
+                <td><input type="number" name="reps" value="{{ result.reps|default:0 }}" form="resultForm"></td>
+                <td>
+                    {% if result.exercise.weight %}
+                    <input type="number" name="weight" value="{{ result.weight|default:None }}" form="resultForm">kg
+                    {% endif %}
+                </td>
             </tr>
             {% endif %}
-        </tr>
         {% endfor %}
     </tbody>
 </table>
@@ -38,6 +55,10 @@
 <form action="{% url 'workout:close' worksheet.id %}" method="POST">
     {% csrf_token %}
     <input type="submit" value="Close">
+</form>
+<form action="{% url 'workout:result' worksheet.id %}" method="POST" id="resultForm">
+    {% csrf_token %}
+    <input type="submit" value="Submit results">
 </form>
 {% endif %}
 

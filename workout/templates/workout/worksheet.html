@@ -5,4 +5,6 @@
     <li>{{ worksheet.date }}: <a href="{% url 'workout:worksheet' worksheet.date.year worksheet.date.month worksheet.date.day %}">{{ worksheet.workout }}</a></li>
     {% endfor %}
 </ul>
+{% elif error_message %}
+<p>An error occured: {{ error_message }}</p>
 {% endif %}
