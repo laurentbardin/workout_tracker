@@ -96,7 +96,7 @@ class Worksheet(models.Model):
         ]
 
 class Result(models.Model):
-    reps = models.SmallIntegerField(validators=[validators.MinValueValidator(0)])
+    reps = models.SmallIntegerField(validators=[validators.MinValueValidator(0)], null=True)
     weight = models.SmallIntegerField(validators=[validators.MinValueValidator(0)], blank=True, null=True)
     exercise = models.ForeignKey(Exercise, on_delete=models.PROTECT)
     worksheet = models.ForeignKey(Worksheet, on_delete=models.CASCADE)
