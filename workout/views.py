@@ -82,6 +82,9 @@ class Archive(TemplateView):
 
         context['worksheet'] = worksheet
 
+        if worksheet.done:
+            self.template_name = 'workout/workout_done.html'
+
         return super().render_to_response(context, **response_kwargs)
 
 class CloseAction(View):
