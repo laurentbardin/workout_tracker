@@ -61,8 +61,7 @@ class Current(TemplateView):
 
 class Archive(TemplateView):
     """
-    Show a workout for a specific date. Using the current date should be
-    equivalent to using the 'Current' view.
+    Show a workout for a specific date.
     """
     template_name = 'workout/workout.html'
 
@@ -74,7 +73,13 @@ class Archive(TemplateView):
             context['date'] = date
             return super().render_to_response(context, **response_kwargs)
 
-        worksheet.results = worksheet.result_set.select_related("exercise").all()
+        worksheet.results = worksheet.result_set.order_by(
+            "exercise__program",
+            "_order"
+        ).filter(
+            exercise__workout=worksheet.workout
+        ).select_related("exercise").all()
+
         context['worksheet'] = worksheet
 
         return super().render_to_response(context, **response_kwargs)

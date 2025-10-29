@@ -1,6 +1,7 @@
 {% if worksheet is None %}
 <p>No workout for {{ date }}. <a href="{% url 'workout:index' %}">Go back.</a></p>
 {% else %}
+{% regroup worksheet.results by exercise.name as exercise_list %}
 <table border="1">
     <caption>Workout for {{ worksheet.date }}: {{ worksheet.workout }}</caption>
     <thead>
@@ -11,43 +12,28 @@
         </tr>
     </thead>
     <tbody>
-        {% for result in worksheet.results %}
-            {% if worksheet.workout.repeat %}
-            <tr>
-                <th scope="row" rowspan="2">
-                    {{ forloop.counter }}. {{ result.exercise.name }}
-                    <input type="hidden" name="result" value="{{ result.id }}" form="resultForm">
-                </th>
-                <td><input type="number" name="reps" value="{{ result.reps|default:0 }}" form="resultForm"></td>
-                <td>
-                    {% if result.exercise.weight %}
-                    <input type="number" name="weight" value="{{ result.weight|default:None }}" form="resultForm">kg
-                    {% endif %}
-                </td>
-            </tr>
-            <tr>
-                <td><input type="number" name="reps" value="{{ result.reps|default:0 }}" form="resultForm"></td>
-                <td>
-                    {% if result.exercise.weight %}
-                    <input type="number" name="weight" value="{{ result.weight|default:None }}" form="resultForm">kg
-                    {% endif %}
-                </td>
-            </tr>
-            {% else %}
-            <tr>
-                <th scope="row">
-                    {{ forloop.counter }}. {{ result.exercise.name }}
-                    <input type="hidden" name="result" value="{{ result.id }}" form="resultForm">
-                </th>
-                <td><input type="number" name="reps" value="{{ result.reps|default:0 }}" form="resultForm"></td>
-                <td>
-                    {% if result.exercise.weight %}
-                    <input type="number" name="weight" value="{{ result.weight|default:None }}" form="resultForm">kg
-                    {% endif %}
-                </td>
-            </tr>
-            {% endif %}
+    {% for exercise_name, results in exercise_list %}
+        {% with forloop.counter as exercise_number %}
+        {% for result in results %}
+        <tr>
+            {% ifchanged exercise_name %}
+            <th scope="row" rowspan="{{ results|length }}">
+                {{ exercise_number }}. {{ exercise_name }}
+            </th>
+            {% endifchanged %}
+            <td>
+                <input type="hidden" name="result" value="{{ result.id }}" form="resultForm">
+                <input type="number" name="reps" value="{{ result.reps|default:0 }}" form="resultForm">
+            </td>
+            <td>
+                {% if result.exercise.weight %}
+                <input type="number" name="weight" value="{{ result.weight|default:None }}" form="resultForm"> kg
+                {% endif %}
+            </td>
+        </tr>
         {% endfor %}
+        {% endwith %}
+    {% endfor %}
     </tbody>
 </table>
 
