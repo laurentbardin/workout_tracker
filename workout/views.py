@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.generic import TemplateView, View
 
-from .models import Workout, Worksheet
+from .models import Result, Workout, Worksheet
 
 # Create your views here.
 class Index(TemplateView):
@@ -103,7 +103,19 @@ class ResultAction(View):
         except Worksheet.DoesNotExist:
             return HttpResponseRedirect(reverse('workout:index'))
 
-        print(request.POST)
+        post = request.POST.copy()
+        reps = post.pop('reps')
+        weight = post.pop('weight')
+
+        results = []
+        for idx, result_id in enumerate(post.pop('result')):
+            results.append(Result(
+                pk=result_id,
+                reps=reps[idx],
+                weight=weight[idx] or None,
+            ))
+
+        Result.objects.bulk_update(results, ["reps", "weight"])
 
         return HttpResponseRedirect(reverse(
             'workout:worksheet',
