@@ -1,6 +1,12 @@
+{% extends 'workout/base.html' %}
+
+{% block content %}
+
 <h1>This is the index</h1>
 {% if workout is None %}
 <p>No workout today!</p>
 {% else %}
 <p>Today's workout: {{ workout.name }}. <a href="{% url 'workout:current' %}">Start!</a></p>
 {% endif %}
+
+{% endblock content %}

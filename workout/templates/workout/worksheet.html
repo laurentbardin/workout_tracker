@@ -1,3 +1,7 @@
+{% extends 'workout/base.html' %}
+
+{% block content %}
+
 {% if active_worksheets %}
 <p>Found some workouts still in progress:</p>
 <ul>
@@ -8,3 +12,5 @@
 {% elif error_message %}
 <p>An error occured: {{ error_message }}</p>
 {% endif %}
+
+{% endblock content %}

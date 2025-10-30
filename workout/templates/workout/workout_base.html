@@ -1,3 +1,7 @@
+{% extends 'workout/base.html' %}
+
+{% block content %}
+
 {% if worksheet is None %}
 <p>No workout for {{ date }}. <a href="{% url 'workout:index' %}">Go back.</a></p>
 {% else %}
@@ -18,3 +22,5 @@
 {% block workout_form %}{% endblock %}
 
 {% endif %}
+
+{% endblock content %}
