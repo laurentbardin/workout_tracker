@@ -67,7 +67,7 @@ class Program(models.Model):
 
 class Schedule(models.Model):
     # ISO weekdays
-    # Py: datatime.now().isoweekday()
+    # Py: datetime.now().isoweekday()
     # Pg: EXTRACT(isodow FROM now())
     MONDAY = 1
     TUESDAY = 2
@@ -94,7 +94,7 @@ class Schedule(models.Model):
 class Worksheet(models.Model):
     workout = models.ForeignKey(Workout, on_delete=models.PROTECT)
     done = models.BooleanField(default=False)
-    started_at = models.DateTimeField(auto_now_add=True)
+    started_at = models.DateTimeField(default=timezone.now)
     ended_at = models.DateTimeField(blank=True, null=True)
     date = models.GeneratedField(
         expression=TruncDate(F("started_at")),
@@ -109,6 +109,8 @@ class Worksheet(models.Model):
 
     def close(self):
         self.done = True
+        # Don't override the end date if a worksheet is closed a second time
+        # (through the admin for example)
         if self.ended_at is None:
             self.ended_at = timezone.now()
 
