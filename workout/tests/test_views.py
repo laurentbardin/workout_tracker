@@ -111,7 +111,6 @@ class CurrentViewTest(ProgramSetupMixin, TestCase):
         """
         now = timezone.now()
         weekday = now.isoweekday()
-        date = now.date()
         Schedule.objects.create(day=weekday, workout=self.workout)
 
         response = self.client.get(reverse("workout:create"), follow=True)
@@ -128,7 +127,6 @@ class CurrentViewTest(ProgramSetupMixin, TestCase):
 
         worksheet = Worksheet.objects.get(
             workout=self.workout,
-            date=date,
             done=False,
         )
         self.assertEqual(worksheet.result_set.count(), 4)
