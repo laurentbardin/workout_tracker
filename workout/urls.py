@@ -6,8 +6,8 @@ app_name = 'workout'
 
 urlpatterns = [
     path('', views.Index.as_view(), name='index'),
-    path('workout/', views.Current.as_view(), name='current'),
-    path('workout/<int:year>/<int:month>/<int:day>/', views.Archive.as_view(), name='worksheet'),
+    path('workout/', views.CreateView.as_view(), name='create'),
+    path('workout/<int:year>/<int:month>/<int:day>/', views.WorkoutView.as_view(), name='workout'),
     path('workout/<int:worksheet_id>/close', views.CloseAction.as_view(), name='close'),
     path('workout/<int:worksheet_id>/result', views.ResultAction.as_view(), name='result'),
 ]

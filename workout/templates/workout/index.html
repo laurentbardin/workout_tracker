@@ -6,7 +6,7 @@
 {% if workout is None %}
 <p>No workout today!</p>
 {% else %}
-<p>Today's workout: {{ workout.name }}. <a href="{% url 'workout:current' %}">Start!</a></p>
+<p>Today's workout: {{ workout.name }}. <a href="{% url 'workout:create' %}">Start!</a></p>
 {% endif %}
 
 {% endblock content %}

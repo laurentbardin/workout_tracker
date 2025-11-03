@@ -1,7 +1,7 @@
 {% extends 'workout/workout_base.html' %}
 
 {% block workout_results %}
-{% regroup worksheet.results by exercise.name as exercise_list %}
+{% regroup results by exercise.name as exercise_list %}
 {% for exercise_name, results in exercise_list %}
     {% with forloop.counter as exercise_number %}
     {% for result in results %}
@@ -14,10 +14,16 @@
         <td>
             <input type="hidden" name="result" value="{{ result.id }}" form="resultForm">
             <input type="number" name="reps" value="{{ result.reps|default:0 }}" form="resultForm">
+            {% for msg in result.errors.reps %}
+            <br><small>{{ msg }}</small>
+            {% endfor %}
         </td>
         <td>
             {% if result.exercise.weight %}
             <input type="number" name="weight" value="{{ result.weight|default:None }}" form="resultForm"> kg
+            {% for msg in result.errors.weight %}
+            <br><small>{{ msg }}</small>
+            {% endfor %}
             {% else %}
             <input type="hidden" name="weight" value="" form="resultForm">
             {% endif %}
@@ -33,7 +39,7 @@
     {% csrf_token %}
     <input type="submit" value="Close">
 </form>
-<form action="{% url 'workout:result' worksheet.id %}" method="POST" id="resultForm">
+<form action="" method="POST" id="resultForm">
     {% csrf_token %}
     <input type="submit" value="Submit results">
 </form>

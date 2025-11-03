@@ -49,7 +49,11 @@ class WorksheetMixin(ProgramSetupMixin):
 
     def _update_worksheet(self, worksheet, *, reps, weights):
         response = self.client.post(
-            reverse("workout:result", kwargs={'worksheet_id': worksheet.id}),
+            reverse("workout:workout", kwargs={
+                'year': worksheet.date.year,
+                'month': worksheet.date.month,
+                'day': worksheet.date.day,
+            }),
             {
                 'result': [str(result.id) for result in worksheet.result_set.all()],
                 'reps': [str(value) for value in reps],
@@ -91,7 +95,7 @@ class CurrentViewTest(ProgramSetupMixin, TestCase):
         It isn't possible to create a workout when none are scheduled for the
         current day.
         """
-        response = self.client.get(reverse("workout:current"), follow=True)
+        response = self.client.get(reverse("workout:create"), follow=True)
 
         self.assertEqual(len(response.redirect_chain), 1)
         self.assertEqual(response.status_code, 200)
@@ -110,7 +114,7 @@ class CurrentViewTest(ProgramSetupMixin, TestCase):
         date = now.date()
         Schedule.objects.create(day=weekday, workout=self.workout)
 
-        response = self.client.get(reverse("workout:current"), follow=True)
+        response = self.client.get(reverse("workout:create"), follow=True)
 
         # TODO Split into two tests: one for checking creation, one for
         # checking display
@@ -179,6 +183,7 @@ class ResultViewTest(WorksheetMixin, TestCase):
                                           weights=[10, 10, 10, 10])
 
         self.assertEqual(response.status_code, 302)
+
         for result in worksheet.result_set.all():
             self.assertIsNone(result.reps)
             self.assertIsNone(result.weight)
@@ -192,7 +197,9 @@ class ResultViewTest(WorksheetMixin, TestCase):
                                           reps=[10, 10, 10, 10],
                                           weights=[10, '', 10, ''])
 
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '10', 6)
+
         for result in worksheet.result_set.select_related('exercise').all():
             self.assertEqual(result.reps, 10)
             if result.exercise.weight:
@@ -205,22 +212,39 @@ class ResultViewTest(WorksheetMixin, TestCase):
         Updating an exercise results with a negative number of reps produces an
         error message, rejecting the whole update.
         """
-        #worksheet = self._create_worksheet()
-        #response = self._update_worksheet(worksheet,
-        #                                  reps=[10, 10, 10, 10],
-        #                                  weights=[10, '', 10, ''])
+        worksheet = self._create_worksheet()
+        response = self._update_worksheet(worksheet,
+                                          reps=[10, 10, -3, -2],
+                                          weights=[10, '', 10, ''])
 
-        #self.assertEqual(response.status_code, 200)
-        #for result in worksheet.result_set.select_related('exercise').all():
-        #    self.assertIsNone(result.reps)
-        #    self.assertIsNone(result.weight)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Number of reps cannot be negative', 2)
+        self.assertContains(response, '10', 4)
+        self.assertContains(response, '-3', 1)
+        self.assertContains(response, '-2', 1)
+
+        for result in worksheet.result_set.select_related('exercise').all():
+            self.assertIsNone(result.reps)
+            self.assertIsNone(result.weight)
 
     def test_update_results_with_negative_weight(self):
         """
         Updating an exercise results with a negative weight produces an error
         message, rejecting the whole update.
         """
-        pass
+        worksheet = self._create_worksheet()
+        response = self._update_worksheet(worksheet,
+                                          reps=[10, 10, 10, 10],
+                                          weights=[10, '', -4, ''])
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Used weight cannot be negative', 1)
+        self.assertContains(response, '10', 5)
+        self.assertContains(response, '-4', 1)
+
+        for result in worksheet.result_set.select_related('exercise').all():
+            self.assertIsNone(result.reps)
+            self.assertIsNone(result.weight)
 
     def test_update_results_of_weightless_exercise_with_weight(self):
         """

@@ -117,7 +117,7 @@ class Worksheet(models.Model):
         return self
 
     def get_absolute_url(self):
-        return reverse("workout:worksheet", args=[self.date.year, self.date.month, self.date.day])
+        return reverse("workout:workout", args=[self.date.year, self.date.month, self.date.day])
 
     class Meta:
         constraints = [
@@ -127,8 +127,8 @@ class Worksheet(models.Model):
         ]
 
 class Result(models.Model):
-    reps = models.SmallIntegerField(validators=[validators.MinValueValidator(0)], null=True)
-    weight = models.SmallIntegerField(validators=[validators.MinValueValidator(0)], blank=True, null=True)
+    reps = models.SmallIntegerField(validators=[validators.MinValueValidator(0, message="Number of reps cannot be negative")], null=True)
+    weight = models.SmallIntegerField(validators=[validators.MinValueValidator(0, message="Used weight cannot be negative")], blank=True, null=True)
     exercise = models.ForeignKey(Exercise, on_delete=models.PROTECT)
     worksheet = models.ForeignKey(Worksheet, on_delete=models.CASCADE)
 
