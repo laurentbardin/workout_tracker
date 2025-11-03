@@ -270,3 +270,6 @@ class ResultViewTest(WorksheetMixin, TestCase):
                 self.assertIsNone(result.weight)
             else:
                 self.assertIn(result.weight, [200, 300])
+
+    def test_worksheet_show_results_from_previous_same_workout(self):
+        pass

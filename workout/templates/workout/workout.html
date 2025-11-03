@@ -20,7 +20,7 @@
         </td>
         <td>
             {% if result.exercise.weight %}
-            <input type="number" name="weight" value="{{ result.weight|default:None }}" form="resultForm"> kg
+            <input type="number" name="weight" value="{{ result.weight|default:'' }}" form="resultForm"> kg
             {% for msg in result.errors.weight %}
             <br><small>{{ msg }}</small>
             {% endfor %}
@@ -28,6 +28,16 @@
             <input type="hidden" name="weight" value="" form="resultForm">
             {% endif %}
         </td>
+        {% if result.previous %}
+        <td>
+            {{ result.previous.reps|default:0 }}
+        </td>
+        <td>
+            {% if result.exercise.weight %}
+            {{ result.previous.weight|default:0 }} kg
+            {% endif %}
+        </td>
+        {% endif %}
     </tr>
     {% endfor %}
     {% endwith %}

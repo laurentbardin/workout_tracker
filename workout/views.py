@@ -1,10 +1,7 @@
 import datetime
 
-from django.db import connections
-
 from django.core.exceptions import ValidationError
 from django.http import HttpResponseRedirect
-from django.shortcuts import render
 from django.urls import reverse
 from django.utils import timezone
 from django.views.generic import TemplateView, View
@@ -68,7 +65,7 @@ class CreateView(TemplateView):
 
 class WorkoutView(TemplateView):
     """
-    Show a workout for a specific date.
+    Show or update a workout for a specific date.
     """
     template_name = 'workout/workout.html'
 
@@ -82,6 +79,7 @@ class WorkoutView(TemplateView):
                 'worksheet': worksheet,
                 'results': results,
             })
+
 
         return super().render_to_response(context, **response_kwargs)
 
@@ -108,20 +106,11 @@ class WorkoutView(TemplateView):
                 args=[date.year, date.month, date.day],
             ))
 
-        result_ids = context['result_ids']
-        results = {str(r.id): r
-                   for r in Result.objects.filter(
-                       worksheet=worksheet,
-                       pk__in=result_ids
-                   ).order_by(
-                       "exercise__program",
-                       "_order"
-                   ).select_related('exercise').all()
-                  }
+        results_dict = {str(r.id): r for r in results}
 
         result_errors = 0
-        for idx, result_id in enumerate(result_ids):
-            result = results[result_id]
+        for idx, result_id in enumerate(context['result_ids']):
+            result = results_dict[result_id]
 
             result.reps = context['reps'][idx]
             result.weight = context['weight'][idx] or None
@@ -137,11 +126,11 @@ class WorkoutView(TemplateView):
                 result.errors.update(ve.message_dict)
 
         if result_errors == 0:
-            Result.objects.bulk_update(results.values(), ["reps", "weight"])
+            Result.objects.bulk_update(results, ["reps", "weight"])
 
         context.update({
             'worksheet': worksheet,
-            'results': results.values(),
+            'results': results,
             'result_errors': result_errors,
         })
 
@@ -159,17 +148,39 @@ class WorkoutView(TemplateView):
             pass
 
         if worksheet is not None:
-            results = worksheet.result_set.order_by(
-                "exercise__program",
-                "_order"
-            ).filter(
-                exercise__workout=worksheet.workout
-            ).select_related("exercise").all()
+            results = self._get_results(worksheet)
+            self._get_previous_results(worksheet, results)
 
             if worksheet.done:
                 self.template_name = 'workout/workout_done.html'
 
         return worksheet, results, date
+
+    def _get_results(self, worksheet):
+        return worksheet.result_set.order_by(
+            "exercise__program",
+            "_order"
+        ).filter(
+            exercise__workout=worksheet.workout
+        ).select_related("exercise").all()
+
+    def _get_previous_results(self, worksheet, results):
+        """
+        Fetch the results of the same previous workout to display and
+        compare, if any.
+        """
+        # This is only relevant or useful if a workout is in progress
+        if not worksheet.done:
+            previous_worksheet = Worksheet.objects.filter(
+                workout=worksheet.workout,
+                date__lt=worksheet.date,
+                done=True,
+            ).order_by("-date").first()
+
+            if previous_worksheet is not None:
+                for res, prev in zip(results,
+                                     self._get_results(previous_worksheet)):
+                    res.previous = prev
 
 class CloseAction(View):
     def post(self, request, worksheet_id=None):

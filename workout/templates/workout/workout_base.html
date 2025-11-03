@@ -12,6 +12,10 @@
             <th scope="col">Exercise</th>
             <th scope="col">Reps</th>
             <th scope="col">Weight</th>
+            {% if results.0.previous %}
+            <th scope="col">Previous reps</th>
+            <th scope="col">Previous weight</th>
+            {% endif %}
         </tr>
     </thead>
     <tbody>
