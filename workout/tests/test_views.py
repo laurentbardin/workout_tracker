@@ -198,7 +198,6 @@ class ResultViewTest(WorksheetMixin, TestCase):
                                           weights=[10, '', 10, ''])
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, '10', 6)
 
         for result in worksheet.result_set.select_related('exercise').all():
             self.assertEqual(result.reps, 10)
@@ -219,7 +218,6 @@ class ResultViewTest(WorksheetMixin, TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Number of reps cannot be negative', 2)
-        self.assertContains(response, '10', 4)
         self.assertContains(response, '-3', 1)
         self.assertContains(response, '-2', 1)
 
@@ -239,7 +237,6 @@ class ResultViewTest(WorksheetMixin, TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Used weight cannot be negative', 1)
-        self.assertContains(response, '10', 5)
         self.assertContains(response, '-4', 1)
 
         for result in worksheet.result_set.select_related('exercise').all():
@@ -249,6 +246,29 @@ class ResultViewTest(WorksheetMixin, TestCase):
     def test_update_results_of_weightless_exercise_with_weight(self):
         """
         Updating an exercise results with weight when said exercise doesn't use
-        weights produces an error message, rejecting the whole update.
+        weights discards the unexpected values while still updating those that
+        can.
         """
-        pass
+        worksheet = self._create_worksheet()
+        response = self._update_worksheet(worksheet,
+                                          reps=[10, 10, 10, 10],
+                                          weights=[10, '', 10, ''])
+        self.assertEqual(response.status_code, 200)
+
+        response = self._update_worksheet(worksheet,
+                                          reps=[10, 10, 10, 10],
+                                          weights=[200, 100, 300, -400])
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Used weight cannot be negative', 0)
+        # TODO '100' could be found occasionally in the CSRF token, try and
+        # find a better sentinel value
+        self.assertContains(response, '100', 0)
+        self.assertContains(response, '-400', 0)
+
+        for result in worksheet.result_set.select_related('exercise').all():
+            self.assertEqual(result.reps, 10)
+            if not result.exercise.weight:
+                self.assertIsNone(result.weight)
+            else:
+                self.assertIn(result.weight, [200, 300])

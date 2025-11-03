@@ -135,5 +135,14 @@ class Result(models.Model):
     objects = models.Manager()
     results = ResultRelatedManager()
 
+    def clean_fields(self, exclude=None):
+        if self.weight is not None and not self.exercise.weight:
+            # Prevent any validation issue if a weight is submitted for a
+            # weightless exercise by simply discarding the value.
+            # TODO log a warning?
+            self.weight = None
+
+        return super().clean_fields(exclude)
+
     class Meta:
         order_with_respect_to = "worksheet"
