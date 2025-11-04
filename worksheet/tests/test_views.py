@@ -9,7 +9,7 @@ from worksheet.models import (
 )
 from worksheet.tests.mixins import ProgramSetupMixin, WorksheetMixin
 
-class IndexViewTests(TestCase):
+class IndexViewTests(WorksheetMixin, TestCase):
     def test_no_workout_day(self):
         """
         The index page does not offer to start a workout when none are
@@ -24,16 +24,46 @@ class IndexViewTests(TestCase):
         The index page offers to start a workout when one is scheduled for the
         current day.
         """
-        workout = Workout.objects.create(
-            name="Test workout",
-            repeat=False,
-        )
         today = timezone.now().isoweekday()
-        Schedule.objects.create(day=today, workout=workout)
+        Schedule.objects.create(day=today, workout=self.workout)
 
         response = self.client.get(reverse("worksheet:index"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Today's workout: Test workout")
+        self.assertContains(response, "Start")
+
+    def test_workout_already_started(self):
+        """
+        The index page offers to continue the current workout if it's already
+        been started.
+        """
+        today = timezone.now().isoweekday()
+        Schedule.objects.create(day=today, workout=self.workout)
+
+        worksheet = self._create_worksheet(started_at=timezone.now())
+
+        response = self.client.get(reverse("worksheet:index"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Today's workout: Test workout")
+        self.assertContains(response, "Continue")
+        self.assertContains(response, worksheet.get_absolute_url())
+
+    def test_active_worksheet_are_displayed(self):
+        """
+        The index page doesn't offer to create a worksheet if any active one
+        already exists.
+        """
+        today = timezone.now().isoweekday()
+        Schedule.objects.create(day=today, workout=self.workout)
+
+        worksheet = self._create_worksheet(
+            started_at=timezone.now() - datetime.timedelta(days=1),
+        )
+
+        response = self.client.get(reverse('worksheet:index'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Found some workouts still in progress")
+        self.assertContains(response, worksheet.get_absolute_url())
 
 class CurrentViewTest(ProgramSetupMixin, TestCase):
     def test_creation_when_not_scheduled(self):
@@ -41,7 +71,7 @@ class CurrentViewTest(ProgramSetupMixin, TestCase):
         It isn't possible to create a workout when none are scheduled for the
         current day.
         """
-        response = self.client.get(reverse("worksheet:create"), follow=True)
+        response = self.client.post(reverse("worksheet:create"), follow=True)
 
         self.assertEqual(len(response.redirect_chain), 1)
         self.assertEqual(response.status_code, 200)
@@ -59,7 +89,7 @@ class CurrentViewTest(ProgramSetupMixin, TestCase):
         weekday = now.isoweekday()
         Schedule.objects.create(day=weekday, workout=self.workout)
 
-        response = self.client.get(reverse("worksheet:create"), follow=True)
+        response = self.client.post(reverse("worksheet:create"), follow=True)
 
         # TODO Split into two tests: one for checking creation, one for
         # checking display

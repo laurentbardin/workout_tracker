@@ -3,10 +3,27 @@
 {% block content %}
 
 <h1>This is the index</h1>
-{% if workout is None %}
-<p>No workout today!</p>
+{% if active_worksheets %}
+    <p>Found some workouts still in progress:</p>
+    <ul>
+        {% for worksheet in active_worksheets %}
+        <li>{{ worksheet.date }}: <a href="{% url 'worksheet:worksheet' worksheet.date.year worksheet.date.month worksheet.date.day %}">{{ worksheet.workout }}</a></li>
+        {% endfor %}
+    </ul>
+{% elif workout is None %}
+    <p>No workout today!</p>
 {% else %}
-<p>Today's workout: {{ workout.name }}. <a href="{% url 'worksheet:create' %}">Start!</a></p>
+    <p>Today's workout: {{ workout.name }}.</p>
+    {% with workout.worksheet as worksheet %}
+    {% if worksheet %}
+    <p><a href="{% url 'worksheet:worksheet' worksheet.date.year worksheet.date.month worksheet.date.day %}">Continue</a></p>
+    {% else %}
+    <form action="{% url 'worksheet:create' %}" method="POST">
+        {% csrf_token %}
+        <button type="submit">Start!</button></p>
+    </form>
+    {% endif %}
+    {% endwith %}
 {% endif %}
 
 {% endblock content %}

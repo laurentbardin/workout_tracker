@@ -33,11 +33,13 @@ class WorksheetMixin(ProgramSetupMixin):
     This class contains facilities to create and update a worksheet associated
     with the workout created during setup.
     """
-    def _create_worksheet(self, done=False):
-        now = timezone.now()
+    def _create_worksheet(self, done=False, started_at=None):
+        if started_at is None:
+            started_at = timezone.now()
+
         worksheet = Worksheet.objects.create(
             workout=self.workout,
-            started_at=now,
+            started_at=started_at,
             done=done
         )
         worksheet.result_set(manager="results").create_all()

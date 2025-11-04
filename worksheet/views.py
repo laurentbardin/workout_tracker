@@ -11,42 +11,44 @@ from .models import Result, Workout, Worksheet
 # Create your views here.
 class Index(TemplateView):
     """
-    The index displays the name of today's workout and a link to go to the
-    current worksheet.
+    The index displays the name of today's workout and either a button to
+    create a new worksheet for the scheduled workout, or a link to any already
+    active worksheet.
     """
     template_name = 'worksheet/index.html'
 
     def render_to_response(self, context, **response_kwargs):
-        weekday = timezone.now().isoweekday()
-        try:
-            workout = Workout.objects.get(schedule__day=weekday)
-        except Workout.DoesNotExist:
-            workout = None
+        active_worksheets = Worksheet.objects.get_active().all()
 
-        context['workout'] = workout
+        if active_worksheets:
+            context['active_worksheets'] = active_worksheets
+        else:
+            weekday = timezone.now().isoweekday()
+            try:
+                workout = Workout.objects.get(schedule__day=weekday)
+                workout.worksheet = workout.worksheet_set.filter(
+                    date=timezone.localdate(),
+                    done=False,
+                ).first()
+            except Workout.DoesNotExist:
+                workout = None
+
+            context['workout'] = workout
 
         return super().render_to_response(context, **response_kwargs)
 
-class CreateView(TemplateView):
+class CreateView(View):
     """
-    The current workout page checks if workouts are still in progress. If there
-    are, it offers to close them by pointing to their specific page. In case
-    there are none, it checks if a workout is scheduled for today: if that's
-    the case, it creates a worksheet and redirects to its page; otherwise, it
-    redirects to the index page.
+    Simple view to create a worksheet for the current day, if a workout is
+    scheduled.
     """
-    template_name = 'worksheet/worksheet.html'
+    def post(self, request, *args, **kwargs):
+        # If there's an older, active worksheet, bail and redirect to the index
+        # where it will be listed
+        if Worksheet.objects.get_active().exists():
+            return HttpResponseRedirect(reverse('worksheet:index'))
 
-    # TODO change this to a POST-only view:
-    # * inherit from View
-    # * modify the link on the index to become a button to submit a form
-    def render_to_response(self, context, **response_kwargs):
-        active_worksheets = Worksheet.objects.get_active().count()
-
-        if active_worksheets > 0:
-            context['active_worksheets'] = Worksheet.objects.get_active().select_related('workout')
-            return super().render_to_response(context, **response_kwargs)
-
+        # Likewise if no workout is schedule for today
         weekday = timezone.now().isoweekday()
         try:
             workout = Workout.objects.get(schedule__day=weekday)
