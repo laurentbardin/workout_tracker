@@ -1,4 +1,4 @@
-{% extends 'workout/base.html' %}
+{% extends 'worksheet/base.html' %}
 
 {% block content %}
 
@@ -6,7 +6,7 @@
 {% if workout is None %}
 <p>No workout today!</p>
 {% else %}
-<p>Today's workout: {{ workout.name }}. <a href="{% url 'workout:create' %}">Start!</a></p>
+<p>Today's workout: {{ workout.name }}. <a href="{% url 'worksheet:create' %}">Start!</a></p>
 {% endif %}
 
 {% endblock content %}

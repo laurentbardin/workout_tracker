@@ -117,7 +117,7 @@ class Worksheet(models.Model):
         return self
 
     def get_absolute_url(self):
-        return reverse("workout:workout", args=[self.date.year, self.date.month, self.date.day])
+        return reverse("worksheet:worksheet", args=[self.date.year, self.date.month, self.date.day])
 
     class Meta:
         constraints = [

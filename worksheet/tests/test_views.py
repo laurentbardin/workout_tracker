@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from workout.models import (
+from worksheet.models import (
     Exercise, Program, Workout, Worksheet, Schedule,
 )
 
@@ -49,7 +49,7 @@ class WorksheetMixin(ProgramSetupMixin):
 
     def _update_worksheet(self, worksheet, *, reps, weights):
         response = self.client.post(
-            reverse("workout:workout", kwargs={
+            reverse("worksheet:worksheet", kwargs={
                 'year': worksheet.date.year,
                 'month': worksheet.date.month,
                 'day': worksheet.date.day,
@@ -69,7 +69,7 @@ class IndexViewTests(TestCase):
         The index page does not offer to start a workout when none are
         scheduled for the current day.
         """
-        response = self.client.get(reverse("workout:index"))
+        response = self.client.get(reverse("worksheet:index"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "No workout today!")
 
@@ -85,7 +85,7 @@ class IndexViewTests(TestCase):
         today = timezone.now().isoweekday()
         Schedule.objects.create(day=today, workout=workout)
 
-        response = self.client.get(reverse("workout:index"))
+        response = self.client.get(reverse("worksheet:index"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Today's workout: Test workout")
 
@@ -95,7 +95,7 @@ class CurrentViewTest(ProgramSetupMixin, TestCase):
         It isn't possible to create a workout when none are scheduled for the
         current day.
         """
-        response = self.client.get(reverse("workout:create"), follow=True)
+        response = self.client.get(reverse("worksheet:create"), follow=True)
 
         self.assertEqual(len(response.redirect_chain), 1)
         self.assertEqual(response.status_code, 200)
@@ -113,7 +113,7 @@ class CurrentViewTest(ProgramSetupMixin, TestCase):
         weekday = now.isoweekday()
         Schedule.objects.create(day=weekday, workout=self.workout)
 
-        response = self.client.get(reverse("workout:create"), follow=True)
+        response = self.client.get(reverse("worksheet:create"), follow=True)
 
         # TODO Split into two tests: one for checking creation, one for
         # checking display
@@ -139,7 +139,7 @@ class CloseViewTest(WorksheetMixin, TestCase):
         worksheet = self._create_worksheet()
 
         response = self.client.post(reverse(
-            "workout:close",
+            "worksheet:close",
             kwargs={'worksheet_id': worksheet.id},
         ))
         self.assertEqual(response.status_code, 302)
@@ -154,7 +154,7 @@ class CloseViewTest(WorksheetMixin, TestCase):
         worksheet = self._create_worksheet()
 
         self.client.post(reverse(
-            "workout:close",
+            "worksheet:close",
             kwargs={'worksheet_id': worksheet.id},
         ))
 
@@ -163,7 +163,7 @@ class CloseViewTest(WorksheetMixin, TestCase):
         self.assertIsInstance(ended_at, datetime.datetime)
 
         self.client.post(reverse(
-            "workout:close",
+            "worksheet:close",
             kwargs={'worksheet_id': worksheet.id},
         ))
 

@@ -3,7 +3,7 @@ import datetime
 from django.test import TestCase
 from django.utils import timezone
 
-from workout.models import Exercise, Program, Workout, Worksheet
+from worksheet.models import Exercise, Program, Workout, Worksheet
 
 class WorksheetManagerTests(TestCase):
     @classmethod

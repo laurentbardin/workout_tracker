@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('workout', '0003_remove_worksheet_in_progress_worksheet_done'),
+        ('worksheet', '0003_remove_worksheet_in_progress_worksheet_done'),
     ]
 
     operations = [

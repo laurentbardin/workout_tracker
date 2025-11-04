@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('workout', '0002_worksheet_unique_worsheet_per_day'),
+        ('worksheet', '0002_worksheet_unique_worsheet_per_day'),
     ]
 
     operations = [

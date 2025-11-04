@@ -14,7 +14,7 @@ class Index(TemplateView):
     The index displays the name of today's workout and a link to go to the
     current worksheet.
     """
-    template_name = 'workout/index.html'
+    template_name = 'worksheet/index.html'
 
     def render_to_response(self, context, **response_kwargs):
         weekday = timezone.now().isoweekday()
@@ -35,7 +35,7 @@ class CreateView(TemplateView):
     the case, it creates a worksheet and redirects to its page; otherwise, it
     redirects to the index page.
     """
-    template_name = 'workout/worksheet.html'
+    template_name = 'worksheet/worksheet.html'
 
     # TODO change this to a POST-only view:
     # * inherit from View
@@ -51,7 +51,7 @@ class CreateView(TemplateView):
         try:
             workout = Workout.objects.get(schedule__day=weekday)
         except Workout.DoesNotExist:
-            return HttpResponseRedirect(reverse('workout:index'))
+            return HttpResponseRedirect(reverse('worksheet:index'))
 
         worksheet, _ = Worksheet.objects.get_or_create(
             workout=workout,
@@ -59,15 +59,15 @@ class CreateView(TemplateView):
         )
 
         return HttpResponseRedirect(reverse(
-            'workout:workout',
+            'worksheet:worksheet',
             args=[ worksheet.date.year, worksheet.date.month, worksheet.date.day, ]
         ))
 
-class WorkoutView(TemplateView):
+class WorksheetView(TemplateView):
     """
-    Show or update a workout for a specific date.
+    Show or update a worksheet for a specific date.
     """
-    template_name = 'workout/workout.html'
+    template_name = 'worksheet/workout.html'
 
     def render_to_response(self, context, **response_kwargs):
         worksheet, results, date = self._get_worksheet_and_results(context)
@@ -98,11 +98,11 @@ class WorkoutView(TemplateView):
         worksheet, results, date = self._get_worksheet_and_results(context)
 
         if worksheet is None:
-            return HttpResponseRedirect(reverse('workout:index'))
+            return HttpResponseRedirect(reverse('worksheet:index'))
 
         if worksheet.done:
             return HttpResponseRedirect(reverse(
-                'workout:workout',
+                'worksheet:worksheet',
                 args=[date.year, date.month, date.day],
             ))
 
@@ -152,7 +152,7 @@ class WorkoutView(TemplateView):
             self._get_previous_results(worksheet, results)
 
             if worksheet.done:
-                self.template_name = 'workout/workout_done.html'
+                self.template_name = 'worksheet/workout_done.html'
 
         return worksheet, results, date
 
@@ -189,4 +189,4 @@ class CloseAction(View):
         except Worksheet.DoesNotExist:
             pass
 
-        return HttpResponseRedirect(reverse('workout:index'))
+        return HttpResponseRedirect(reverse('worksheet:index'))

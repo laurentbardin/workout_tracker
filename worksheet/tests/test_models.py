@@ -2,7 +2,7 @@ import datetime
 
 from django.test import TestCase
 
-from workout.models import Workout, Worksheet
+from worksheet.models import Workout, Worksheet
 
 class WorkoutModelTests(TestCase):
     def test_close_worksheet(self):

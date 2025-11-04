@@ -1,4 +1,4 @@
-from workout.models import (
+from worksheet.models import (
     Exercise, Program, Workout,
 )
 

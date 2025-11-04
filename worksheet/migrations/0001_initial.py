@@ -26,7 +26,7 @@ class Migration(migrations.Migration):
             name='Program',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('exercise', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='workout.exercise')),
+                ('exercise', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='worksheet.exercise')),
             ],
         ),
         migrations.CreateModel(
@@ -35,7 +35,7 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=50)),
                 ('repeat', models.BooleanField(default=False, verbose_name='Repeat workout exercises?')),
-                ('exercises', models.ManyToManyField(through='workout.Program', to='workout.exercise')),
+                ('exercises', models.ManyToManyField(through='worksheet.Program', to='worksheet.exercise')),
             ],
         ),
         migrations.CreateModel(
@@ -43,13 +43,13 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('day', models.SmallIntegerField(choices=[(1, 'Monday'), (2, 'Tuesday'), (3, 'Wednesday'), (4, 'Thursday'), (5, 'Friday'), (6, 'Saturday'), (7, 'Sunday')])),
-                ('workout', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='workout.workout')),
+                ('workout', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='worksheet.workout')),
             ],
         ),
         migrations.AddField(
             model_name='program',
             name='workout',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='workout.workout'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='worksheet.workout'),
         ),
         migrations.CreateModel(
             name='Worksheet',
@@ -59,7 +59,7 @@ class Migration(migrations.Migration):
                 ('started_at', models.DateTimeField(auto_now_add=True)),
                 ('ended_at', models.DateTimeField(blank=True, null=True)),
                 ('date', models.GeneratedField(db_persist=True, expression=django.db.models.functions.datetime.TruncDate(models.F('started_at')), output_field=models.DateField())),
-                ('workout', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='workout.workout')),
+                ('workout', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='worksheet.workout')),
             ],
         ),
         migrations.AlterOrderWithRespectTo(
@@ -72,8 +72,8 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('reps', models.SmallIntegerField(validators=[django.core.validators.MinValueValidator(0)])),
                 ('weight', models.SmallIntegerField(blank=True, null=True, validators=[django.core.validators.MinValueValidator(0)])),
-                ('exercise', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='workout.exercise')),
-                ('worksheet', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='workout.worksheet')),
+                ('exercise', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='worksheet.exercise')),
+                ('worksheet', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='worksheet.worksheet')),
             ],
             options={
                 'order_with_respect_to': 'worksheet',

@@ -1,4 +1,4 @@
-{% extends 'workout/workout_base.html' %}
+{% extends 'worksheet/workout_base.html' %}
 
 {% block workout_results %}
 {% regroup results by exercise.name as exercise_list %}
@@ -45,7 +45,7 @@
 {% endblock %}
 
 {% block workout_form %}
-<form action="{% url 'workout:close' worksheet.id %}" method="POST">
+<form action="{% url 'worksheet:close' worksheet.id %}" method="POST">
     {% csrf_token %}
     <input type="submit" value="Close">
 </form>
