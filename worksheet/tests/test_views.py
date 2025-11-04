@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from worksheet.models import (
-    Workout, Worksheet, Schedule,
+    Worksheet, Schedule,
 )
 from worksheet.tests.mixins import ProgramSetupMixin, WorksheetMixin
 

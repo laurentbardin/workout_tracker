@@ -69,7 +69,7 @@ class WorksheetView(TemplateView):
     """
     Show or update a worksheet for a specific date.
     """
-    template_name = 'worksheet/workout.html'
+    template_name = 'worksheet/worksheet.html'
 
     def render_to_response(self, context, **response_kwargs):
         worksheet, results, date = self._get_worksheet_and_results(context)
@@ -154,7 +154,7 @@ class WorksheetView(TemplateView):
             self._get_previous_results(worksheet, results)
 
             if worksheet.done:
-                self.template_name = 'worksheet/workout_done.html'
+                self.template_name = 'worksheet/worksheet_done.html'
 
         return worksheet, results, date
 
