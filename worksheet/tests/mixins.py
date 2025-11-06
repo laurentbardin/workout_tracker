@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.urls import reverse
 from django.utils import timezone
 
@@ -28,20 +29,28 @@ class ProgramSetupMixin:
         for ex in exercises:
             Program.objects.create(workout=workout, exercise=ex)
 
+        timezone.activate(getattr(settings, "CURRENT_TIME_ZONE", settings.TIME_ZONE))
+
 class WorksheetMixin(ProgramSetupMixin):
     """
     This class contains facilities to create and update a worksheet associated
     with the workout created during setup.
     """
-    def _create_worksheet(self, done=False, started_at=None):
-        if started_at is None:
-            started_at = timezone.now()
+    def _create_worksheet(self, started_at=None, done=False):
+        fields = {
+            'workout': self.workout,
+            'done': done,
+        }
 
-        worksheet = Worksheet.objects.create(
-            workout=self.workout,
-            started_at=started_at,
-            done=done
-        )
+        if started_at is None:
+            fields['date'] = timezone.localdate()
+        else:
+            fields.update({
+                'started_at': started_at,
+                'date': timezone.localdate(started_at),
+            })
+
+        worksheet = Worksheet.objects.create(**fields)
         worksheet.result_set(manager="results").create_all()
 
         return worksheet

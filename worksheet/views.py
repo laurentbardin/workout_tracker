@@ -23,7 +23,7 @@ class Index(TemplateView):
         if active_worksheets:
             context['active_worksheets'] = active_worksheets
         else:
-            weekday = timezone.now().isoweekday()
+            weekday = timezone.localdate().isoweekday()
             try:
                 workout = Workout.objects.get(schedule__day=weekday)
                 workout.worksheet = workout.worksheet_set.filter(
@@ -48,8 +48,8 @@ class CreateView(View):
         if Worksheet.objects.get_active().exists():
             return HttpResponseRedirect(reverse('worksheet:index'))
 
-        # Likewise if no workout is schedule for today
-        weekday = timezone.now().isoweekday()
+        # Likewise if no workout is scheduled for today
+        weekday = timezone.localdate().isoweekday()
         try:
             workout = Workout.objects.get(schedule__day=weekday)
         except Workout.DoesNotExist:

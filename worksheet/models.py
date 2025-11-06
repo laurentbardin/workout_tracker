@@ -3,8 +3,6 @@ from itertools import batched
 from django.contrib import admin
 from django.core import validators
 from django.db import models
-from django.db.models import F
-from django.db.models.functions import TruncDate
 from django.urls import reverse
 from django.utils import timezone
 
@@ -96,11 +94,7 @@ class Worksheet(models.Model):
     done = models.BooleanField(default=False)
     started_at = models.DateTimeField(default=timezone.now)
     ended_at = models.DateTimeField(blank=True, null=True)
-    date = models.GeneratedField(
-        expression=TruncDate(F("started_at")),
-        output_field=models.DateField(),
-        db_persist=True
-    )
+    date = models.DateField(default=timezone.localdate)
 
     objects = WorksheetManager()
 

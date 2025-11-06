@@ -10,7 +10,7 @@ class WorksheetManager(models.Manager):
         none is specified, use today.
         """
         if before is None or not isinstance(before, (datetime.datetime, datetime.date)):
-            before = timezone.now().date()
+            before = timezone.localdate()
 
         return super().get_queryset().filter(done=False, date__lt=before)
 

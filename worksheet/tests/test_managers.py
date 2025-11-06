@@ -1,5 +1,6 @@
 import datetime
 
+from django.conf import settings
 from django.test import TestCase
 from django.utils import timezone
 
@@ -20,6 +21,8 @@ class WorksheetManagerTests(TestCase):
         for ex in exercises:
             Program.objects.create(workout=workout, exercise=ex)
 
+        timezone.activate(getattr(settings, "CURRENT_TIME_ZONE", settings.TIME_ZONE))
+
     def test_no_previously_active_worksheets(self):
         worksheet = self._create_worksheet()
 
@@ -30,7 +33,7 @@ class WorksheetManagerTests(TestCase):
         )
 
     def test_previously_active_worksheets(self):
-        now = timezone.now()
+        now = timezone.localtime()
         self._create_worksheet(started_at=now)
         self._create_worksheet(started_at=now + datetime.timedelta(days=1))
         self._create_worksheet(started_at=now - datetime.timedelta(days=1))
@@ -38,18 +41,24 @@ class WorksheetManagerTests(TestCase):
 
         self.assertEqual(Worksheet.objects.count(), 4)
         self.assertEqual(
-            Worksheet.objects.get_active(before=now).count(),
+            Worksheet.objects.get_active().count(),
             2
         )
 
     def _create_worksheet(self, started_at=None, done=False):
-        if started_at is None:
-            started_at = timezone.now()
+        fields = {
+            'workout': self.workout,
+            'done': done,
+        }
 
-        worksheet = Worksheet.objects.create(
-            workout=self.workout,
-            started_at=started_at,
-            done=done
-        )
+        if started_at is None:
+            fields['date'] = timezone.localdate()
+        else:
+            fields.update({
+                'started_at': started_at,
+                'date': timezone.localdate(started_at),
+            })
+
+        worksheet = Worksheet.objects.create(**fields)
 
         return worksheet

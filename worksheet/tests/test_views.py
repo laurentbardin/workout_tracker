@@ -24,7 +24,7 @@ class IndexViewTests(WorksheetMixin, TestCase):
         The index page offers to start a workout when one is scheduled for the
         current day.
         """
-        today = timezone.now().isoweekday()
+        today = timezone.localtime().isoweekday()
         Schedule.objects.create(day=today, workout=self.workout)
 
         response = self.client.get(reverse("worksheet:index"))
@@ -37,10 +37,10 @@ class IndexViewTests(WorksheetMixin, TestCase):
         The index page offers to continue the current workout if it's already
         been started.
         """
-        today = timezone.now().isoweekday()
+        today = timezone.localtime().isoweekday()
         Schedule.objects.create(day=today, workout=self.workout)
 
-        worksheet = self._create_worksheet(started_at=timezone.now())
+        worksheet = self._create_worksheet()
 
         response = self.client.get(reverse("worksheet:index"))
         self.assertEqual(response.status_code, 200)
@@ -53,7 +53,7 @@ class IndexViewTests(WorksheetMixin, TestCase):
         The index page doesn't offer to create a worksheet if any active one
         already exists.
         """
-        today = timezone.now().isoweekday()
+        today = timezone.localtime().isoweekday()
         Schedule.objects.create(day=today, workout=self.workout)
 
         worksheet = self._create_worksheet(
@@ -85,11 +85,13 @@ class CurrentViewTest(ProgramSetupMixin, TestCase):
         alongside its Result entries, and the user should be redirected to its
         detail page.
         """
-        now = timezone.now()
+        now = timezone.localtime()
         weekday = now.isoweekday()
+        date = now.date()
         Schedule.objects.create(day=weekday, workout=self.workout)
 
         response = self.client.post(reverse("worksheet:create"), follow=True)
+        ws = Worksheet.objects.get(workout=self.workout, done=False)
 
         # TODO Split into two tests: one for checking creation, one for
         # checking display
@@ -103,6 +105,7 @@ class CurrentViewTest(ProgramSetupMixin, TestCase):
 
         worksheet = Worksheet.objects.get(
             workout=self.workout,
+            date=date,
             done=False,
         )
         self.assertEqual(worksheet.result_set.count(), 4)
