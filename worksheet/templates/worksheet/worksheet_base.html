@@ -23,7 +23,18 @@
     </tbody>
 </table>
 
-{% block workout_form %}{% endblock %}
+{% block workout_form %}
+{% if not worksheet.done %}
+<form action="{% url 'worksheet:close' worksheet.id %}" method="POST">
+    {% csrf_token %}
+    <input type="submit" value="Close">
+</form>
+<form action="" method="POST" id="resultForm">
+    {% csrf_token %}
+    <input type="submit" value="Submit results">
+</form>
+{% endif %}
+{% endblock %}
 
 {% endif %}
 

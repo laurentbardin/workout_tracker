@@ -77,11 +77,14 @@ class WorksheetView(TemplateView):
         if worksheet is None:
             context['date'] = date
         else:
+
+            if worksheet.workout.repeat:
+                self.template_name = 'worksheet/worksheet_repeat.html'
+
             context.update({
                 'worksheet': worksheet,
                 'results': results,
             })
-
 
         return super().render_to_response(context, **response_kwargs)
 
@@ -153,18 +156,20 @@ class WorksheetView(TemplateView):
             results = self._get_results(worksheet)
             self._get_previous_results(worksheet, results)
 
-            if worksheet.done:
-                self.template_name = 'worksheet/worksheet_done.html'
-
         return worksheet, results, date
 
     def _get_results(self, worksheet):
-        return worksheet.result_set.order_by(
-            "exercise__program",
-            "_order"
-        ).filter(
-            exercise__workout=worksheet.workout
-        ).select_related("exercise").all()
+        qs = worksheet.result_set.select_related('exercise')
+
+        if worksheet.workout.repeat:
+            qs = qs.order_by(
+                "exercise__program",
+                "_order"
+            ).filter(
+                exercise__workout=worksheet.workout
+            )
+
+        return qs.all()
 
     def _get_previous_results(self, worksheet, results):
         """
