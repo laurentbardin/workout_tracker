@@ -1,0 +1,16 @@
+form {
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    min-width: 0;
+}
+
+table {
+    th + td, td + td {
+        border-left: 1px solid var(--color-bg-secondary);
+    }
+
+    form {
+        padding: 0;
+    }
+}

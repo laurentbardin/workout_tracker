@@ -27,7 +27,7 @@
 {% if not worksheet.done %}
 <form action="" method="POST" id="resultForm">
     {% csrf_token %}
-    <input type="submit" value="Submit results">
+    <input type="submit" value="Save results">
 </form>
 <form action="{% url 'worksheet:close' worksheet.id %}" method="POST">
     {% csrf_token %}

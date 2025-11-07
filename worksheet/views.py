@@ -23,17 +23,19 @@ class Index(TemplateView):
         if active_worksheets:
             context['active_worksheets'] = active_worksheets
         else:
-            weekday = timezone.localdate().isoweekday()
+            localdate = timezone.localdate()
+            weekday = localdate.isoweekday()
             try:
                 workout = Workout.objects.get(schedule__day=weekday)
                 workout.worksheet = workout.worksheet_set.filter(
-                    date=timezone.localdate(),
+                    date=localdate,
                     done=False,
                 ).first()
             except Workout.DoesNotExist:
                 workout = None
 
             context['workout'] = workout
+            context['localdate'] = localdate
 
         return super().render_to_response(context, **response_kwargs)
 

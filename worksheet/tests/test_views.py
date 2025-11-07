@@ -29,7 +29,8 @@ class IndexViewTests(WorksheetMixin, TestCase):
 
         response = self.client.get(reverse("worksheet:index"))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Today's workout: Test workout")
+        self.assertContains(response, "Today's Workout")
+        self.assertContains(response, "Test workout")
         self.assertContains(response, "Start")
 
     def test_workout_already_started(self):
@@ -44,7 +45,8 @@ class IndexViewTests(WorksheetMixin, TestCase):
 
         response = self.client.get(reverse("worksheet:index"))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Today's workout: Test workout")
+        self.assertContains(response, "Today's Workout")
+        self.assertContains(response, "Test workout")
         self.assertContains(response, "Continue")
         self.assertContains(response, worksheet.get_absolute_url())
 
