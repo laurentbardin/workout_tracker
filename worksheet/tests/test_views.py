@@ -91,7 +91,6 @@ class CurrentViewTest(ProgramSetupMixin, TestCase):
         Schedule.objects.create(day=weekday, workout=self.workout)
 
         response = self.client.post(reverse("worksheet:create"), follow=True)
-        ws = Worksheet.objects.get(workout=self.workout, done=False)
 
         # TODO Split into two tests: one for checking creation, one for
         # checking display
