@@ -7,7 +7,7 @@
     <p>Found some workouts still in progress:</p>
     <ul>
         {% for worksheet in active_worksheets %}
-        <li>{{ worksheet.date }}: <a href="{% url 'worksheet:worksheet' worksheet.date.year worksheet.date.month worksheet.date.day %}">{{ worksheet.workout }}</a></li>
+        <li>{{ worksheet.date }}: <a href="{{ worksheet.get_absolute_url }}">{{ worksheet.workout }}</a></li>
         {% endfor %}
     </ul>
 {% elif workout is None %}
@@ -16,7 +16,7 @@
     <p>Today's workout: {{ workout.name }}.</p>
     {% with workout.worksheet as worksheet %}
     {% if worksheet %}
-    <p><a href="{% url 'worksheet:worksheet' worksheet.date.year worksheet.date.month worksheet.date.day %}">Continue</a></p>
+    <p><a href="{{ worksheet.get_absolute_url }}">Continue</a></p>
     {% else %}
     <form action="{% url 'worksheet:create' %}" method="POST">
         {% csrf_token %}
