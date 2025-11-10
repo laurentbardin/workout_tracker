@@ -3,6 +3,7 @@ from itertools import batched
 from django.contrib import admin
 from django.core import validators
 from django.db import models
+from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 
@@ -140,3 +141,6 @@ class Result(models.Model):
 
     class Meta:
         order_with_respect_to = "worksheet"
+        constraints = [
+            models.CheckConstraint(condition=Q(reps__gte=0) & Q(weight__gte=0), name="reps_and_weight_positive"),
+        ]
