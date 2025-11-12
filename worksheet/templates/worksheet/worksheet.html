@@ -11,7 +11,7 @@
                 {{ result.reps|default:0 }}
             {% else %}
                 <input type="hidden" name="result" value="{{ result.id }}" form="resultForm">
-                <input type="number" name="reps" value="{{ result.reps|default:0 }}" form="resultForm">
+                <input type="text" name="reps" inputmode="numeric" pattern="\d+" title="a positive number, or 0" value="{{ result.reps|default:0 }}" form="resultForm" required>
                 {% for msg in result.errors.reps %}
                     <br><small>{{ msg }}</small>
                 {% endfor %}
@@ -23,7 +23,7 @@
                     {{ result.weight|default:0 }} kg
                 {% endif %}
             {% elif result.exercise.weight %}
-                <input type="number" name="weight" value="{{ result.weight|default:'' }}" form="resultForm"> kg
+                <input type="text" name="weight" inputmode="numeric" pattern="\d+" title="a positive number, or nothing" value="{{ result.weight|default:'' }}" form="resultForm"> kg
                 {% for msg in result.errors.weight %}
                 <br><small>{{ msg }}</small>
                 {% endfor %}

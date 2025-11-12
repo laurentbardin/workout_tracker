@@ -1,0 +1,7 @@
+:root {
+    /* https://bulma.io/documentation/features/color-palettes/ */
+    --color-info: hsla(198deg,100%,70%,1);
+    --color-success: hsla(153deg,53%,53%,1);
+    --color-warning: hsla(42deg,100%,53%,1);
+    --color-error: hsla(348deg,100%,70%,1);
+}

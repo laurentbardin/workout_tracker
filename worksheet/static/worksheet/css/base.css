@@ -1,3 +1,5 @@
+@import 'vars.css';
+
 form {
     border: none;
     border-radius: 0;
@@ -6,8 +8,25 @@ form {
 }
 
 table {
+    tbody tr + tr th[rowspan] {
+        border-top: 1px solid var(--color-bg-secondary);
+    }
+
     th + td, td + td {
         border-left: 1px solid var(--color-bg-secondary);
+    }
+
+    input[type="text"] {
+        display: inline;
+        max-width: 2rem;
+
+        &:invalid {
+            border: 1px solid var(--color-error);
+
+            &:focus {
+                outline: 1px solid var(--color-error);
+            }
+        }
     }
 
     form {
