@@ -111,6 +111,12 @@ class Worksheet(models.Model):
 
         return self
 
+    def get_status(self):
+        if self.done:
+            return "done"
+        else:
+            return "in-progress"
+
     def get_absolute_url(self):
         return reverse("worksheet:worksheet", args=[self.date.year, self.date.month, self.date.day])
 

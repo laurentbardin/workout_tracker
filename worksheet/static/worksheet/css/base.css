@@ -32,4 +32,13 @@ table {
     form {
         padding: 0;
     }
+
+    &.in-progress {
+        tr:has(input:focus) {
+            font-weight: bold;
+            input {
+                font-weight: bold;
+            }
+        }
+    }
 }
