@@ -123,7 +123,7 @@ class Worksheet(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["date"], name="unique_worsheet_per_day",
+                fields=["date"], name="unique_worksheet_per_day",
             )
         ]
 
