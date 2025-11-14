@@ -15,8 +15,18 @@
             {% if worksheet.done %}
                 {{ result.reps|default:0 }}
             {% else %}
-                <input type="hidden" name="result" value="{{ result.id }}" form="resultForm">
-                <input type="text" name="reps" inputmode="numeric" pattern="\d+" title="a positive number, or 0" value="{{ result.reps|default:0 }}" form="resultForm" required>
+                <input type="hidden" name="result" value="{{ result.id }}">
+                <input type="text"
+                       name="reps"
+                       inputmode="numeric"
+                       pattern="\d+"
+                       title="a positive number, or 0"
+                       value="{{ result.reps|default:0 }}"
+                       {% if not result.exercise.weight %}
+                       hx-post="{% url 'worksheet:result' worksheet.id %}"
+                       hx-include="closest tr, [name='csrfmiddlewaretoken']"
+                       {% endif %}
+                       required>
                 {% for msg in result.errors.reps %}
                     <br><small>{{ msg }}</small>
                 {% endfor %}
@@ -28,12 +38,18 @@
                     {{ result.weight|default:0 }} kg
                 {% endif %}
             {% elif result.exercise.weight %}
-                <input type="text" name="weight" inputmode="numeric" pattern="\d+" title="a positive number, or nothing" value="{{ result.weight|default:'' }}" form="resultForm"> kg
+                <input type="text"
+                       name="weight"
+                       inputmode="numeric"
+                       pattern="\d+"
+                       title="a positive number, or 0, or nothing"
+                       value="{{ result.weight|default:'' }}"
+                       hx-post="{% url 'worksheet:result' worksheet.id %}"
+                       hx-include="closest tr, [name='csrfmiddlewaretoken']"
+                       > kg
                 {% for msg in result.errors.weight %}
                     <br><small>{{ msg }}</small>
                 {% endfor %}
-            {% else %}
-                <input type="hidden" name="weight" value="" form="resultForm">
             {% endif %}
         </td>
         {% if result.previous %}

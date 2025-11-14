@@ -1,7 +1,7 @@
 import datetime
 
 from django.core.exceptions import ValidationError
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.utils import timezone
 from django.views.generic import TemplateView, View
@@ -202,3 +202,9 @@ class CloseAction(View):
             pass
 
         return HttpResponseRedirect(reverse('worksheet:index'))
+
+class ResultAction(View):
+    def post(self, request, worksheet_id=None):
+        print(f"{request.POST}")
+
+        return HttpResponse('')
