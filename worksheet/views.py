@@ -135,6 +135,9 @@ class WorksheetView(TemplateView):
         if result_errors == 0:
             Result.objects.bulk_update(results, ["reps", "weight"])
 
+        if worksheet.workout.repeat:
+            self.template_name = 'worksheet/worksheet_repeat.html'
+
         context.update({
             'worksheet': worksheet,
             'results': results,
