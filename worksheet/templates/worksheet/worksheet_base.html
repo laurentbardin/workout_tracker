@@ -1,5 +1,7 @@
 {% extends 'worksheet/base.html' %}
 
+{% load static %}
+
 {% block content %}
 
 {% if worksheet is None %}
@@ -39,3 +41,8 @@
 {% endif %}
 
 {% endblock content %}
+
+{% block javascript %}
+    {{ block.super }}
+    <script src="{% static 'worksheet/js/htmx.min.js' %}"></script>
+{% endblock %}

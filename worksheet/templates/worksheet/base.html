@@ -3,12 +3,16 @@
 <html lang="en">
     <head>
         <title>{% block title %}Workout Tracker{% endblock %}</title>
+        {% block stylesheet %}
         <link rel="stylesheet" href="{% static 'worksheet/css/mvp.css' %}" integrity="sha512-85I19RYwIkd1LEzjj64JiNI1TAEcsQk/CWkSVLrGfWMGF7VT3eHGsph/A7M8hkq1OCEjXKswcODKF8hWgcClJg==">
         <link rel="stylesheet" href="{% static 'worksheet/css/base.css' %}">
+        {% endblock %}
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>
         {% block content %}{% endblock %}
+        {% block javascript %}
+        {% endblock %}
     </body>
 </html>
