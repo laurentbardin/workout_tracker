@@ -112,10 +112,7 @@ class Worksheet(models.Model):
         return self
 
     def get_status(self):
-        if self.done:
-            return "done"
-        else:
-            return "in-progress"
+        return "done" if self.done else "in-progress"
 
     def get_absolute_url(self):
         return reverse("worksheet:worksheet", args=[self.date.year, self.date.month, self.date.day])
@@ -144,6 +141,20 @@ class Result(models.Model):
             self.weight = None
 
         return super().clean_fields(exclude)
+
+    def is_filled(self):
+        """
+        Returns false if no full results have yet been submitted for this
+        exercise, true otherwise.
+        """
+        return self.reps is not None and (
+            self.weight is not None
+            or
+            not self.exercise.weight and self.weight is None
+        )
+
+    def get_status(self):
+        return "filled" if self.is_filled() else ''
 
     class Meta:
         order_with_respect_to = "worksheet"
