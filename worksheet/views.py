@@ -205,6 +205,24 @@ class CloseAction(View):
 
 class ResultAction(View):
     def post(self, request, worksheet_id=None):
-        print(f"{request.POST}")
+        result_id = request.POST.get('result', None)
+        reps = request.POST.get('reps', None)
+        weight = request.POST.get('weight', None)
+
+        if not result_id or not reps:
+            print("Missing result ID or reps")
+            return HttpResponse('')
+
+        try:
+            result = Result.objects.filter(worksheet=worksheet_id).get(pk=result_id)
+            result.reps = reps
+            result.weight = weight
+
+            result.clean_fields()
+            result.save(update_fields=["reps", "weight"])
+        except Result.DoesNotExist:
+            print("No result to update")
+        except ValidationError as ve:
+            print(f"Validation error: {ve.message_dict}")
 
         return HttpResponse('')
