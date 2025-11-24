@@ -1,0 +1,51 @@
+<div class="result reps">
+    {% if worksheet.done %}
+        {{ result.reps|default:0 }}
+    {% else %}
+        <input type="hidden" name="result" value="{{ result.id }}" form="resultForm">
+        <input type="text"
+               name="reps"
+               inputmode="numeric"
+               pattern="\d+"
+               title="a positive number, or 0"
+               value="{{ result.reps|default:0 }}"
+               {% if not result.exercise.weight %}
+               hx-post="{% url 'worksheet:result' worksheet.id %}"
+               hx-include="previous input, [name='csrfmiddlewaretoken']"
+               {% endif %}
+               required>
+        {% for msg in result.errors.reps %}
+            {{ msg }}
+        {% endfor %}
+    {% endif %}
+</div>
+<div class="result weight" hx-include="previous .result">
+    {% if result.exercise.weight %}
+        {% if worksheet.done %}
+            {{ result.weight|default:0 }}
+        {% else %}
+            <input type="text"
+                   name="weight"
+                   inputmode="numeric"
+                   pattern="\d+"
+                   title="a positive number, or 0, or nothing"
+                   value="{{ result.weight|default:'' }}"
+                   hx-post="{% url 'worksheet:result' worksheet.id %}"
+                   hx-include="inherit, [name='csrfmiddlewaretoken']"
+                   >
+            {% for msg in result.errors.weight %}
+            {{ msg }}
+            {% endfor %}
+        {% endif %}
+    {% endif %}
+</div>
+{% if result.previous %}
+<div class="result reps previous">
+    {{ result.previous.reps|default:0 }}
+</div>
+<div class="result weight previous">
+    {% if result.exercise.weight %}
+        {{ result.previous.weight|default:0 }}
+    {% endif %}
+</div>
+{% endif %}
