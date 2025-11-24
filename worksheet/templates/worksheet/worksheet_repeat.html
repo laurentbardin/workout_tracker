@@ -3,67 +3,59 @@
 {% block workout_results %}
 {% regroup results by exercise.name as exercise_list %}
 {% for exercise_name, results in exercise_list %}
-    {% with forloop.counter as exercise_number %}
+    <div class="exercise">{{ forloop.counter}}. {{ exercise_name }}</div>
     {% for result in results %}
-    <tr>
-        {% ifchanged exercise_name %}
-        <th scope="row" rowspan="{{ results|length }}">
-            {{ exercise_number }}. {{ exercise_name }}
-        </th>
-        {% endifchanged %}
-        <td>
-            {% if worksheet.done %}
-                {{ result.reps|default:0 }}
-            {% else %}
-                <input type="hidden" name="result" value="{{ result.id }}">
-                <input type="text"
-                       name="reps"
-                       inputmode="numeric"
-                       pattern="\d+"
-                       title="a positive number, or 0"
-                       value="{{ result.reps|default:0 }}"
-                       {% if not result.exercise.weight %}
-                       hx-post="{% url 'worksheet:result' worksheet.id %}"
-                       hx-include="closest tr, [name='csrfmiddlewaretoken']"
-                       {% endif %}
-                       required>
-                {% for msg in result.errors.reps %}
-                    <br><small>{{ msg }}</small>
-                {% endfor %}
-            {% endif %}
-        </td>
-        <td>
-            {% if worksheet.done %}
-                {% if result.exercise.weight %}
-                    {{ result.weight|default:0 }} kg
-                {% endif %}
-            {% elif result.exercise.weight %}
-                <input type="text"
-                       name="weight"
-                       inputmode="numeric"
-                       pattern="\d+"
-                       title="a positive number, or 0, or nothing"
-                       value="{{ result.weight|default:'' }}"
-                       hx-post="{% url 'worksheet:result' worksheet.id %}"
-                       hx-include="closest tr, [name='csrfmiddlewaretoken']"
-                       > kg
-                {% for msg in result.errors.weight %}
-                    <br><small>{{ msg }}</small>
-                {% endfor %}
-            {% endif %}
-        </td>
-        {% if result.previous %}
-        <td>
-            {{ result.previous.reps|default:0 }}
-        </td>
-        <td>
-            {% if result.exercise.weight %}
-            {{ result.previous.weight|default:0 }} kg
-            {% endif %}
-        </td>
+    <div class="result reps">
+        {% if worksheet.done %}
+            {{ result.reps|default:0 }}
+        {% else %}
+            <input type="hidden" name="result" value="{{ result.id }}">
+            <input type="text"
+                   name="reps"
+                   inputmode="numeric"
+                   pattern="\d+"
+                   title="a positive number, or 0"
+                   value="{{ result.reps|default:0 }}"
+                   {% if not result.exercise.weight %}
+                   hx-post="{% url 'worksheet:result' worksheet.id %}"
+                   hx-include="previous input, [name='csrfmiddlewaretoken']"
+                   {% endif %}
+                   required>
+            {% for msg in result.errors.reps %}
+            {{ msg }}
+            {% endfor %}
         {% endif %}
-    </tr>
+    </div>
+    <div class="result weight" hx-include="previous .result">
+    {% if result.exercise.weight %}
+        {% if worksheet.done %}
+            {{ result.weight|default:0 }}
+        {% else %}
+            <input type="text"
+                   name="weight"
+                   inputmode="numeric"
+                   pattern="\d+"
+                   title="a positive number, or 0, or nothing"
+                   value="{{ result.weight|default:'' }}"
+                   hx-post="{% url 'worksheet:result' worksheet.id %}"
+                   hx-include="inherit, [name='csrfmiddlewaretoken']"
+                   >
+            {% for msg in result.errors.weight %}
+            {{ msg }}
+            {% endfor %}
+        {% endif %}
+    {% endif %}
+    </div>
+    {% if result.previous %}
+    <div class="result reps previous">
+        {{ result.previous.reps|default:0 }}
+    </div>
+    <div class="result weight previous">
+    {% if result.exercise.weight %}
+        {{ result.previous.weight|default:0 }}
+    {% endif %}
+    </div>
+    {% endif %}
     {% endfor %}
-    {% endwith %}
 {% endfor %}
 {% endblock %}
