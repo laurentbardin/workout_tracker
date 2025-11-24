@@ -27,33 +27,33 @@
         {% endif %}
     </div>
     <div class="result weight" hx-include="previous .result">
-    {% if result.exercise.weight %}
-        {% if worksheet.done %}
-            {{ result.weight|default:0 }}
-        {% else %}
-            <input type="text"
-                   name="weight"
-                   inputmode="numeric"
-                   pattern="\d+"
-                   title="a positive number, or 0, or nothing"
-                   value="{{ result.weight|default:'' }}"
-                   hx-post="{% url 'worksheet:result' worksheet.id %}"
-                   hx-include="inherit, [name='csrfmiddlewaretoken']"
-                   >
-            {% for msg in result.errors.weight %}
-            {{ msg }}
-            {% endfor %}
+        {% if result.exercise.weight %}
+            {% if worksheet.done %}
+                {{ result.weight|default:0 }}
+            {% else %}
+                <input type="text"
+                       name="weight"
+                       inputmode="numeric"
+                       pattern="\d+"
+                       title="a positive number, or 0, or nothing"
+                       value="{{ result.weight|default:'' }}"
+                       hx-post="{% url 'worksheet:result' worksheet.id %}"
+                       hx-include="inherit, [name='csrfmiddlewaretoken']"
+                       >
+                {% for msg in result.errors.weight %}
+                {{ msg }}
+                {% endfor %}
+            {% endif %}
         {% endif %}
-    {% endif %}
     </div>
     {% if result.previous %}
     <div class="result reps previous">
         {{ result.previous.reps|default:0 }}
     </div>
     <div class="result weight previous">
-    {% if result.exercise.weight %}
-        {{ result.previous.weight|default:0 }}
-    {% endif %}
+        {% if result.exercise.weight %}
+            {{ result.previous.weight|default:0 }}
+        {% endif %}
     </div>
     {% endif %}
     {% endfor %}

@@ -9,12 +9,12 @@
 {% else %}
 <h1>Workout for {{ worksheet.date }}: {{ worksheet.workout }}</h1>
 <section class="worksheet {{ worksheet.get_status }}">
-    <div class="header">Exercise</div>
-    <div class="header">Reps</div>
-    <div class="header">Weight (kg)</div>
+    <div class="exercise header">Exercise</div>
+    <div class="reps header">Reps</div>
+    <div class="weight header">Weight (kg)</div>
     {% if results.0.previous %}
-    <div class="header">Previous reps</div>
-    <div class="header">Previous weight (kg)</div>
+    <div class="reps previous header">Previous reps</div>
+    <div class="weight previous header">Previous weight (kg)</div>
     {% endif %}
 
     {% block workout_results %}{% endblock %}
