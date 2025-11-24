@@ -1,4 +1,4 @@
-<div class="result reps">
+<div class="result reps {{ row }}">
     {% if worksheet.done %}
         {{ result.reps|default:0 }}
     {% else %}
@@ -19,7 +19,7 @@
         {% endfor %}
     {% endif %}
 </div>
-<div class="result weight" hx-include="previous .result">
+<div class="result weight {{ row }}" hx-include="previous .result">
     {% if result.exercise.weight %}
         {% if worksheet.done %}
             {{ result.weight|default:0 }}
@@ -40,10 +40,10 @@
     {% endif %}
 </div>
 {% if result.previous %}
-<div class="result reps previous">
+<div class="result reps previous {{ row }}">
     {{ result.previous.reps|default:0 }}
 </div>
-<div class="result weight previous">
+<div class="result weight previous {{ row }}">
     {% if result.exercise.weight %}
         {{ result.previous.weight|default:0 }}
     {% endif %}

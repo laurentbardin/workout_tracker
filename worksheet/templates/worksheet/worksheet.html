@@ -2,7 +2,8 @@
 
 {% block workout_results %}
 {% for result in results %}
-    <div class="exercise">{{ forloop.counter}}. {{ result.exercise.name }}</div>
+    {% cycle 'odd' 'even' as row silent %}
+    <div class="exercise {{ row }}">{{ forloop.counter}}. {{ result.exercise.name }}</div>
     {% include 'worksheet/partials/result_row.html' %}
 {% endfor %}
 {% endblock %}

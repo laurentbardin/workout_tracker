@@ -23,6 +23,10 @@ form {
         margin: 0;
     }
 
+    .even {
+        background-color: var(--color-accent);
+    }
+
     .header {
         font-weight: bold;
         color: var(--color-bg);
