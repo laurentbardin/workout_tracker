@@ -81,25 +81,20 @@ form {
 }
 
 ul.errors {
-	list-style-type: none;
-	padding: 0 1rem;
+    list-style-type: none;
+    padding: 0 1rem;
     margin: 0;
     background-color: #fde6e5;
-	border: 1px solid var(--color-error);
-	border-radius: 8px;
+    border: 1px solid var(--color-error);
+    border-radius: 8px;
     position: relative;
     align-self: start;
-    /*
-    position: absolute;
-    top: 0.5rem;
-    width: auto;
-    */
 
     &::before {
         content: '';
         display: block;
-        background-color: #fde6e5;
-        border: 1px solid var(--color-error);
+        background-color: inherit;
+        border: inherit;
         border-width: 0 0 1px 1px;
         width: 6px;
         height: 6px;
@@ -107,6 +102,5 @@ ul.errors {
         position: absolute;
         top: 10px;
         left: -4px;
-
     }
 }
