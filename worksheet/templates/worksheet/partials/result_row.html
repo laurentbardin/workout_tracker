@@ -1,3 +1,5 @@
+{% load static %}
+
 <div class="result reps {{ row }}">
     {% if worksheet.done %}
         {{ result.reps|default:0 }}
@@ -9,11 +11,11 @@
                pattern="\d+"
                title="a positive number, or 0"
                value="{{ result.reps|default:0 }}"
-               {% if not result.exercise.weight %}
                hx-post="{% url 'worksheet:result' worksheet.id %}"
-               hx-include="previous input, [name='csrfmiddlewaretoken']"
-               hx-target="next .status"
-               {% endif %}
+               hx-include="previous input, {% if result.exercise.weight %}next .weight, {% endif %}[name='csrfmiddlewaretoken']"
+               hx-target="next .status .response"
+               hx-indicator="next .status"
+               hx-validate="true"
                required>
     {% endif %}
 </div>
@@ -30,7 +32,9 @@
                    value="{{ result.weight|default:'' }}"
                    hx-post="{% url 'worksheet:result' worksheet.id %}"
                    hx-include="previous .reps, [name='csrfmiddlewaretoken']"
-                   hx-target="next .status"
+                   hx-target="next .status .response"
+                   hx-indicator="next .status"
+                   hx-validate="true"
                    >
         {% endif %}
     {% endif %}
@@ -46,4 +50,6 @@
 </div>
 {% endif %}
 <div class="result status">
+    <img class="htmx-indicator" src="{% static 'worksheet/img/loader.svg' %}" alt="Loading..." />
+    <div class="response"></div>
 </div>

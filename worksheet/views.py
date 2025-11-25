@@ -214,7 +214,10 @@ class ResultAction(View):
             return HttpResponse('Missing result ID or reps')
 
         try:
-            result = Result.objects.filter(worksheet=worksheet_id).get(pk=result_id)
+            result = Result.objects.filter(
+                worksheet=worksheet_id
+            ).select_related('exercise').get(pk=result_id)
+
             result.reps = reps
             result.weight = weight
 

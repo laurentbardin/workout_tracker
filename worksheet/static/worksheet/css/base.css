@@ -67,6 +67,20 @@ form {
         position: relative;
     }
 
+    .htmx-indicator {
+        opacity: 0;
+        display: none;
+    }
+    .htmx-request.htmx-indicator,
+    .htmx-request .htmx-indicator {
+        opacity: 1;
+        display: inline;
+        transition: opacity 200ms ease-in;
+    }
+    .htmx-request .response {
+        display: none;
+    }
+
     input[type="text"] {
         max-width: 2rem;
 
