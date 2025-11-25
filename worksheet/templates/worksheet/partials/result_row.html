@@ -12,11 +12,9 @@
                {% if not result.exercise.weight %}
                hx-post="{% url 'worksheet:result' worksheet.id %}"
                hx-include="previous input, [name='csrfmiddlewaretoken']"
+               hx-target="next .status"
                {% endif %}
                required>
-        {% for msg in result.errors.reps %}
-            {{ msg }}
-        {% endfor %}
     {% endif %}
 </div>
 <div class="result weight {{ row }}" hx-include="previous .result">
@@ -32,10 +30,8 @@
                    value="{{ result.weight|default:'' }}"
                    hx-post="{% url 'worksheet:result' worksheet.id %}"
                    hx-include="inherit, [name='csrfmiddlewaretoken']"
+                   hx-target="next .status"
                    >
-            {% for msg in result.errors.weight %}
-            {{ msg }}
-            {% endfor %}
         {% endif %}
     {% endif %}
 </div>
@@ -49,3 +45,5 @@
     {% endif %}
 </div>
 {% endif %}
+<div class="result status">
+</div>

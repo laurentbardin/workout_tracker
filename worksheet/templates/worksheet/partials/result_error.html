@@ -1,0 +1,7 @@
+<ul class="errors">
+{% for messages in errors.values %}
+    {% for msg in messages %}
+    <li>{{ msg }}</li>
+    {% endfor %}
+{% endfor %}
+</ul>
