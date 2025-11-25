@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from worksheet.models import (
-    Worksheet, Schedule,
+    Worksheet, Result, Schedule,
 )
 from worksheet.tests.mixins import ProgramSetupMixin, WorksheetMixin
 
@@ -253,3 +253,100 @@ class ResultViewTest(WorksheetMixin, TestCase):
 
     def test_worksheet_show_results_from_previous_same_workout(self):
         pass
+
+class ResultActionTest(WorksheetMixin, TestCase):
+    def test_update_result(self):
+        worksheet = self._create_worksheet()
+        response = self._update_worksheet_result(worksheet,
+                                                 result_id=1,
+                                                 reps=10)
+        result = Result.objects.get(pk=1)
+        self.assertEqual(response.content, '✅'.encode('utf-8'))
+        self.assertEqual(result.reps, 10)
+        self.assertIsNone(result.weight)
+
+        response = self._update_worksheet_result(worksheet,
+                                                 result_id=1,
+                                                 reps=12,
+                                                 weight=6)
+        result.refresh_from_db()
+        self.assertEqual(response.content, '✅'.encode('utf-8'))
+        self.assertEqual(result.reps, 12)
+        self.assertEqual(result.weight, 6)
+
+    def test_update_result_without_reps(self):
+        worksheet = self._create_worksheet()
+        response = self._update_worksheet_result(worksheet,
+                                                 result_id=1,
+                                                 weight=10)
+        result = Result.objects.get(pk=1)
+        self.assertContains(response, 'Missing result ID or reps')
+        self.assertIsNone(result.reps)
+        self.assertIsNone(result.weight)
+
+    def test_update_result_without_id(self):
+        worksheet = self._create_worksheet()
+        response = self._update_worksheet_result(worksheet,
+                                                 reps=10,
+                                                 weight=10)
+        self.assertContains(response, 'Missing result ID or reps')
+
+    def test_update_result_with_negative_values(self):
+        worksheet = self._create_worksheet()
+        response = self._update_worksheet_result(worksheet,
+                                                 result_id=1,
+                                                 reps=-2,
+                                                 weight=10)
+        result = Result.objects.get(pk=1)
+        self.assertContains(response, 'Number of reps cannot be negative')
+        self.assertIsNone(result.reps)
+        self.assertIsNone(result.weight)
+
+        response = self._update_worksheet_result(worksheet,
+                                                 result_id=1,
+                                                 reps=20,
+                                                 weight=-3)
+        result.refresh_from_db()
+        self.assertContains(response, 'Used weight cannot be negative')
+        self.assertIsNone(result.reps)
+        self.assertIsNone(result.weight)
+
+    def test_update_result_with_invalid_values(self):
+        worksheet = self._create_worksheet()
+        response = self._update_worksheet_result(worksheet,
+                                                 result_id=1,
+                                                 reps="foo",
+                                                 weight=10)
+        result = Result.objects.get(pk=1)
+        self.assertContains(response, '“foo” value must be an integer.'.encode('utf-8'))
+        self.assertIsNone(result.reps)
+        self.assertIsNone(result.weight)
+
+        response = self._update_worksheet_result(worksheet,
+                                                 result_id=1,
+                                                 reps=20,
+                                                 weight="bar")
+        result.refresh_from_db()
+        self.assertContains(response, '“bar” value must be an integer.'.encode('utf-8'))
+        self.assertIsNone(result.reps)
+        self.assertIsNone(result.weight)
+
+    def test_update_weightless_exercise_with_weight(self):
+        worksheet = self._create_worksheet()
+        response = self._update_worksheet_result(worksheet,
+                                                 result_id=2,
+                                                 reps=10,
+                                                 weight=10)
+        result = Result.objects.get(pk=2)
+        self.assertEqual(response.content, '✅'.encode('utf-8'))
+        self.assertEqual(result.reps, 10)
+        self.assertIsNone(result.weight)
+
+    def test_update_inexistant_result(self):
+        worksheet = self._create_worksheet()
+        response = self._update_worksheet_result(worksheet,
+                                                 result_id=42,
+                                                 reps=10,
+                                                 weight=10)
+        self.assertContains(response, 'Could not update result 42 for worksheet 1')
+
