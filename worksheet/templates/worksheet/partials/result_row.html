@@ -51,5 +51,16 @@
 {% endif %}
 <div class="result status">
     <img class="htmx-indicator" src="{% static 'worksheet/img/loader.svg' %}" alt="Loading..." />
-    <div class="response"></div>
+    <div class="response">
+    {% if result.errors %}
+        <ul class="errors">
+        {% for msg in result.errors.reps %}
+            <li>{{ msg }}</li>
+        {% endfor %}
+        {% for msg in result.errors.weight %}
+            <li>{{ msg }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+    </div>
 </div>
