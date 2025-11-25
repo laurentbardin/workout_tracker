@@ -17,7 +17,7 @@
                required>
     {% endif %}
 </div>
-<div class="result weight {{ row }}" hx-include="previous .result">
+<div class="result weight {{ row }}">
     {% if result.exercise.weight %}
         {% if worksheet.done %}
             {{ result.weight|default:0 }}
@@ -29,7 +29,7 @@
                    title="a positive number, or 0, or nothing"
                    value="{{ result.weight|default:'' }}"
                    hx-post="{% url 'worksheet:result' worksheet.id %}"
-                   hx-include="inherit, [name='csrfmiddlewaretoken']"
+                   hx-include="previous .reps, [name='csrfmiddlewaretoken']"
                    hx-target="next .status"
                    >
         {% endif %}
