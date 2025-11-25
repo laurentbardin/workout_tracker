@@ -1,0 +1,66 @@
+{% load static %}
+
+<div class="result reps {{ row }}">
+    {% if worksheet.done %}
+        {{ result.reps|default:0 }}
+    {% else %}
+        <input type="hidden" name="result" value="{{ result.id }}" form="resultForm">
+        <input type="text"
+               name="reps"
+               inputmode="numeric"
+               pattern="\d+"
+               title="a positive number, or 0"
+               value="{{ result.reps|default:0 }}"
+               hx-post="{% url 'worksheet:result' worksheet.id %}"
+               hx-include="previous input, {% if result.exercise.weight %}next .weight, {% endif %}[name='csrfmiddlewaretoken']"
+               hx-target="next .status .response"
+               hx-indicator="next .status"
+               hx-validate="true"
+               required>
+    {% endif %}
+</div>
+<div class="result weight {{ row }}">
+    {% if result.exercise.weight %}
+        {% if worksheet.done %}
+            {{ result.weight|default:0 }}
+        {% else %}
+            <input type="text"
+                   name="weight"
+                   inputmode="numeric"
+                   pattern="\d+"
+                   title="a positive number, or 0, or nothing"
+                   value="{{ result.weight|default:'' }}"
+                   hx-post="{% url 'worksheet:result' worksheet.id %}"
+                   hx-include="previous .reps, [name='csrfmiddlewaretoken']"
+                   hx-target="next .status .response"
+                   hx-indicator="next .status"
+                   hx-validate="true"
+                   >
+        {% endif %}
+    {% endif %}
+</div>
+{% if result.previous %}
+<div class="result reps previous {{ row }}">
+    {{ result.previous.reps|default:0 }}
+</div>
+<div class="result weight previous {{ row }}">
+    {% if result.exercise.weight %}
+        {{ result.previous.weight|default:0 }}
+    {% endif %}
+</div>
+{% endif %}
+<div class="result status">
+    <img class="htmx-indicator" src="{% static 'worksheet/img/loader.svg' %}" alt="Loading..." />
+    <div class="response">
+    {% if result.errors %}
+        <ul class="errors">
+        {% for msg in result.errors.reps %}
+            <li>{{ msg }}</li>
+        {% endfor %}
+        {% for msg in result.errors.weight %}
+            <li>{{ msg }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+    </div>
+</div>

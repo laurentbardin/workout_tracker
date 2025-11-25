@@ -1,34 +1,27 @@
 {% extends 'worksheet/base.html' %}
 
+{% load static %}
+
 {% block content %}
 
 {% if worksheet is None %}
 <p>No workout for {{ date }}. <a href="{% url 'worksheet:index' %}">Go back.</a></p>
 {% else %}
-<table class="{{ worksheet.get_status }}">
-    <caption>Workout for {{ worksheet.date }}: {{ worksheet.workout }}</caption>
-    <thead>
-        <tr>
-            <th scope="col">Exercise</th>
-            <th scope="col">Reps</th>
-            <th scope="col">Weight</th>
-            {% if results.0.previous %}
-            <th scope="col">Previous reps</th>
-            <th scope="col">Previous weight</th>
-            {% endif %}
-        </tr>
-    </thead>
-    <tbody>
-        {% block workout_results %}{% endblock %}
-    </tbody>
-</table>
+<h1>Workout for {{ worksheet.date }}: {{ worksheet.workout }}</h1>
+<section class="worksheet {{ worksheet.get_status }}">
+    <div class="exercise header">Exercise</div>
+    <div class="reps header">Reps</div>
+    <div class="weight header">Weight (kg)</div>
+    {% if results.0.previous %}
+    <div class="reps previous header">Previous reps</div>
+    <div class="weight previous header">Previous weight (kg)</div>
+    {% endif %}
+
+    {% block workout_results %}{% endblock %}
+</section>
 
 {% block workout_form %}
 {% if not worksheet.done %}
-<form action="" method="POST" id="resultForm">
-    {% csrf_token %}
-    <input type="submit" value="Save results">
-</form>
 <form action="{% url 'worksheet:close' worksheet.id %}" method="POST">
     {% csrf_token %}
     <input type="submit" value="Close">
@@ -39,3 +32,8 @@
 {% endif %}
 
 {% endblock content %}
+
+{% block javascript %}
+    {{ block.super }}
+    <script src="{% static 'worksheet/js/htmx.min.js' %}"></script>
+{% endblock %}

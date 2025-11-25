@@ -7,17 +7,81 @@ form {
     min-width: 0;
 }
 
-table {
-    tbody tr + tr th[rowspan] {
-        border-top: 1px solid var(--color-bg-secondary);
+.worksheet {
+    display: grid;
+    grid-template-columns: repeat(7, 6rem) minmax(3rem, auto);
+    grid-auto-rows: 3rem;
+    justify-content: var(--justify-normal);
+    margin-left: 2em;
+
+    > * {
+        padding: 0.5em 1em;
+        border: 1px solid var(--color-bg-secondary);
+        border-width: 0 1px 1px 0;
     }
 
-    th + td, td + td {
-        border-left: 1px solid var(--color-bg-secondary);
+    input {
+        margin: 0;
+    }
+
+    .even {
+        background-color: var(--color-accent);
+    }
+
+    .header, .exercise, .result {
+        display: flex;
+        align-items: center;
+    }
+
+    .header {
+        font-weight: bold;
+        color: var(--color-bg);
+        background-color: var(--color-table);
+        border-width: 0;
+        align-items: end;
+        grid-row: span 2;
+    }
+
+    .exercise {
+        grid-column: 1 / span 3;
+    }
+    .exercise:not(.header) {
+        grid-row: span 2;
+        border-left-width: 1px;
+    }
+    .result.reps {
+        grid-column: 4;
+    }
+    .result.weight {
+        grid-column: 5;
+    }
+    .result.reps.previous {
+        grid-column: 6;
+    }
+    .result.weight.previous {
+        grid-column: 7;
+    }
+    .result.status {
+        grid-column: 8;
+        border-width: 0;
+        position: relative;
+    }
+
+    .htmx-indicator {
+        opacity: 0;
+        display: none;
+    }
+    .htmx-request.htmx-indicator,
+    .htmx-request .htmx-indicator {
+        opacity: 1;
+        display: inline;
+        transition: opacity 200ms ease-in;
+    }
+    .htmx-request .response {
+        display: none;
     }
 
     input[type="text"] {
-        display: inline;
         max-width: 2rem;
 
         &:invalid {
@@ -28,17 +92,29 @@ table {
             }
         }
     }
+}
 
-    form {
-        padding: 0;
-    }
+ul.errors {
+    list-style-type: none;
+    padding: 0 1rem;
+    margin: 0;
+    background-color: #fde6e5;
+    border: 1px solid var(--color-error);
+    border-radius: 8px;
+    position: relative;
+    align-self: start;
 
-    &.in-progress {
-        tr:has(input:focus) {
-            font-weight: bold;
-            input {
-                font-weight: bold;
-            }
-        }
+    &::before {
+        content: '';
+        display: block;
+        background-color: inherit;
+        border: inherit;
+        border-width: 0 0 1px 1px;
+        width: 6px;
+        height: 6px;
+        transform: rotate(45deg);
+        position: absolute;
+        top: 10px;
+        left: -4px;
     }
 }

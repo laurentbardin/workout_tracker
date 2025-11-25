@@ -1,7 +1,8 @@
 import datetime
 
 from django.core.exceptions import ValidationError
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import render
 from django.urls import reverse
 from django.utils import timezone
 from django.views.generic import TemplateView, View
@@ -202,3 +203,29 @@ class CloseAction(View):
             pass
 
         return HttpResponseRedirect(reverse('worksheet:index'))
+
+class ResultAction(View):
+    def post(self, request, worksheet_id=None):
+        result_id = request.POST.get('result', None)
+        reps = request.POST.get('reps', None)
+        weight = request.POST.get('weight', None)
+
+        if not result_id or not reps:
+            return HttpResponse('Missing result ID or reps')
+
+        try:
+            result = Result.objects.filter(
+                worksheet=worksheet_id
+            ).select_related('exercise').get(pk=result_id)
+
+            result.reps = reps
+            result.weight = weight
+
+            result.clean_fields()
+            result.save(update_fields=["reps", "weight"])
+        except Result.DoesNotExist:
+            return HttpResponse(f'Could not update result {result_id} for worksheet {worksheet_id}')
+        except ValidationError as ve:
+            return render(request, 'worksheet/partials/result_error.html', {'errors': ve.message_dict})
+
+        return HttpResponse('✅')
