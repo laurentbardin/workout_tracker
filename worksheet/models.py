@@ -134,9 +134,14 @@ class Result(models.Model):
     results = ResultRelatedManager()
 
     def clean_fields(self, exclude=None):
-        if self.weight is not None and not self.exercise.weight:
-            # Prevent any validation issue if a weight is submitted for a
-            # weightless exercise by simply discarding the value.
+        # Prevent any validation issue if:
+        # * a weight is submitted for a weightless exercise (discard the value)
+        # * an empty weight ('') is submitted for an exercise (has blank=True,
+        #   so the POST request sends an empty string)
+        if (
+            (self.weight is not None and not self.exercise.weight) or
+            (self.exercise.weight and self.weight == '')
+        ):
             # TODO log a warning?
             self.weight = None
 
