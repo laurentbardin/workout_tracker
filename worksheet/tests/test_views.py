@@ -331,6 +331,16 @@ class ResultActionTest(WorksheetMixin, TestCase):
         self.assertIsNone(result.reps)
         self.assertIsNone(result.weight)
 
+        response = self._update_worksheet_result(worksheet,
+                                                 result_id=1,
+                                                 reps="foo",
+                                                 weight="bar")
+        result.refresh_from_db()
+        self.assertContains(response, '“foo” value must be an integer.'.encode('utf-8'))
+        self.assertContains(response, '“bar” value must be an integer.'.encode('utf-8'))
+        self.assertIsNone(result.reps)
+        self.assertIsNone(result.weight)
+
     def test_update_weightless_exercise_with_weight(self):
         worksheet = self._create_worksheet()
         response = self._update_worksheet_result(worksheet,
