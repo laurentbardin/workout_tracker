@@ -36,4 +36,17 @@
 {% block javascript %}
     {{ block.super }}
     <script src="{% static 'worksheet/js/htmx.min.js' %}"></script>
+    <script type="text/javascript">
+        function checkInput(elt, ev) {
+            let rawValue = elt.value;
+
+            elt.value = elt.value.trim();
+            if (!elt.checkValidity()) {
+                elt.reportValidity();
+                elt.focus();
+            } else if (rawValue != elt.value) {
+                htmx.trigger(elt, 'change');
+            }
+        }
+    </script>
 {% endblock %}

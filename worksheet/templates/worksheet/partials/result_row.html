@@ -15,7 +15,9 @@
                hx-include="previous input, {% if result.exercise.weight %}next .weight, {% endif %}[name='csrfmiddlewaretoken']"
                hx-target="next .status .response"
                hx-indicator="next .status"
+               hx-disabled-elt="this"
                hx-validate="true"
+               hx-on:blur="checkInput(this, event);"
                required>
     {% endif %}
 </div>
@@ -34,7 +36,9 @@
                    hx-include="previous .reps, [name='csrfmiddlewaretoken']"
                    hx-target="next .status .response"
                    hx-indicator="next .status"
+                   hx-disabled-elt="this"
                    hx-validate="true"
+                   hx-on:blur="checkInput(this, event);"
                    >
         {% endif %}
     {% endif %}
