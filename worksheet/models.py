@@ -41,16 +41,15 @@ class Workout(models.Model):
                 case 1:
                     # 1, 2, 3, 4 -> 1, 2, 3, 4, 2, 1, 4, 3
                     second_round = [exercise
-                                    for couple in [(second, first) for first, second in batched(exercises, 2)]
-                                    for exercise in couple]
+                                    for first, second in batched(exercises, 2)
+                                    for exercise in (second, first)]
                     exercises = list(exercises) + second_round
 
                 case 2:
                     # 1, 2, 3, 4, 5, 6 -> 1, 2, 3, 1, 2, 3, 4, 5, 6, 4, 5, 6
                     exercises = [exercise
-                                 for triplet in batched(exercises, 3)
-                                 for series in (triplet, triplet)
-                                 for exercise in series]
+                                 for first, second, third in batched(exercises, 3)
+                                 for exercise in (first, second, third, first, second, third)]
 
         return exercises
 
