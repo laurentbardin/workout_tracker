@@ -50,6 +50,23 @@ class IndexViewTests(WorksheetMixin, TestCase):
         self.assertContains(response, "Continue")
         self.assertContains(response, worksheet.get_absolute_url())
 
+    def test_completed_worksheet(self):
+        """
+        The index page offers to show today's worksheet if it's already been
+        completed.
+        """
+        today = timezone.localtime().isoweekday()
+        Schedule.objects.create(day=today, workout=self.workout)
+
+        worksheet = self._create_worksheet(done=True)
+
+        response = self.client.get(reverse("worksheet:index"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Today's Workout")
+        self.assertContains(response, "Test workout")
+        self.assertContains(response, "Completed")
+        self.assertContains(response, worksheet.get_absolute_url())
+
     def test_active_worksheet_are_displayed(self):
         """
         The index page doesn't offer to create a worksheet if any active one
