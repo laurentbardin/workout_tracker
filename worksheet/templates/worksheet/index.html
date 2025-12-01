@@ -21,7 +21,15 @@
                 <th scope="row">{{ localdate }}</th>
                 <td>{{ workout.name }}</td>
                 {% if workout.worksheet %}
-                <td><a href="{{ workout.worksheet.get_absolute_url }}">Continue</a></td>
+                <td>
+                    <a href="{{ workout.worksheet.get_absolute_url }}">
+                        {% if workout.worksheet.done %}
+                        Completed
+                        {% else %}
+                        Continue
+                        {% endif %}
+                    </a>
+                </td>
                 {% else %}
                 <td>
                     <form action="{% url 'worksheet:create' %}" method="POST">

@@ -30,7 +30,6 @@ class Index(TemplateView):
                 workout = Workout.objects.get(schedule__day=weekday)
                 workout.worksheet = workout.worksheet_set.filter(
                     date=localdate,
-                    done=False,
                 ).first()
             except Workout.DoesNotExist:
                 workout = None
