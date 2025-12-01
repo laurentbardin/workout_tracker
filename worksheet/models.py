@@ -110,6 +110,18 @@ class Worksheet(models.Model):
 
         return self
 
+    def get_duration(self):
+        if not self.done:
+            return ''
+
+        if not self.ended_at:
+            # TODO log a warning
+            return ''
+
+        duration = self.ended_at.replace(microsecond=0) - self.started_at.replace(microsecond=0)
+
+        return str(duration)
+
     def get_status(self):
         return "done" if self.done else "in-progress"
 

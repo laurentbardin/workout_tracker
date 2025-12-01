@@ -3,7 +3,7 @@
 {% block content %}
 
 {% if active_worksheets %}
-    <p>Found some workouts still in progress:</p>
+    <h1>Some workouts are still in progress:</h1>
     <ul>
         {% for worksheet in active_worksheets %}
         <li>{{ worksheet.date }}: <a href="{{ worksheet.get_absolute_url }}">{{ worksheet.workout }}</a></li>

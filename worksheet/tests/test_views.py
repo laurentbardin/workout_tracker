@@ -81,10 +81,10 @@ class IndexViewTests(WorksheetMixin, TestCase):
 
         response = self.client.get(reverse('worksheet:index'))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Found some workouts still in progress")
+        self.assertContains(response, "Some workouts are still in progress")
         self.assertContains(response, worksheet.get_absolute_url())
 
-class CurrentViewTest(ProgramSetupMixin, TestCase):
+class CreateViewTest(ProgramSetupMixin, TestCase):
     def test_creation_when_not_scheduled(self):
         """
         It isn't possible to create a workout when none are scheduled for the
@@ -127,6 +127,43 @@ class CurrentViewTest(ProgramSetupMixin, TestCase):
             done=False,
         )
         self.assertEqual(worksheet.result_set.count(), 4)
+
+class WorksheetViewTest(WorksheetMixin, TestCase):
+    def test_non_existing_worksheet(self):
+        """
+        Display a simple message when a worksheet doesn't exist
+        """
+        now = timezone.localtime().date()
+        date = datetime.date(now.year, now.month, now.day)
+        response = self.client.get(reverse(
+            "worksheet:worksheet",
+            args=[ date.year, date.month, date.day ]
+        ))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "No workout for")
+        self.assertContains(response, "Go back")
+        self.assertContains(response, reverse('worksheet:index'))
+
+    def test_duration_on_completed_worksheet(self):
+        """
+        Display the duration of completed worksheets
+        """
+        ended_at = timezone.localtime()
+        started_at = ended_at - datetime.timedelta(minutes=37, seconds=42)
+
+        worksheet = self._create_worksheet(started_at=started_at, done=True)
+        worksheet.ended_at = ended_at
+        worksheet.save()
+
+        response = self.client.get(reverse(
+            "worksheet:worksheet",
+            args=[ worksheet.date.year, worksheet.date.month, worksheet.date.day ]
+        ))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Test workout")
+        self.assertContains(response, "Completed in 0:37:42")
 
 class CloseViewTest(WorksheetMixin, TestCase):
     def test_can_close_in_progress_workout(self):
