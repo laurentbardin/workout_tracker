@@ -33,7 +33,7 @@ class Workout(models.Model):
         executed, which will be different than the order they are displayed in
         the case of repeat workouts.
         """
-        exercises = self.exercises.filter(workout=self)
+        exercises = self.exercises.filter(workout=self).order_by('program')
 
         if self.repeat:
             # TODO use something else than the ID - slug or qname?
