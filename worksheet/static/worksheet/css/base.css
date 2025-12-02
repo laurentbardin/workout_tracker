@@ -47,9 +47,12 @@ form {
 
     .exercise {
         grid-column: 1 / span 3;
+
+        &.repeat {
+            grid-row: span 2;
+        }
     }
     .exercise:not(.header) {
-        grid-row: span 2;
         border-left-width: 1px;
     }
     .result.reps {

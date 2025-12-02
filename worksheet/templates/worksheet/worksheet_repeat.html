@@ -3,7 +3,7 @@
 {% block workout_results %}
 {% regroup results by exercise.name as exercise_list %}
 {% for exercise_name, results in exercise_list %}
-    <div class="exercise">{{ forloop.counter}}. {{ exercise_name }}</div>
+    <div class="exercise repeat">{{ forloop.counter}}. {{ exercise_name }}</div>
     {% for result in results %}
         {% cycle 'odd' 'even' as row silent %}
         {% include 'worksheet/partials/result_row.html' %}
