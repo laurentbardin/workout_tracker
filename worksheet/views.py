@@ -1,5 +1,5 @@
 import datetime
-from calendar import Calendar
+import calendar
 
 from django.core.exceptions import ValidationError
 from django.http import HttpResponse, HttpResponseRedirect
@@ -20,7 +20,7 @@ class Index(TemplateView):
     template_name = 'worksheet/index.html'
 
     def render_to_response(self, context, **response_kwargs):
-        cal = Calendar()
+        cal = calendar.Calendar()
         today = timezone.localdate()
         weeks = list(cal.monthdatescalendar(today.year, today.month))
 
@@ -36,7 +36,7 @@ class Index(TemplateView):
             for schedule in Schedule.objects.select_related('workout').all()
         }
 
-        calendar = []
+        workout_calendar = []
         for week in weeks:
             calendar_week = {}
             for date in week:
@@ -47,9 +47,11 @@ class Index(TemplateView):
                 else:
                     calendar_week[date] = None
 
-            calendar.append(calendar_week)
+            workout_calendar.append(calendar_week)
 
-        context['calendar'] = calendar
+        context['calendar'] = workout_calendar
+        context['today'] = today
+        context['days'] = list(calendar.day_name)
 
         #active_worksheets = Worksheet.objects.get_active().all()
 
