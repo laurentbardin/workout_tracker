@@ -28,7 +28,7 @@ class Index(TemplateView):
             worksheet.date: worksheet
             for worksheet in Worksheet.objects.filter(
                 date__range=(weeks[0][0], weeks[-1][-1])
-            ).all()
+            ).select_related('workout').all()
         }
 
         schedules = {
