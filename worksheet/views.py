@@ -1,4 +1,5 @@
 import datetime
+from calendar import Calendar
 
 from django.core.exceptions import ValidationError
 from django.http import HttpResponse, HttpResponseRedirect
@@ -7,7 +8,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.generic import TemplateView, View
 
-from .models import Result, Workout, Worksheet
+from .models import Result, Schedule, Workout, Worksheet
 
 # Create your views here.
 class Index(TemplateView):
@@ -19,23 +20,54 @@ class Index(TemplateView):
     template_name = 'worksheet/index.html'
 
     def render_to_response(self, context, **response_kwargs):
-        active_worksheets = Worksheet.objects.get_active().all()
+        cal = Calendar()
+        today = timezone.localdate()
+        weeks = list(cal.monthdatescalendar(today.year, today.month))
 
-        if active_worksheets:
-            context['active_worksheets'] = active_worksheets
-        else:
-            localdate = timezone.localdate()
-            weekday = localdate.isoweekday()
-            try:
-                workout = Workout.objects.get(schedule__day=weekday)
-                workout.worksheet = workout.worksheet_set.filter(
-                    date=localdate,
-                ).first()
-            except Workout.DoesNotExist:
-                workout = None
+        worksheets = {
+            worksheet.date: worksheet
+            for worksheet in Worksheet.objects.filter(
+                date__range=(weeks[0][0], weeks[-1][-1])
+            ).all()
+        }
 
-            context['workout'] = workout
-            context['localdate'] = localdate
+        schedules = {
+            schedule.day: schedule
+            for schedule in Schedule.objects.select_related('workout').all()
+        }
+
+        calendar = []
+        for week in weeks:
+            calendar_week = {}
+            for date in week:
+                if date in worksheets:
+                    calendar_week[date] = {'worksheet': worksheets[date]}
+                elif date.isoweekday() in schedules:
+                    calendar_week[date] = {'workout': schedules[date.isoweekday()].workout}
+                else:
+                    calendar_week[date] = None
+
+            calendar.append(calendar_week)
+
+        context['calendar'] = calendar
+
+        #active_worksheets = Worksheet.objects.get_active().all()
+
+        #if active_worksheets:
+        #    context['active_worksheets'] = active_worksheets
+        #else:
+        #    localdate = timezone.localdate()
+        #    weekday = localdate.isoweekday()
+        #    try:
+        #        workout = Workout.objects.get(schedule__day=weekday)
+        #        workout.worksheet = workout.worksheet_set.filter(
+        #            date=localdate,
+        #        ).first()
+        #    except Workout.DoesNotExist:
+        #        workout = None
+
+        #    context['workout'] = workout
+        #    context['localdate'] = localdate
 
         return super().render_to_response(context, **response_kwargs)
 

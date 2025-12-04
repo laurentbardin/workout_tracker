@@ -2,6 +2,27 @@
 
 {% block content %}
 
+<table>
+    <thead></thead>
+    <tbody>
+        {% for week in calendar %}
+        <tr>
+            {% for day, data in week.items %}
+            <td>
+                {{ day }}
+                {% if data.worksheet %}
+                <br><a href="{{ data.worksheet.get_absolute_url }}">{{ data.worksheet.workout }}</a>
+                {% elif data.workout %}
+                <br>{{ data.workout }}
+                {% endif %}
+            </td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% comment %}
 {% if active_worksheets %}
     <h1>Some workouts are still in progress:</h1>
     <ul>
@@ -43,5 +64,6 @@
     </table>
     {% endif %}
 {% endif %}
+{% endcomment %}
 
 {% endblock content %}
