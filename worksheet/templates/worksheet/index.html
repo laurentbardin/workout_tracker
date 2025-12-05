@@ -2,6 +2,47 @@
 
 {% block content %}
 
+<table class="calendar">
+    <caption><h1>Workout calendar for {{ today | date:"F Y" }}<h1></caption>
+    <thead>
+        <tr>
+            {% for day in days %}
+            <th>{{ day }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for week in calendar %}
+        <tr>
+            {% for date, data in week.items %}
+            {% if date == today %}
+            <td class="today">
+            {% elif date.month != today.month %}
+            <td class="other_month">
+            {% else %}
+            <td>
+            {% endif %}
+                <span>{{ date.day }}</span>
+                {% if data.worksheet %}
+                    <a href="{{ data.worksheet.get_absolute_url }}">{{ data.worksheet.workout }}</a>
+                {% elif data.workout %}
+                    {% if date == today %}
+                    <form action="{% url 'worksheet:create' %}" method="POST">
+                        {% csrf_token %}
+                        <button type="submit">{{ data.workout }}</button>
+                    </form>
+                    {% else %}
+                    {{ data.workout }}
+                    {% endif %}
+                {% endif %}
+            </td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% comment %}
 {% if active_worksheets %}
     <h1>Some workouts are still in progress:</h1>
     <ul>
@@ -43,5 +84,6 @@
     </table>
     {% endif %}
 {% endif %}
+{% endcomment %}
 
 {% endblock content %}
