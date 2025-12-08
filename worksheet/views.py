@@ -221,13 +221,16 @@ class CloseAction(View):
         return HttpResponseRedirect(reverse('worksheet:index'))
 
 class ResultAction(View):
-    def post(self, request, worksheet_id=None):
-        result_id = request.POST.get('result', None)
+    def post(self, request, worksheet_id, result_id):
+        # NOTE This should be a PUT request, but the CSRF middleware needs to
+        # be configured for this to work. Need to read
+        # https://docs.djangoproject.com/en/5.2/howto/csrf/ and
+        # https://docs.djangoproject.com/en/5.2/ref/csrf/
         reps = request.POST.get('reps', None)
         weight = request.POST.get('weight', None)
 
-        if not result_id or not reps:
-            return HttpResponse('Missing result ID or reps')
+        if not reps:
+            return HttpResponse('Missing number of reps')
 
         try:
             result = Result.objects.filter(

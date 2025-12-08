@@ -71,13 +71,13 @@ class WorksheetMixin(ProgramSetupMixin):
 
         return response
 
-    def _update_worksheet_result(self, worksheet, *, result_id=None, reps=None, weight=None):
+    def _update_worksheet_result(self, worksheet, result_id, *, reps=None, weight=None):
         response = self.client.post(
             reverse("worksheet:result", kwargs={
                 'worksheet_id': worksheet.id,
+                'result_id': result_id,
             }),
             {
-                'result': '' if result_id is None else str(result_id),
                 'reps': '' if reps is None else str(reps),
                 'weight': '' if weight is None else str(weight),
             }

@@ -323,16 +323,9 @@ class ResultActionTest(WorksheetMixin, TestCase):
                                                  result_id=1,
                                                  weight=10)
         result = Result.objects.get(pk=1)
-        self.assertContains(response, 'Missing result ID or reps')
+        self.assertContains(response, 'Missing number of reps')
         self.assertIsNone(result.reps)
         self.assertIsNone(result.weight)
-
-    def test_update_result_without_id(self):
-        worksheet = self._create_worksheet()
-        response = self._update_worksheet_result(worksheet,
-                                                 reps=10,
-                                                 weight=10)
-        self.assertContains(response, 'Missing result ID or reps')
 
     def test_update_result_with_negative_values(self):
         worksheet = self._create_worksheet()

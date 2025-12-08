@@ -4,14 +4,13 @@
     {% if worksheet.done %}
         {{ result.reps|default:0 }}
     {% else %}
-        <input type="hidden" name="result" value="{{ result.id }}" form="resultForm">
         <input type="text"
                name="reps"
                inputmode="numeric"
                pattern="\d+"
                title="a positive number, or 0"
                value="{{ result.reps|default:0 }}"
-               hx-post="{% url 'worksheet:result' worksheet.id %}"
+               hx-post="{% url 'worksheet:result' worksheet.id result.id %}"
                hx-include="previous input, {% if result.exercise.weight %}next .weight, {% endif %}[name='csrfmiddlewaretoken']"
                hx-target="next .status .response"
                hx-indicator="next .status"
@@ -32,7 +31,7 @@
                    pattern="\d+"
                    title="a positive number, or 0, or nothing"
                    value="{{ result.weight|default:'' }}"
-                   hx-post="{% url 'worksheet:result' worksheet.id %}"
+                   hx-post="{% url 'worksheet:result' worksheet.id result.id %}"
                    hx-include="previous .reps, [name='csrfmiddlewaretoken']"
                    hx-target="next .status .response"
                    hx-indicator="next .status"
