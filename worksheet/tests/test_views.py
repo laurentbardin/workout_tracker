@@ -37,6 +37,7 @@ class IndexViewTests(WorksheetMixin, TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Test workout")
         self.assertContains(response, worksheet.get_absolute_url())
+        self.assertNotContains(response, '<button type="submit">' + self.workout.name + '</button>')
 
     def test_completed_worksheet(self):
         """
@@ -51,6 +52,24 @@ class IndexViewTests(WorksheetMixin, TestCase):
         response = self.client.get(reverse("worksheet:index"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Test workout")
+        self.assertContains(response, worksheet.get_absolute_url())
+        self.assertNotContains(response, '<button type="submit">' + self.workout.name + '</button>')
+
+    def test_active_worksheet_are_displayed(self):
+        """
+        The index page doesn't offer to create a worksheet if any active one
+        already exists.
+        """
+        today = timezone.localtime().isoweekday()
+        Schedule.objects.create(day=today, workout=self.workout)
+
+        worksheet = self._create_worksheet(
+            started_at=timezone.now() - datetime.timedelta(days=30),
+        )
+
+        response = self.client.get(reverse('worksheet:index'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Some workouts are still in progress")
         self.assertContains(response, worksheet.get_absolute_url())
         self.assertNotContains(response, '<button type="submit">' + self.workout.name + '</button>')
 

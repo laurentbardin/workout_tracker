@@ -3,7 +3,19 @@
 {% block content %}
 
 <table class="calendar">
-    <caption><h1>Workout calendar for {{ today | date:"F Y" }}<h1></caption>
+    <caption>
+        <h1>Workout calendar for {{ today | date:"F Y" }}</h1>
+        {% if active_worksheets %}
+        <div class="active-worksheets">
+            <p>Some workouts are still in progress:</p>
+            <ul>
+                {% for worksheet in active_worksheets %}
+                <li>{{ worksheet.date }}: <a href="{{ worksheet.get_absolute_url }}">{{ worksheet.workout }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </caption>
     <thead>
         <tr>
             {% for day in days %}
@@ -26,13 +38,13 @@
                 {% if data.worksheet %}
                     <a href="{{ data.worksheet.get_absolute_url }}">{{ data.worksheet.workout }}</a>
                 {% elif data.workout %}
-                    {% if date == today %}
+                    {% if active_worksheets or date != today %}
+                    {{ data.workout }}
+                    {% else %}
                     <form action="{% url 'worksheet:create' %}" method="POST">
                         {% csrf_token %}
                         <button type="submit">{{ data.workout }}</button>
                     </form>
-                    {% else %}
-                    {{ data.workout }}
                     {% endif %}
                 {% endif %}
             </td>

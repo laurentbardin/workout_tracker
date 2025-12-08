@@ -136,6 +136,14 @@ ul.errors {
 .calendar {
     table-layout: fixed;
     caption-side: top;
+    overflow: show;
+
+    caption {
+        .active-worksheets {
+            text-align: left;
+            padding: 0 1em;
+        }
+    }
 
     th {
         width: 5rem;

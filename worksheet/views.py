@@ -52,6 +52,7 @@ class Index(TemplateView):
         context['calendar'] = workout_calendar
         context['today'] = today
         context['days'] = list(calendar.day_name)
+        context['active_worksheets'] = Worksheet.objects.get_active().all()
 
         return super().render_to_response(context, **response_kwargs)
 
