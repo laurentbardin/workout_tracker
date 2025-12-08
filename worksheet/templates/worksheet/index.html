@@ -42,48 +42,4 @@
     </tbody>
 </table>
 
-{% comment %}
-{% if active_worksheets %}
-    <h1>Some workouts are still in progress:</h1>
-    <ul>
-        {% for worksheet in active_worksheets %}
-        <li>{{ worksheet.date }}: <a href="{{ worksheet.get_absolute_url }}">{{ worksheet.workout }}</a></li>
-        {% endfor %}
-    </ul>
-{% else %}
-    <h1>Today's Workout</h1>
-    {% if workout is None %}
-        <p>No workout today!</p>
-    {% else %}
-    <table>
-        <thead></thead>
-        <tbody>
-            <tr>
-                <th scope="row">{{ localdate }}</th>
-                <td>{{ workout.name }}</td>
-                {% if workout.worksheet %}
-                <td>
-                    <a href="{{ workout.worksheet.get_absolute_url }}">
-                        {% if workout.worksheet.done %}
-                        Completed
-                        {% else %}
-                        Continue
-                        {% endif %}
-                    </a>
-                </td>
-                {% else %}
-                <td>
-                    <form action="{% url 'worksheet:create' %}" method="POST">
-                        {% csrf_token %}
-                        <button type="submit">Start!</button>
-                    </form>
-                </td>
-                {% endif %}
-            </tr>
-        </tbody>
-    </table>
-    {% endif %}
-{% endif %}
-{% endcomment %}
-
 {% endblock content %}

@@ -53,24 +53,6 @@ class Index(TemplateView):
         context['today'] = today
         context['days'] = list(calendar.day_name)
 
-        #active_worksheets = Worksheet.objects.get_active().all()
-
-        #if active_worksheets:
-        #    context['active_worksheets'] = active_worksheets
-        #else:
-        #    localdate = timezone.localdate()
-        #    weekday = localdate.isoweekday()
-        #    try:
-        #        workout = Workout.objects.get(schedule__day=weekday)
-        #        workout.worksheet = workout.worksheet_set.filter(
-        #            date=localdate,
-        #        ).first()
-        #    except Workout.DoesNotExist:
-        #        workout = None
-
-        #    context['workout'] = workout
-        #    context['localdate'] = localdate
-
         return super().render_to_response(context, **response_kwargs)
 
 class CreateView(View):
