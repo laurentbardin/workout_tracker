@@ -1,0 +1,122 @@
+.worksheet {
+    display: grid;
+    grid-template-columns: repeat(5, 6rem) minmax(3rem, auto);
+    grid-auto-rows: 3rem;
+    justify-content: var(--justify-normal);
+
+    > * {
+        padding: 0.5em 1em;
+        border: 1px solid var(--color-bg-secondary);
+        border-width: 0 1px 1px 0;
+    }
+
+    input {
+        margin: 0;
+    }
+
+    .even {
+        background-color: var(--color-accent);
+    }
+
+    .header, .exercise, .result {
+        display: flex;
+        align-items: center;
+    }
+
+    .header {
+        font-weight: bold;
+        color: var(--color-bg);
+        background-color: var(--color-table);
+        border-width: 0;
+        align-items: end;
+        grid-row: span 2;
+    }
+
+    .exercise {
+        grid-column: 1 / span 3;
+
+        &.repeat {
+            grid-row: span 2;
+        }
+    }
+    .exercise:not(.header) {
+        border-left-width: 1px;
+    }
+    .result.reps {
+        grid-column: 4;
+    }
+    .result.weight {
+        grid-column: 5;
+    }
+    .result.status {
+        grid-column: 6;
+        border-width: 0;
+        position: relative;
+    }
+
+    &:has(.previous) {
+        grid-template-columns: repeat(7, 6rem) minmax(3rem, auto);
+
+        .result.reps.previous {
+            grid-column: 6;
+        }
+        .result.weight.previous {
+            grid-column: 7;
+        }
+        .result.status {
+            grid-column: 8;
+        }
+    }
+
+    .htmx-indicator {
+        opacity: 0;
+        display: none;
+    }
+    .htmx-request.htmx-indicator,
+    .htmx-request .htmx-indicator {
+        opacity: 1;
+        display: inline;
+        transition: opacity 200ms ease-in;
+    }
+    .htmx-request .response {
+        display: none;
+    }
+
+    input[type="text"] {
+        max-width: 2rem;
+
+        &:invalid {
+            border: 1px solid var(--color-error);
+
+            &:focus {
+                outline: 1px solid var(--color-error);
+            }
+        }
+    }
+}
+
+ul.errors {
+    list-style-type: none;
+    padding: 0 1rem;
+    margin: 0;
+    background-color: #fde6e5;
+    border: 1px solid var(--color-error);
+    border-radius: 8px;
+    position: relative;
+    align-self: start;
+
+    &::before {
+        content: '';
+        display: block;
+        background-color: inherit;
+        border: inherit;
+        border-width: 0 0 1px 1px;
+        width: 6px;
+        height: 6px;
+        transform: rotate(45deg);
+        position: absolute;
+        top: 10px;
+        left: -4px;
+    }
+}
+

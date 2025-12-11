@@ -1,0 +1,54 @@
+.calendar {
+    table-layout: fixed;
+    caption-side: top;
+    overflow: show;
+
+    caption {
+        .active-worksheets {
+            text-align: left;
+            padding: 0 1em;
+        }
+    }
+
+    th {
+        width: 5rem;
+        height: 2rem;
+    }
+    td, th {
+        text-align: center !important;
+    }
+    tbody td {
+        height: 5rem;
+        position: relative;
+        border-left: 1px solid var(--color-bg-secondary);
+
+        &:first-child {
+            border-left-width: 0;
+        }
+
+        span {
+            position: absolute;
+            font-size: 0.75rem;
+            top: 0.25rem;
+            left: 0.25rem;
+        }
+
+        &.other_month {
+            color: var(--color-text-secondary);
+        }
+    }
+    .today {
+        box-shadow: 0px 0px 10px 5px var(--color-table);
+        border-radius: 6px;
+        z-index: 1;
+    }
+
+    form {
+        padding: 0;
+        margin: 0 auto;
+        text-align: center;
+        button {
+            padding: 0.25rem 0.5rem;
+        }
+    }
+}

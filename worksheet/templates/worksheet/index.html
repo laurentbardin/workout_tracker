@@ -1,5 +1,12 @@
 {% extends 'worksheet/base.html' %}
 
+{% load static %}
+
+{% block stylesheet %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'worksheet/css/index.css' %}">
+{% endblock %}
+
 {% block content %}
 
 <table class="calendar">

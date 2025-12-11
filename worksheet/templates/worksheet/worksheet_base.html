@@ -2,6 +2,11 @@
 
 {% load static %}
 
+{% block stylesheet %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'worksheet/css/worksheet.css' %}">
+{% endblock %}
+
 {% block content %}
 
 {% if worksheet is None %}
