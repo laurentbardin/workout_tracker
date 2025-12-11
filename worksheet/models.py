@@ -111,14 +111,12 @@ class Worksheet(models.Model):
         return self
 
     def get_duration(self):
-        if not self.done:
-            return ''
+        ended_at = timezone.now()
 
-        if not self.ended_at:
-            # TODO log a warning
-            return ''
+        if self.done:
+            ended_at = self.ended_at
 
-        duration = self.ended_at.replace(microsecond=0) - self.started_at.replace(microsecond=0)
+        duration = ended_at.replace(microsecond=0) - self.started_at.replace(microsecond=0)
 
         return str(duration)
 
