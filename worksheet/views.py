@@ -84,6 +84,9 @@ class CreateView(View):
             args=[ worksheet.date.year, worksheet.date.month, worksheet.date.day, ]
         ))
 
+    def get(self, request):
+        return HttpResponseRedirect(reverse('worksheet:index'))
+
 class WorksheetView(TemplateView):
     """
     Show or update a worksheet for a specific date.
