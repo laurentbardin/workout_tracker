@@ -11,6 +11,8 @@
 <h1>Workout for {{ worksheet.date }}: {{ worksheet.workout }}</h1>
 {% if worksheet.done %}
 <p>Completed in {{ worksheet.get_duration }}</p>
+{% else %}
+<h2><span id="clock" class="hidden">0:00:00</span></h2>
 {% endif %}
 <section class="worksheet {{ worksheet.get_status }}">
     <div class="exercise header">Exercise</div>
@@ -40,12 +42,15 @@
 {% block javascript %}
     {{ block.super }}
     <script src="{% static 'worksheet/js/htmx.min.js' %}"></script>
+    <script src="{% static 'worksheet/js/worksheet.js' %}"></script>
+    {% if not worksheet.done %}
     <script type="text/javascript">
-        function checkInput(elt, ev) {
-            elt.value = elt.value.trim();
-            if (!elt.checkValidity()) {
-                elt.reportValidity();
-            }
-        }
+        htmx.onLoad(function(elt) {
+            let fn = updateClock('#clock', '{{ worksheet.started_at|date:"c" }}');
+            fn();
+            htmx.removeClass('#clock', 'hidden');
+            setInterval(fn, 1000);
+        });
     </script>
+    {% endif %}
 {% endblock %}

@@ -11,6 +11,10 @@ form {
     min-width: 0;
 }
 
+.hidden {
+    visibility: hidden;
+}
+
 .worksheet {
     display: grid;
     grid-template-columns: repeat(5, 6rem) minmax(3rem, auto);

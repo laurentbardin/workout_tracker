@@ -278,14 +278,12 @@ class ResultViewTest(WorksheetMixin, TestCase):
 
         response = self._update_worksheet(worksheet,
                                           reps=[10, 10, 10, 10],
-                                          weights=[200, 100, 300, -400])
+                                          weights=[200, 999999999, 300, -400])
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Used weight cannot be negative', 0)
-        # TODO '100' could be found occasionally in the CSRF token, try and
-        # find a better sentinel value
-        self.assertContains(response, '100', 0)
-        self.assertContains(response, '-400', 0)
+        self.assertNotContains(response, '999999999')
+        self.assertNotContains(response, '-400')
 
         for result in worksheet.result_set.select_related('exercise').all():
             self.assertEqual(result.reps, 10)
