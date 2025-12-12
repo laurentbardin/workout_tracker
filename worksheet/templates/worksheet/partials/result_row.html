@@ -11,7 +11,7 @@
                title="a positive number, or 0"
                value="{{ result.reps|default:0 }}"
                hx-post="{% url 'worksheet:result' worksheet.id result.id %}"
-               hx-include="previous input, {% if result.exercise.weight %}next .weight, {% endif %}[name='csrfmiddlewaretoken']"
+               hx-include="{% if result.exercise.weight %}next .weight, {% endif %}[name='csrfmiddlewaretoken']"
                hx-target="next .status .response"
                hx-indicator="next .status"
                hx-disabled-elt="this"
