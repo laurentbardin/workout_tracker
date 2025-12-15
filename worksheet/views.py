@@ -2,7 +2,8 @@ import datetime
 import calendar
 
 from django.core.exceptions import ValidationError
-from django.http import HttpResponse, HttpResponseRedirect
+from django.db import IntegrityError, transaction
+from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.utils import timezone
@@ -224,30 +225,46 @@ class CloseAction(View):
         return HttpResponseRedirect(reverse('worksheet:index'))
 
 class ResultAction(View):
-    def post(self, request, worksheet_id, result_id):
+    def post(self, request, worksheet_id, result_id, field):
         # NOTE This should be a PUT request, but the CSRF middleware needs to
         # be configured for this to work. Need to read
         # https://docs.djangoproject.com/en/5.2/howto/csrf/ and
         # https://docs.djangoproject.com/en/5.2/ref/csrf/
-        reps = request.POST.get('reps', None)
-        weight = request.POST.get('weight', None)
 
-        if not reps:
-            return HttpResponse('Missing number of reps')
+        filters = {
+            'pk': result_id,
+            'worksheet': worksheet_id,
+        }
+        match field:
+            case 'reps':
+                value = request.POST.get('reps', None)
+                if value is None:
+                    # While the reps field is NULLable, it should not accept an
+                    # empty value (blank=False). Because we don't use Django's
+                    # form validation, we handle this case manually here.
+                    return HttpResponse('Missing number of reps')
 
+            case 'weight':
+                value = request.POST.get('weight', None)
+                filters.update(exercise__weight=True)
+
+            case _:
+                return HttpResponseNotFound()
+
+        errors = None
         try:
-            result = Result.objects.filter(
-                worksheet=worksheet_id
-            ).select_related('exercise').get(pk=result_id)
+            # Atomicity is required for the tests more than anything else, apparently
+            with transaction.atomic():
+                updated = Result.objects.filter(**filters).update(**{field: value})
+        except ValueError as ve:
+            # Keep the same format as the one used by ValidationError even
+            # though there's no real reason to
+            errors = {field: [str(ve)]}
+        except IntegrityError:
+            errors = {field: [f"Invalid value {value} for field '{field}'"]}
 
-            result.reps = reps
-            result.weight = weight
+        if errors is not None:
+            return render(request, 'worksheet/partials/result_error.html', {'errors': errors})
 
-            result.clean_fields()
-            result.save(update_fields=["reps", "weight"])
-        except Result.DoesNotExist:
-            return HttpResponse(f'Could not update result {result_id} for worksheet {worksheet_id}')
-        except ValidationError as ve:
-            return render(request, 'worksheet/partials/result_error.html', {'errors': ve.message_dict})
-
-        return HttpResponse('✅')
+        response = '✅' if updated == 1 else ''
+        return HttpResponse(response)
