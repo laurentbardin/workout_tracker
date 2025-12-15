@@ -71,16 +71,18 @@ class WorksheetMixin(ProgramSetupMixin):
 
         return response
 
-    def _update_worksheet_result(self, worksheet, result_id, *, reps=None, weight=None):
+    def _update_worksheet_result(self, worksheet, result_id, field, value):
+        # Don't filter 'field' values during testing, the view should handle
+        # that
         response = self.client.post(
             reverse("worksheet:result", kwargs={
                 'worksheet_id': worksheet.id,
                 'result_id': result_id,
+                'field': field,
             }),
             {
-                'reps': '' if reps is None else str(reps),
-                'weight': '' if weight is None else str(weight),
-            }
+                field: str(value),
+            } if value is not None else {}
         )
 
         return response

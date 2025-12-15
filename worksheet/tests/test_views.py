@@ -1,4 +1,5 @@
 import datetime
+import html
 
 from django.test import TestCase
 from django.urls import reverse
@@ -300,7 +301,8 @@ class ResultActionTest(WorksheetMixin, TestCase):
         worksheet = self._create_worksheet()
         response = self._update_worksheet_result(worksheet,
                                                  result_id=1,
-                                                 reps=10)
+                                                 field='reps',
+                                                 value=10)
         result = Result.objects.get(pk=1)
         self.assertEqual(response.content, '✅'.encode('utf-8'))
         self.assertEqual(result.reps, 10)
@@ -308,18 +310,19 @@ class ResultActionTest(WorksheetMixin, TestCase):
 
         response = self._update_worksheet_result(worksheet,
                                                  result_id=1,
-                                                 reps=12,
-                                                 weight=6)
+                                                 field='weight',
+                                                 value=6)
         result.refresh_from_db()
         self.assertEqual(response.content, '✅'.encode('utf-8'))
-        self.assertEqual(result.reps, 12)
+        self.assertEqual(result.reps, 10)
         self.assertEqual(result.weight, 6)
 
     def test_update_result_without_reps(self):
         worksheet = self._create_worksheet()
         response = self._update_worksheet_result(worksheet,
                                                  result_id=1,
-                                                 weight=10)
+                                                 field='reps',
+                                                 value=None)
         result = Result.objects.get(pk=1)
         self.assertContains(response, 'Missing number of reps')
         self.assertIsNone(result.reps)
@@ -329,19 +332,19 @@ class ResultActionTest(WorksheetMixin, TestCase):
         worksheet = self._create_worksheet()
         response = self._update_worksheet_result(worksheet,
                                                  result_id=1,
-                                                 reps=-2,
-                                                 weight=10)
+                                                 field='reps',
+                                                 value=-2)
         result = Result.objects.get(pk=1)
-        self.assertContains(response, 'Number of reps cannot be negative')
+        self.assertContains(response, html.escape("Invalid value -2 for field 'reps'"))
         self.assertIsNone(result.reps)
         self.assertIsNone(result.weight)
 
         response = self._update_worksheet_result(worksheet,
                                                  result_id=1,
-                                                 reps=20,
-                                                 weight=-3)
+                                                 field='weight',
+                                                 value=-3)
         result.refresh_from_db()
-        self.assertContains(response, 'Used weight cannot be negative')
+        self.assertContains(response, html.escape("Invalid value -3 for field 'weight'"))
         self.assertIsNone(result.reps)
         self.assertIsNone(result.weight)
 
@@ -349,29 +352,21 @@ class ResultActionTest(WorksheetMixin, TestCase):
         worksheet = self._create_worksheet()
         response = self._update_worksheet_result(worksheet,
                                                  result_id=1,
-                                                 reps="foo",
-                                                 weight=10)
+                                                 field='reps',
+                                                 value="foo")
+
         result = Result.objects.get(pk=1)
-        self.assertContains(response, '“foo” value must be an integer.'.encode('utf-8'))
+        self.assertContains(response, html.escape("Field 'reps' expected a number but got 'foo'"))
         self.assertIsNone(result.reps)
         self.assertIsNone(result.weight)
 
         response = self._update_worksheet_result(worksheet,
                                                  result_id=1,
-                                                 reps=20,
-                                                 weight="bar")
-        result.refresh_from_db()
-        self.assertContains(response, '“bar” value must be an integer.'.encode('utf-8'))
-        self.assertIsNone(result.reps)
-        self.assertIsNone(result.weight)
+                                                 field='weight',
+                                                 value="bar")
 
-        response = self._update_worksheet_result(worksheet,
-                                                 result_id=1,
-                                                 reps="foo",
-                                                 weight="bar")
         result.refresh_from_db()
-        self.assertContains(response, '“foo” value must be an integer.'.encode('utf-8'))
-        self.assertContains(response, '“bar” value must be an integer.'.encode('utf-8'))
+        self.assertContains(response, html.escape("Field 'weight' expected a number but got 'bar'"))
         self.assertIsNone(result.reps)
         self.assertIsNone(result.weight)
 
@@ -379,18 +374,37 @@ class ResultActionTest(WorksheetMixin, TestCase):
         worksheet = self._create_worksheet()
         response = self._update_worksheet_result(worksheet,
                                                  result_id=2,
-                                                 reps=10,
-                                                 weight=10)
+                                                 field='weight',
+                                                 value=10)
         result = Result.objects.get(pk=2)
-        self.assertEqual(response.content, '✅'.encode('utf-8'))
-        self.assertEqual(result.reps, 10)
+        self.assertNotContains(response, '✅'.encode('utf-8'))
+        self.assertEqual(len(response.content), 0)
+        self.assertIsNone(result.reps)
         self.assertIsNone(result.weight)
 
     def test_update_inexistant_result(self):
         worksheet = self._create_worksheet()
         response = self._update_worksheet_result(worksheet,
                                                  result_id=42,
-                                                 reps=10,
-                                                 weight=10)
-        self.assertContains(response, 'Could not update result 42 for worksheet 1')
+                                                 field='reps',
+                                                 value=10)
+        self.assertNotContains(response, '✅'.encode('utf-8'))
+        self.assertEqual(len(response.content), 0)
 
+        response = self._update_worksheet_result(worksheet,
+                                                 result_id=42,
+                                                 field='weight',
+                                                 value=10)
+        self.assertNotContains(response, '✅'.encode('utf-8'))
+        self.assertEqual(len(response.content), 0)
+
+    def test_update_unknown_field(self):
+        worksheet = self._create_worksheet()
+        response = self._update_worksheet_result(worksheet,
+                                                 result_id=1,
+                                                 field='foobar',
+                                                 value=10)
+        result = Result.objects.get(pk=1)
+        self.assertEqual(response.status_code, 404)
+        self.assertIsNone(result.reps)
+        self.assertIsNone(result.weight)
