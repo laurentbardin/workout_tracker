@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Exercise, Workout, Worksheet, Program, Schedule
+from .models import Exercise, Workout, Worksheet, Program
 
 class ProgramInline(admin.TabularInline):
     model = Program
@@ -23,13 +23,6 @@ class WorkoutAdmin(admin.ModelAdmin):
         # https://docs.djangoproject.com/en/5.2/ref/models/querysets/#prefetch-related
         ProgramInline,
     ]
-
-class ScheduleAdmin(admin.ModelAdmin):
-    list_display = ['day', 'workout']
-    # NOTE Using 'workout__name' in list_display makes list_select_related
-    # mandatory to limit SQL requests, whereas simply using 'workout' does not.
-    #list_select_related = ['workout']
-    ordering = ['day']
 
 class WorksheetAdmin(admin.ModelAdmin):
     list_display = ['date', 'workout', 'started_at', 'ended_at', 'done']
@@ -60,5 +53,4 @@ class WorksheetAdmin(admin.ModelAdmin):
 # Register your models here.
 admin.site.register(Exercise, ExerciseAdmin)
 admin.site.register(Workout, WorkoutAdmin)
-admin.site.register(Schedule, ScheduleAdmin)
 admin.site.register(Worksheet, WorksheetAdmin)

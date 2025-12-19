@@ -8,7 +8,8 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.generic import TemplateView, View
 
-from .models import Result, Schedule, Workout, Worksheet
+from .models import Result, Workout, Worksheet
+from schedule.models import Schedule
 
 # Create your views here.
 class Index(TemplateView):

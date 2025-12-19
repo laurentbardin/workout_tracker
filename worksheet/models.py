@@ -84,7 +84,7 @@ class Schedule(models.Model):
         SUNDAY: "Sunday",
     }
     day = models.SmallIntegerField(choices=DAY_CHOICES)
-    workout = models.ForeignKey(Workout, on_delete=models.CASCADE)
+    workout = models.ForeignKey(Workout, on_delete=models.CASCADE, related_name='+')
 
     def __str__(self):
         return f"{self.DAY_CHOICES[self.day]}: {self.workout.name}"

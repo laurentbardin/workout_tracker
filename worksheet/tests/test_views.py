@@ -5,10 +5,10 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from worksheet.models import (
-    Worksheet, Result, Schedule,
-)
+from worksheet.models import Worksheet, Result
 from worksheet.tests.mixins import ProgramSetupMixin, WorksheetMixin
+
+from schedule.models import Schedule
 
 class IndexViewTests(WorksheetMixin, TestCase):
     def test_workout_day(self):
