@@ -14,36 +14,33 @@ TODO
     ```
 
 2. Install requirements in a virtualenv
-    <details>
-    <summary>Using `pip`:</summary>
+
+    Using `pip`:
     ```sh
     $ python -mvenv .venv
     $ . .venv/bin/activate
     $ cd workout_tracker
     $ pip install -r requirements.txt
     ```
-    </details>
-    *or*
-    <details>
-    <summary>Using `uv`:</summary>
+
+    _Or_ using `uv`:
     ```sh
     $ cd workout_tracker
     $ uv sync
     $ . .venv/bin/activate
     ```
-    </details>
 
 3. Apply the migrations and the base data set
-   ```sh
-   $ python manage.py migrate
-   $ py manage.py loaddata --app worksheet fixtures/workout_base.json
-   ```
+    ```sh
+    $ python manage.py migrate
+    $ py manage.py loaddata --app worksheet fixtures/workout_base.json
+    ```
 
 4. Run the development server
-   ```sh
-   $ python manage.py runserver
-   ```
-   Open a browser to test the app: [http://localhost:8000](http://localhost:8000)
+    ```sh
+    $ python manage.py runserver
+    ```
+    Open a browser to test the app: [http://localhost:8000](http://localhost:8000)
 
 ## Notes
 
