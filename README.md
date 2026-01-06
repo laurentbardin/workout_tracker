@@ -33,7 +33,7 @@ TODO
 3. Apply the migrations and the base data set
     ```sh
     $ python manage.py migrate
-    $ py manage.py loaddata --app worksheet fixtures/workout_base.json
+    $ python manage.py loaddata --app worksheet fixtures/workout_base.json
     ```
 
 4. Run the development server
