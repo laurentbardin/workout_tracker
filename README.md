@@ -9,25 +9,37 @@ TODO
 ## Installation
 
 1. Clone the repository
-   ```sh
-   $ git clone git@gitlab.com:laurentbardin/workout_tracker
-   ```
+    ```sh
+    $ git clone git@gitlab.com:laurentbardin/workout_tracker
+    ```
 
 2. Install requirements in a virtualenv
-   ```sh
-   $ python -mvenv .venv
-   $ . .venv/bin/activate
-   $ cd workout_tracker
-   $ pip install -r requirements.txt
-   ```
+    <details>
+    <summary>Using `pip`:</summary>
+    ```sh
+    $ python -mvenv .venv
+    $ . .venv/bin/activate
+    $ cd workout_tracker
+    $ pip install -r requirements.txt
+    ```
+    </details>
+    *or*
+    <details>
+    <summary>Using `uv`:</summary>
+    ```sh
+    $ cd workout_tracker
+    $ uv sync
+    $ . .venv/bin/activate
+    ```
+    </details>
 
 3. Apply the migrations and the base data set
    ```sh
    $ python manage.py migrate
-   $ py manage.py loaddata --app worksheet fixtures/worksheets.json
+   $ py manage.py loaddata --app worksheet fixtures/workout_base.json
    ```
 
-4. Run the development server and explore the app
+4. Run the development server
    ```sh
    $ python manage.py runserver
    ```
