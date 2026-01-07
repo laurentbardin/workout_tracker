@@ -13,7 +13,7 @@ TODO
     $ git clone git@gitlab.com:laurentbardin/workout_tracker
     ```
 
-2. Install requirements in a virtualenv
+2. Install requirements in a virtual environment
 
     Using `pip`:
     ```sh
@@ -26,17 +26,25 @@ TODO
     _Or_ using `uv`:
     ```sh
     $ cd workout_tracker
-    $ uv sync
+    $ uv sync --frozen
     $ . .venv/bin/activate
     ```
 
 3. Apply the migrations and the base data set
     ```sh
     $ python manage.py migrate
-    $ python manage.py loaddata --app worksheet fixtures/workout_base.json
+    $ python manage.py loaddata --app worksheet fixtures/worksheet.json
     ```
+    This step adds 3 workouts and their exercises, as well as a basic schedule
+    (Monday to Saturday).
 
-4. Run the development server
+4. (Optional) Create the super user account
+    ```sh
+    $ python manage.py createsuperuser
+    ```
+    Can be done later, when you want to take a look at the admin area.
+
+5. Run the development server
     ```sh
     $ python manage.py runserver
     ```
