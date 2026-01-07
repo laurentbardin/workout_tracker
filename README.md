@@ -4,9 +4,10 @@ Built to familiarize myself with Django development.
 
 ## Overview
 
-![A diagram showing the relationship between models](doc/worksheet.svg "App database SVG diagram")
-
+<details>
+<summary>A test</summary>
 ![A diagram showing the relationship between models](doc/worksheet.png "App database PNG diagram")
+</details>
 
 ## Installation
 
