@@ -29,7 +29,7 @@ class ProgramSetupMixin:
         for ex in exercises:
             Program.objects.create(workout=workout, exercise=ex)
 
-        timezone.activate(getattr(settings, "CURRENT_TIME_ZONE", settings.TIME_ZONE))
+        timezone.activate(getattr(settings, "USER_TIME_ZONE", settings.TIME_ZONE))
 
 class WorksheetMixin(ProgramSetupMixin):
     """

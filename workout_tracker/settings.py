@@ -125,7 +125,7 @@ LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 # This is a hack to simulate the influence of a user's timezone, without having
 # to actually handle user management. Used by TimezoneMiddleware.
-CURRENT_TIME_ZONE = 'Europe/Paris'
+USER_TIME_ZONE = 'Europe/Paris'
 
 USE_I18N = True
 

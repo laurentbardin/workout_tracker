@@ -79,7 +79,7 @@ This step adds 3 workouts and their exercises, as well as a basic schedule
 Because this app was thought of as single-user but deals with timezone-aware
 datetimes, I added an app setting to simulate a user setting.
 
-In `settings.py`, edit `CURRENT_TIME_ZONE` to match the one of your current
+In `settings.py`, edit `USER_TIME_ZONE` to match the one of your current
 geographical location. The default is `Europe/Paris`.
 
 ## 5. (Optional) Create the super user account

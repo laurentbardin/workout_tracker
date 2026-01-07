@@ -6,7 +6,7 @@ from django.conf import settings
 from django.db import migrations, models
 
 def make_dates_unique(apps, schema_editor):
-    target_tz = getattr(settings, "CURRENT_TIME_ZONE", settings.TIME_ZONE)
+    target_tz = getattr(settings, "USER_TIME_ZONE", settings.TIME_ZONE)
     Worksheet = apps.get_model("worksheet", "Worksheet")
     for w in Worksheet.objects.all():
         w.date = django.utils.timezone.localdate(w.started_at, target_tz)

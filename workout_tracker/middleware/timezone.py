@@ -11,7 +11,7 @@ class TimezoneMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
         self.current_timezone = getattr(
-            settings, "CURRENT_TIME_ZONE", settings.TIME_ZONE
+            settings, "USER_TIME_ZONE", settings.TIME_ZONE
         )
 
     def __call__(self, request):
