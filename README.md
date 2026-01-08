@@ -53,15 +53,15 @@ $ pip install -r requirements.txt
 *Or* using `uv`:
 ```sh
 $ cd workout_tracker
-$ uv sync --frozen
+$ uv sync
 $ . .venv/bin/activate
 ```
 
 ## 3. (Optional) Database setup
 
 By default, the app uses SQLite for a quicker setup, but is perfectly
-compatible with PostgreSQL. Simply edit the `DATABASES` entry to your liking in
-`settings.py`.
+compatible with PostgreSQL (the previous step installed the `psycopg` library).
+Simply edit the `DATABASES` entry to your liking in `settings.py`.
 
 *Note*: when using PostgreSQL, the server's timezone should be set to
 `Etc/UTC`, just like the app (`TIME_ZONE` in `settings.py`).
