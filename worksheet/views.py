@@ -1,5 +1,4 @@
 import datetime
-import calendar
 
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError, transaction
@@ -21,6 +20,8 @@ class Index(TemplateView):
     template_name = 'worksheet/index.html'
 
     def render_to_response(self, context, **response_kwargs):
+        import calendar
+
         cal = calendar.Calendar()
         today = timezone.localdate()
         weeks = list(cal.monthdatescalendar(today.year, today.month))
@@ -230,6 +231,7 @@ class ResultAction(View):
         # be configured for this to work. Need to read
         # https://docs.djangoproject.com/en/5.2/howto/csrf/ and
         # https://docs.djangoproject.com/en/5.2/ref/csrf/
+        import http
 
         filters = {
             'pk': result_id,
@@ -264,7 +266,19 @@ class ResultAction(View):
             errors = {field: [f"Invalid value {value} for field '{field}'"]}
 
         if errors is not None:
-            return render(request, 'worksheet/partials/result_error.html', {'errors': errors})
+            event = 'updateError'
+            http_response = render(request, 'worksheet/partials/result_error.html', {'errors': errors})
+        else:
+            response = ''
+            event = ''
+            status_code = http.HTTPStatus.NO_CONTENT
+            if updated == 1:
+                response = '✅'
+                event = 'updateSuccess'
+                status_code = http.HTTPStatus.OK
 
-        response = '✅' if updated == 1 else ''
-        return HttpResponse(response)
+            http_response = HttpResponse(response, status=status_code)
+
+        http_response.headers["HX-Trigger-After-Settle"] = event
+
+        return http_response

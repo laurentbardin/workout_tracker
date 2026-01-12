@@ -1,6 +1,6 @@
 {% load static %}
 
-<div class="result reps {{ row }}">
+<div class="result reps {{ row }} {{ result.reps_status }}">
     {% if worksheet.done %}
         {{ result.reps|default:0 }}
     {% else %}
@@ -20,7 +20,7 @@
                required>
     {% endif %}
 </div>
-<div class="result weight {{ row }}">
+<div class="result weight {{ row }} {{ result.weight_status }}">
     {% if result.exercise.weight %}
         {% if worksheet.done %}
             {{ result.weight|default:0 }}

@@ -156,19 +156,11 @@ class Result(models.Model):
 
         return super().clean_fields(exclude)
 
-    def is_filled(self):
-        """
-        Returns false if no full results have yet been submitted for this
-        exercise, true otherwise.
-        """
-        return self.reps is not None and (
-            self.weight is not None
-            or
-            not self.exercise.weight and self.weight is None
-        )
+    def reps_status(self):
+        return "success" if not self.worksheet.done and self.reps is not None else ''
 
-    def get_status(self):
-        return "filled" if self.is_filled() else ''
+    def weight_status(self):
+        return "success" if not self.worksheet.done and self.exercise.weight and self.weight is not None else ''
 
     class Meta:
         order_with_respect_to = "worksheet"

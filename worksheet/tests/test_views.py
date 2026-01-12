@@ -377,7 +377,7 @@ class ResultActionTest(WorksheetMixin, TestCase):
                                                  field='weight',
                                                  value=10)
         result = Result.objects.get(pk=2)
-        self.assertNotContains(response, '✅'.encode('utf-8'))
+        self.assertEqual(response.status_code, 204)
         self.assertEqual(len(response.content), 0)
         self.assertIsNone(result.reps)
         self.assertIsNone(result.weight)
@@ -388,14 +388,14 @@ class ResultActionTest(WorksheetMixin, TestCase):
                                                  result_id=42,
                                                  field='reps',
                                                  value=10)
-        self.assertNotContains(response, '✅'.encode('utf-8'))
+        self.assertEqual(response.status_code, 204)
         self.assertEqual(len(response.content), 0)
 
         response = self._update_worksheet_result(worksheet,
                                                  result_id=42,
                                                  field='weight',
                                                  value=10)
-        self.assertNotContains(response, '✅'.encode('utf-8'))
+        self.assertEqual(response.status_code, 204)
         self.assertEqual(len(response.content), 0)
 
     def test_update_unknown_field(self):

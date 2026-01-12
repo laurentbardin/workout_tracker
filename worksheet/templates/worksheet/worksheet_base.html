@@ -19,7 +19,12 @@
 {% else %}
 <h2><span id="clock" class="hidden">0:00:00</span></h2>
 {% endif %}
-<section class="worksheet {{ worksheet.get_status }}">
+<section class="worksheet {{ worksheet.get_status }}"
+    {% if not worksheet.done %}
+    hx-on:update-success="let e = event.target.parentElement;htmx.removeClass(e, 'error');htmx.addClass(e, 'success');"
+    hx-on:update-error="let e = event.target.parentElement;htmx.removeClass(e, 'success');htmx.addClass(e, 'error');"
+    {% endif %}
+    >
     <div class="exercise header">Exercise</div>
     <div class="reps header">Reps</div>
     <div class="weight header">Weight (kg)</div>

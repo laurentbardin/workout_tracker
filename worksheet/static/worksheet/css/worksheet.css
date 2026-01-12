@@ -18,6 +18,13 @@
         background-color: var(--color-accent);
     }
 
+    .result.success {
+        background-color: var(--color-success);
+    }
+    .result.error {
+        background-color: var(--color-error);
+    }
+
     .header, .exercise, .result {
         display: flex;
         align-items: center;
