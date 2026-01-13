@@ -14,6 +14,10 @@
         margin: 0;
     }
 
+    .result {
+        transition: background-color 250ms ease-in;
+    }
+
     .even {
         background-color: var(--color-accent);
     }
