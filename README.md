@@ -1,4 +1,4 @@
-A small Django application to track workout sessions
+<h1>A small Django application to track workout sessions</h1>
 
 [toc]
 
