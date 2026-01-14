@@ -6,7 +6,7 @@
   * [1. Clone the repository](#1-clone-the-repository)
   * [2. Install requirements in a virtual environment](#2-install-requirements-in-a-virtual-environment)
   * [3. (Optional) Database setup](#3-optional-database-setup)
-  * [4. Apply the migrations and the base data set](#4-apply-the-migration-and-the-base-data-set)
+  * [4. Apply the migrations and the base data set](#4-apply-the-migrations-and-the-base-data-set)
   * [5. (Optional) Edit the current user's timezone](#5-optional-edit-the-current-users-timezone)
   * [6. (Optional) Create the super user account](#6-optional-create-the-super-user-account)
   * [7. Run the development server](#7-run-the-development-server)
