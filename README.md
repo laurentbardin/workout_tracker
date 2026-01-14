@@ -1,6 +1,20 @@
 <h1>A small Django application to track workout sessions</h1>
 
-[toc]
+* [Overview](#overview)
+  * [Models](#models)
+* [Installation](#installation)
+  * [1. Clone the repository](#1-clone-the-repository)
+  * [2. Install requirements in a virtual environment](#2-install-requirements-in-a-virtual-environment)
+  * [3. (Optional) Database setup](#3-optional-database-setup)
+  * [4. Apply the migrations and the base data set](#4-apply-the-migration-and-the-base-data-set)
+  * [5. (Optional) Edit the current user's timezone](#5-optional-edit-the-current-users-timezone)
+  * [6. (Optional) Create the super user account](#6-optional-create-the-super-user-account)
+  * [7. Run the development server](#7-run-the-development-server)
+* [Usage](#usage)
+* [Notes](#notes)
+  * [No user account needed](#no-user-account-needed)
+  * [CSS Grid](#css-grid)
+  * [HTMX](#htmx)
 
 # Overview
 
@@ -66,7 +80,7 @@ Simply edit the `DATABASES` entry to your liking in `settings.py`.
 *Note*: when using PostgreSQL, the server's timezone should be set to
 `Etc/UTC`, just like the app (`TIME_ZONE` in `settings.py`).
 
-## 3. Apply the migrations and the base data set
+## 4. Apply the migrations and the base data set
 ```sh
 $ python manage.py migrate
 $ python manage.py loaddata --app worksheet fixtures/worksheet.json
@@ -74,7 +88,7 @@ $ python manage.py loaddata --app worksheet fixtures/worksheet.json
 This step adds 3 workouts and their exercises, as well as a basic schedule
 (Monday to Saturday).
 
-## 4. (Optional) Edit the current user's timezone
+## 5. (Optional) Edit the current user's timezone
 
 Because this app was thought of as single-user but deals with timezone-aware
 datetimes, I added an app setting to simulate a user setting.
@@ -82,13 +96,13 @@ datetimes, I added an app setting to simulate a user setting.
 In `settings.py`, edit `USER_TIME_ZONE` to match the one of your current
 geographical location. The default is `Europe/Paris`.
 
-## 5. (Optional) Create the super user account
+## 6. (Optional) Create the super user account
 ```sh
 $ python manage.py createsuperuser
 ```
 Can be done later, if you want to take a look at the admin area.
 
-## 6. Run the development server
+## 7. Run the development server
 ```sh
 $ python manage.py runserver
 ```
