@@ -2,6 +2,8 @@
     table-layout: fixed;
     caption-side: top;
     overflow: show;
+    border: none;
+    padding: 0 1rem 1rem 1rem;
 
     caption {
         .active-worksheets {
@@ -17,24 +19,30 @@
     td, th {
         text-align: center !important;
     }
-    tbody td {
-        height: 5rem;
-        position: relative;
-        border-left: 1px solid var(--color-bg-secondary);
+    tbody {
+        td {
+            height: 5rem;
+            position: relative;
+            border: 0 solid var(--color-bg-secondary);
+            border-left-width: 1px;
 
-        &:first-child {
-            border-left-width: 0;
-        }
+            &:last-child {
+                border-right-width: 1px;
+            }
+            tr:last-child & {
+                border-bottom-width: 1px;
+            }
 
-        span {
-            position: absolute;
-            font-size: 0.75rem;
-            top: 0.25rem;
-            left: 0.25rem;
-        }
+            span {
+                position: absolute;
+                font-size: 0.75rem;
+                top: 0.25rem;
+                left: 0.25rem;
+            }
 
-        &.other_month {
-            color: var(--color-text-secondary);
+            &.other_month {
+                color: var(--color-text-secondary);
+            }
         }
     }
     .today {
