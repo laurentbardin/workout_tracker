@@ -26,6 +26,9 @@ This is an app built to tackle two issues at the same time:
 The first one can be considered done, and the second is still in progress (as
 learning often is).
 
+*Note:* please be aware that I am by no means a designer, and don't have any
+pretention to be, so the app may look raw.
+
 ## Models
 
 The app consists of 4 main and 2 intermediary models. You can deploy the
