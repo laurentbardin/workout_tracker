@@ -5,3 +5,4 @@ In no particular order:
     * Show/Hide notes from the previous session, if any
 * Display estimated time when starting a workout (mean of 5 previous
   instances?)
+* Previous and Next Month navigation on the calendar view
