@@ -11,7 +11,7 @@
 
 <table class="calendar">
     <caption>
-        <h1>Workout calendar for {{ today | date:"F Y" }}</h1>
+        <h1>Workout calendar for {{ month | date:"F Y" }}</h1>
         {% if active_worksheets %}
         <div class="active-worksheets">
             <p>Some workouts are still in progress:</p>

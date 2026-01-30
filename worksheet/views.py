@@ -1,3 +1,4 @@
+import calendar
 import datetime
 
 from django.core.exceptions import ValidationError
@@ -11,20 +12,29 @@ from django.views.generic import TemplateView, View
 from .models import Result, Schedule, Workout, Worksheet
 
 # Create your views here.
-class Index(TemplateView):
+class IndexView(TemplateView):
     """
-    The index displays the name of today's workout and either a button to
-    create a new worksheet for the scheduled workout, or a link to any already
-    active worksheet.
+    The index displays a calendar view of the current month with past and
+    upcoming workouts. The current day is highlighted, and if it contains a
+    scheduled workout, a button will be available to start it.
     """
     template_name = 'worksheet/index.html'
 
+    year = None
+    month = None
+
     def render_to_response(self, context, **response_kwargs):
-        import calendar
+        self._get_calendar(context)
+
+        return super().render_to_response(context, **response_kwargs)
+
+    def _get_calendar(self, context):
+        if self.year is None or self.month is None:
+            today = timezone.localdate()
+            (self.year, self.month) = (today.year, today.month)
 
         cal = calendar.Calendar()
-        today = timezone.localdate()
-        weeks = list(cal.monthdatescalendar(today.year, today.month))
+        weeks = list(cal.monthdatescalendar(self.year, self.month))
 
         worksheets = {
             worksheet.date: worksheet
@@ -52,11 +62,20 @@ class Index(TemplateView):
             workout_calendar.append(calendar_week)
 
         context['calendar'] = workout_calendar
-        context['today'] = today
+        context['today'] = context['month'] = timezone.localdate()
         context['days'] = list(calendar.day_name)
         context['active_worksheets'] = Worksheet.objects.get_active().all()
 
+class CalendarView(IndexView):
+    def render_to_response(self, context, **response_kwargs):
+        (self.year, self.month) = (context['year'], context['month'])
+
         return super().render_to_response(context, **response_kwargs)
+
+    def _get_calendar(self, context):
+        super()._get_calendar(context)
+
+        context['month'] = datetime.date(self.year, self.month, 1)
 
 class CreateView(View):
     """

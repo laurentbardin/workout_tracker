@@ -5,7 +5,8 @@ from . import views
 app_name = 'worksheet'
 
 urlpatterns = [
-    path('', views.Index.as_view(), name='index'),
+    path('', views.IndexView.as_view(), name='index'),
+    path('<int:year>/<int:month>/', views.CalendarView.as_view(), name='calendar'),
     path('worksheet/', views.CreateView.as_view(), name='create'),
     path('worksheet/<int:year>/<int:month>/<int:day>/', views.WorksheetView.as_view(), name='worksheet'),
     path('worksheet/<int:worksheet_id>/close', views.CloseAction.as_view(), name='close'),
