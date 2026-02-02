@@ -7,11 +7,20 @@
 <link rel="stylesheet" href="{% static 'worksheet/css/index.css' %}">
 {% endblock %}
 
+{% block javascript %}
+    {{ block.super }}
+    <script src="{% static 'worksheet/js/htmx.min.js' %}"></script>
+{% endblock %}
+
 {% block content %}
 
 <table class="calendar">
     <caption>
-        <h1>Workout calendar for {{ month | date:"F Y" }}</h1>
+        <nav hx-boost="true">
+            <a href="{{ previous_month_url }}"><img src="{% static 'worksheet/img/arrow-left.svg' %}" width="30" height="30"></a>
+            <h1>Workout calendar for {{ month | date:"F Y" }}</h1>
+            <a href="{{ next_month_url }}"><img src="{% static 'worksheet/img/arrow-right.svg' %}" width="30" height="30"></a>
+        </nav>
         {% if active_worksheets %}
         <div class="active-worksheets">
             <p>Some workouts are still in progress:</p>

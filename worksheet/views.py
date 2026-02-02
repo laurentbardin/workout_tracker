@@ -29,11 +29,11 @@ class IndexView(TemplateView):
         return super().render_to_response(context, **response_kwargs)
 
     def _get_calendar(self, context):
-        if self.year is None or self.month is None:
-            today = timezone.localdate()
-            (self.year, self.month) = (today.year, today.month)
-
+        today = timezone.localdate()
         cal = calendar.Calendar()
+
+        if self.year is None or self.month is None:
+            (self.year, self.month) = (today.year, today.month)
         weeks = list(cal.monthdatescalendar(self.year, self.month))
 
         worksheets = {
@@ -62,9 +62,20 @@ class IndexView(TemplateView):
             workout_calendar.append(calendar_week)
 
         context['calendar'] = workout_calendar
-        context['today'] = context['month'] = timezone.localdate()
+        context['today'] = today
         context['days'] = list(calendar.day_name)
         context['active_worksheets'] = Worksheet.objects.get_active().all()
+
+        self._get_month_navigation(context, today)
+
+    def _get_month_navigation(self, context, date):
+        month = date.replace(day=1)
+        context['month'] = month
+
+        previous_month = month - datetime.timedelta(days=1)
+        next_month = month + datetime.timedelta(days=32)
+        context['previous_month_url'] = reverse('worksheet:calendar', args=[previous_month.year, previous_month.month])
+        context['next_month_url'] = reverse('worksheet:calendar', args=[next_month.year, next_month.month])
 
 class CalendarView(IndexView):
     def render_to_response(self, context, **response_kwargs):
@@ -72,10 +83,10 @@ class CalendarView(IndexView):
 
         return super().render_to_response(context, **response_kwargs)
 
-    def _get_calendar(self, context):
-        super()._get_calendar(context)
+    def _get_month_navigation(self, context, date):
+        date = datetime.date(self.year, self.month, 1)
 
-        context['month'] = datetime.date(self.year, self.month, 1)
+        super()._get_month_navigation(context, date)
 
 class CreateView(View):
     """
