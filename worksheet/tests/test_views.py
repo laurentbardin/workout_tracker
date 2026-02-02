@@ -1,5 +1,6 @@
 import datetime
 import html
+import random
 
 from django.test import TestCase
 from django.urls import reverse
@@ -11,6 +12,16 @@ from worksheet.models import (
 from worksheet.tests.mixins import ProgramSetupMixin, WorksheetMixin
 
 class IndexViewTests(WorksheetMixin, TestCase):
+    def test_index_display_current_month(self):
+        """
+        The index page displays a calendar for the current month
+        """
+        today = timezone.localdate()
+
+        response = self.client.get(reverse('worksheet:index'))
+        self.assertContains(response, f"Workout calendar for {today.strftime('%B %Y')}")
+        self.assertContains(response, 'class="today"', 1)
+
     def test_workout_day(self):
         """
         The index page offers to start a workout when one is scheduled for the
@@ -73,6 +84,32 @@ class IndexViewTests(WorksheetMixin, TestCase):
         self.assertContains(response, "Some workouts are still in progress")
         self.assertContains(response, worksheet.get_absolute_url())
         self.assertNotContains(response, '<button type="submit">' + self.workout.name + '</button>')
+
+class CalendarViewTest(TestCase):
+    def test_calendar_display_current_month(self):
+        today = timezone.localdate()
+
+        response = self.client.get(reverse('worksheet:calendar', args=[ today.year, today.month ]))
+        self.assertContains(response, f"Workout calendar for {today.strftime('%B %Y')}")
+        self.assertContains(response, 'class="today"', 1)
+
+    def test_calendar_display_arbitrary_past_month(self):
+        date = datetime.date(timezone.localdate().year + random.randint(-10, -1),
+                             random.randint(1, 12),
+                             1)
+
+        response = self.client.get(reverse('worksheet:calendar', args=[ date.year, date.month ]))
+        self.assertContains(response, f"Workout calendar for {date.strftime('%B %Y')}")
+        self.assertNotContains(response, 'class="today"')
+
+    def test_calendar_display_arbitrary_future_month(self):
+        date = datetime.date(timezone.localdate().year + random.randint(1, 10),
+                             random.randint(1, 12),
+                             1)
+
+        response = self.client.get(reverse('worksheet:calendar', args=[ date.year, date.month ]))
+        self.assertContains(response, f"Workout calendar for {date.strftime('%B %Y')}")
+        self.assertNotContains(response, 'class="today"')
 
 class CreateViewTest(ProgramSetupMixin, TestCase):
     def test_creation_when_not_scheduled(self):
@@ -240,8 +277,8 @@ class ResultViewTest(WorksheetMixin, TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Number of reps cannot be negative', 2)
-        self.assertContains(response, '-3', 1)
-        self.assertContains(response, '-2', 1)
+        self.assertContains(response, 'value="-3"', 1)
+        self.assertContains(response, 'value="-2"', 1)
 
         for result in worksheet.result_set.select_related('exercise').all():
             self.assertIsNone(result.reps)
@@ -259,7 +296,7 @@ class ResultViewTest(WorksheetMixin, TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Used weight cannot be negative', 1)
-        self.assertContains(response, '-4', 1)
+        self.assertContains(response, 'value="-4"', 1)
 
         for result in worksheet.result_set.select_related('exercise').all():
             self.assertIsNone(result.reps)

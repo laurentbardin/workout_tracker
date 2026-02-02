@@ -1,3 +1,4 @@
+import calendar
 import datetime
 
 from django.core.exceptions import ValidationError
@@ -11,20 +12,29 @@ from django.views.generic import TemplateView, View
 from .models import Result, Schedule, Workout, Worksheet
 
 # Create your views here.
-class Index(TemplateView):
+class IndexView(TemplateView):
     """
-    The index displays the name of today's workout and either a button to
-    create a new worksheet for the scheduled workout, or a link to any already
-    active worksheet.
+    The index displays a calendar view of the current month with past and
+    upcoming workouts. The current day is highlighted, and if it contains a
+    scheduled workout, a button will be available to start it.
     """
     template_name = 'worksheet/index.html'
 
-    def render_to_response(self, context, **response_kwargs):
-        import calendar
+    year = None
+    month = None
 
-        cal = calendar.Calendar()
+    def render_to_response(self, context, **response_kwargs):
+        self._get_calendar(context)
+
+        return super().render_to_response(context, **response_kwargs)
+
+    def _get_calendar(self, context):
         today = timezone.localdate()
-        weeks = list(cal.monthdatescalendar(today.year, today.month))
+        cal = calendar.Calendar()
+
+        if self.year is None or self.month is None:
+            (self.year, self.month) = (today.year, today.month)
+        weeks = list(cal.monthdatescalendar(self.year, self.month))
 
         worksheets = {
             worksheet.date: worksheet
@@ -56,7 +66,27 @@ class Index(TemplateView):
         context['days'] = list(calendar.day_name)
         context['active_worksheets'] = Worksheet.objects.get_active().all()
 
+        self._get_month_navigation(context, today)
+
+    def _get_month_navigation(self, context, date):
+        month = date.replace(day=1)
+        context['month'] = month
+
+        previous_month = month - datetime.timedelta(days=1)
+        next_month = month + datetime.timedelta(days=32)
+        context['previous_month_url'] = reverse('worksheet:calendar', args=[previous_month.year, previous_month.month])
+        context['next_month_url'] = reverse('worksheet:calendar', args=[next_month.year, next_month.month])
+
+class CalendarView(IndexView):
+    def render_to_response(self, context, **response_kwargs):
+        (self.year, self.month) = (context['year'], context['month'])
+
         return super().render_to_response(context, **response_kwargs)
+
+    def _get_month_navigation(self, context, date):
+        date = datetime.date(self.year, self.month, 1)
+
+        super()._get_month_navigation(context, date)
 
 class CreateView(View):
     """
