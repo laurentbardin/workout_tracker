@@ -280,6 +280,12 @@ class ResultAction(View):
                 value = request.POST.get('weight', None)
                 filters.update(exercise__weight=True)
 
+            case 'note':
+                value = request.POST.get('note', None)
+                if value == '':
+                    # Transform empty string to NULL (may not be necessary?)
+                    value = None
+
             case _:
                 return HttpResponseNotFound()
 
