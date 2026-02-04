@@ -138,6 +138,7 @@ class Result(models.Model):
     weight = models.SmallIntegerField(validators=[validators.MinValueValidator(0, message="Used weight cannot be negative")], blank=True, null=True)
     exercise = models.ForeignKey(Exercise, on_delete=models.PROTECT)
     worksheet = models.ForeignKey(Worksheet, on_delete=models.CASCADE)
+    note = models.CharField(max_length=200, null=True, blank=True)
 
     objects = models.Manager()
     results = ResultRelatedManager()
