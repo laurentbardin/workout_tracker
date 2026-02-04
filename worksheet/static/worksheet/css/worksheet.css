@@ -16,6 +16,10 @@
 
     .result {
         transition: background-color 250ms ease-in;
+
+        &:has(input:focus) {
+            background-color: var(--color-info);
+        }
     }
 
     .even {
