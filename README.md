@@ -79,7 +79,8 @@ $ . .venv/bin/activate
 
 By default, the app uses SQLite for a quicker setup, but is perfectly
 compatible with PostgreSQL (the previous step installed the `psycopg` library).
-Simply edit the `DATABASES` entry to your liking in `settings.py`.
+Simply edit the `pg_conf` and `DATABASES` entries to your liking in
+`settings.py`.
 
 *Note*: when using PostgreSQL, the server's timezone should be set to
 `Etc/UTC`, just like the app (`TIME_ZONE` in `settings.py`).
