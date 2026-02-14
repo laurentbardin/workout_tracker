@@ -55,22 +55,6 @@ class WorksheetMixin(ProgramSetupMixin):
 
         return worksheet
 
-    def _update_worksheet(self, worksheet, *, reps, weights):
-        response = self.client.post(
-            reverse("worksheet:worksheet", kwargs={
-                'year': worksheet.date.year,
-                'month': worksheet.date.month,
-                'day': worksheet.date.day,
-            }),
-            {
-                'result': [str(result.id) for result in worksheet.result_set.all()],
-                'reps': [str(value) for value in reps],
-                'weight': [str(value) for value in weights],
-            }
-        )
-
-        return response
-
     def _update_worksheet_result(self, worksheet, result_id, field, value):
         # Don't filter 'field' values during testing, the view should handle
         # that

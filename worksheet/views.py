@@ -1,7 +1,6 @@
 import calendar
 import datetime
 
-from django.core.exceptions import ValidationError
 from django.db import IntegrityError, transaction
 from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
 from django.shortcuts import render
@@ -139,62 +138,6 @@ class WorksheetView(TemplateView):
                 'worksheet': worksheet,
                 'results': results,
             })
-
-        return super().render_to_response(context, **response_kwargs)
-
-    def post(self, request, *args, **kwargs):
-        post = request.POST.copy()
-
-        self.extra_context = {
-            'reps': post.pop('reps'),
-            'weight': post.pop('weight'),
-            'result_ids': post.pop('result'),
-        }
-
-        return self.update_worksheet(self.get_context_data(**kwargs))
-
-    def update_worksheet(self, context, **response_kwargs):
-        worksheet, results, date = self._get_worksheet_and_results(context)
-
-        if worksheet is None:
-            return HttpResponseRedirect(reverse('worksheet:index'))
-
-        if worksheet.done:
-            return HttpResponseRedirect(reverse(
-                'worksheet:worksheet',
-                args=[date.year, date.month, date.day],
-            ))
-
-        results_dict = {str(r.id): r for r in results}
-
-        result_errors = 0
-        for idx, result_id in enumerate(context['result_ids']):
-            result = results_dict[result_id]
-
-            result.reps = context['reps'][idx]
-            result.weight = context['weight'][idx] or None
-
-            try:
-                result.clean_fields()
-            except ValidationError as ve:
-                result_errors += 1
-
-                if not hasattr(result, 'errors'):
-                    result.errors = {}
-
-                result.errors.update(ve.message_dict)
-
-        if result_errors == 0:
-            Result.objects.bulk_update(results, ["reps", "weight"])
-
-        if worksheet.workout.repeat:
-            self.template_name = 'worksheet/worksheet_repeat.html'
-
-        context.update({
-            'worksheet': worksheet,
-            'results': results,
-            'result_errors': result_errors,
-        })
 
         return super().render_to_response(context, **response_kwargs)
 
