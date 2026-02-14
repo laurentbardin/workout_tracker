@@ -52,6 +52,16 @@
     {% endif %}
 </div>
 {% endif %}
+<div class="result action">
+    {% if not worksheet.done %}
+    <img src="{% static 'worksheet/img/note-add.svg' %}"
+         alt="Add note icon"
+         title="Add a note to this result"
+         width=16
+         height=16
+    />
+    {% endif %}
+</div>
 <div class="result status">
     <img class="htmx-indicator" src="{% static 'worksheet/img/loader.svg' %}" alt="Loading..." />
     <div class="response"></div>
