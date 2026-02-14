@@ -248,15 +248,12 @@ class ResultAction(View):
             event = 'updateError'
             http_response = render(request, 'worksheet/partials/result_error.html', {'errors': errors})
         else:
-            response = ''
-            event = ''
-            status_code = http.HTTPStatus.NO_CONTENT
             if updated == 1:
-                response = '✅'
                 event = 'updateSuccess'
-                status_code = http.HTTPStatus.OK
+            else:
+                event = ''
 
-            http_response = HttpResponse(response, status=status_code)
+            http_response = HttpResponse(status=http.HTTPStatus.NO_CONTENT)
 
         http_response.headers["HX-Trigger-After-Settle"] = event
 

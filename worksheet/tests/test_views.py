@@ -239,7 +239,7 @@ class ResultActionTest(WorksheetMixin, TestCase):
                                                  field='reps',
                                                  value=10)
         result = Result.objects.get(pk=1)
-        self.assertEqual(response.content, '✅'.encode('utf-8'))
+        self.assertEqual(response.content, b'')
         self.assertEqual(result.reps, 10)
         self.assertIsNone(result.weight)
 
@@ -248,7 +248,7 @@ class ResultActionTest(WorksheetMixin, TestCase):
                                                  field='weight',
                                                  value=6)
         result.refresh_from_db()
-        self.assertEqual(response.content, '✅'.encode('utf-8'))
+        self.assertEqual(response.content, b'')
         self.assertEqual(result.reps, 10)
         self.assertEqual(result.weight, 6)
 
