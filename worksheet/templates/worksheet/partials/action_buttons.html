@@ -1,0 +1,20 @@
+{% load static %}
+
+<button id="result-action-{{ result.id }}"
+        popovertarget="notePopover"
+        data-note="{{ result.note|default:'' }}"
+        hx-on:click="initNoteForm('{% url 'worksheet:result' worksheet.id result.id 'note' %}', this)"
+        >
+    {% if result.note %}
+    <img src="{% static 'worksheet/img/note-view.svg' %}"
+         alt="View note icon"
+         title="View or modify the note on this result"
+         />
+    {% else %}
+    <img src="{% static 'worksheet/img/note-add.svg' %}"
+         alt="Add note icon"
+         title="Add a note to this result"
+         />
+    {% endif %}
+</button>
+

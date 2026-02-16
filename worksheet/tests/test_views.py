@@ -341,18 +341,49 @@ class ResultActionTest(WorksheetMixin, TestCase):
         self.assertEqual(response.status_code, 204)
         self.assertEqual(len(response.content), 0)
 
-    def test_attach_note_to_result(self):
+    def test_add_modify_remove_note_result(self):
         worksheet = self._create_worksheet()
         response = self._update_worksheet_result(worksheet,
                                                  result_id=1,
                                                  field='note',
                                                  value='This is a note')
         result = Result.objects.get(pk=1)
-        self.assertEqual(response.status_code, 204)
-        self.assertEqual(len(response.content), 0)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'data-note="This is a note"')
+        self.assertContains(response, '"result-action-1"')
+        self.assertContains(response, 'note-view.svg')
+
         self.assertIsNone(result.reps)
         self.assertIsNone(result.weight)
         self.assertEqual(result.note, 'This is a note')
+
+        response = self._update_worksheet_result(worksheet,
+                                                 result_id=1,
+                                                 field='note',
+                                                 value='This is a new note')
+        result = Result.objects.get(pk=1)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'data-note="This is a new note"')
+        self.assertContains(response, '"result-action-1"')
+        self.assertContains(response, 'note-view.svg')
+
+        self.assertIsNone(result.reps)
+        self.assertIsNone(result.weight)
+        self.assertEqual(result.note, 'This is a new note')
+
+        response = self._update_worksheet_result(worksheet,
+                                                 result_id=1,
+                                                 field='note',
+                                                 value='')
+        result = Result.objects.get(pk=1)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'data-note=""')
+        self.assertContains(response, '"result-action-1"')
+        self.assertContains(response, 'note-add.svg')
+
+        self.assertIsNone(result.reps)
+        self.assertIsNone(result.weight)
+        self.assertIsNone(result.note)
 
     def test_update_unknown_field(self):
         worksheet = self._create_worksheet()

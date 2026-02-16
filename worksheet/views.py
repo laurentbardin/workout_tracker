@@ -247,8 +247,16 @@ class ResultAction(View):
         if errors is not None:
             event = 'updateError'
             http_response = render(request, 'worksheet/partials/result_error.html', {'errors': errors})
+        elif field == 'note':
+                http_response = render(request, 'worksheet/partials/action_buttons.html', {
+                    'result': Result(id=result_id, note=value),
+                    'worksheet': Worksheet(id=worksheet_id),
+                })
+                # TODO Rework this whole logic so we don't have an intermediate
+                # return
+                return http_response
         else:
-            if field != 'note' and updated == 1:
+            if updated == 1:
                 event = 'updateSuccess'
             else:
                 event = ''
