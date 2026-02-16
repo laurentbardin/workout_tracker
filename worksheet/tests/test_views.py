@@ -242,6 +242,7 @@ class ResultActionTest(WorksheetMixin, TestCase):
         self.assertEqual(response.content, b'')
         self.assertEqual(result.reps, 10)
         self.assertIsNone(result.weight)
+        self.assertIsNone(result.note)
 
         response = self._update_worksheet_result(worksheet,
                                                  result_id=1,
@@ -251,6 +252,7 @@ class ResultActionTest(WorksheetMixin, TestCase):
         self.assertEqual(response.content, b'')
         self.assertEqual(result.reps, 10)
         self.assertEqual(result.weight, 6)
+        self.assertIsNone(result.note)
 
     def test_update_result_without_reps(self):
         worksheet = self._create_worksheet()
@@ -262,6 +264,7 @@ class ResultActionTest(WorksheetMixin, TestCase):
         self.assertContains(response, 'Missing number of reps')
         self.assertIsNone(result.reps)
         self.assertIsNone(result.weight)
+        self.assertIsNone(result.note)
 
     def test_update_result_with_negative_values(self):
         worksheet = self._create_worksheet()
@@ -273,6 +276,7 @@ class ResultActionTest(WorksheetMixin, TestCase):
         self.assertContains(response, html.escape("Invalid value -2 for field 'reps'"))
         self.assertIsNone(result.reps)
         self.assertIsNone(result.weight)
+        self.assertIsNone(result.note)
 
         response = self._update_worksheet_result(worksheet,
                                                  result_id=1,
@@ -282,6 +286,7 @@ class ResultActionTest(WorksheetMixin, TestCase):
         self.assertContains(response, html.escape("Invalid value -3 for field 'weight'"))
         self.assertIsNone(result.reps)
         self.assertIsNone(result.weight)
+        self.assertIsNone(result.note)
 
     def test_update_result_with_invalid_values(self):
         worksheet = self._create_worksheet()
@@ -294,6 +299,7 @@ class ResultActionTest(WorksheetMixin, TestCase):
         self.assertContains(response, html.escape("Field 'reps' expected a number but got 'foo'"))
         self.assertIsNone(result.reps)
         self.assertIsNone(result.weight)
+        self.assertIsNone(result.note)
 
         response = self._update_worksheet_result(worksheet,
                                                  result_id=1,
@@ -304,6 +310,7 @@ class ResultActionTest(WorksheetMixin, TestCase):
         self.assertContains(response, html.escape("Field 'weight' expected a number but got 'bar'"))
         self.assertIsNone(result.reps)
         self.assertIsNone(result.weight)
+        self.assertIsNone(result.note)
 
     def test_update_weightless_exercise_with_weight(self):
         worksheet = self._create_worksheet()
@@ -316,6 +323,7 @@ class ResultActionTest(WorksheetMixin, TestCase):
         self.assertEqual(len(response.content), 0)
         self.assertIsNone(result.reps)
         self.assertIsNone(result.weight)
+        self.assertIsNone(result.note)
 
     def test_update_inexistant_result(self):
         worksheet = self._create_worksheet()
@@ -332,6 +340,19 @@ class ResultActionTest(WorksheetMixin, TestCase):
                                                  value=10)
         self.assertEqual(response.status_code, 204)
         self.assertEqual(len(response.content), 0)
+
+    def test_attach_note_to_result(self):
+        worksheet = self._create_worksheet()
+        response = self._update_worksheet_result(worksheet,
+                                                 result_id=1,
+                                                 field='note',
+                                                 value='This is a note')
+        result = Result.objects.get(pk=1)
+        self.assertEqual(response.status_code, 204)
+        self.assertEqual(len(response.content), 0)
+        self.assertIsNone(result.reps)
+        self.assertIsNone(result.weight)
+        self.assertEqual(result.note, 'This is a note')
 
     def test_update_unknown_field(self):
         worksheet = self._create_worksheet()
