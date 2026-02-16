@@ -248,7 +248,7 @@ class ResultAction(View):
             event = 'updateError'
             http_response = render(request, 'worksheet/partials/result_error.html', {'errors': errors})
         else:
-            if updated == 1:
+            if field != 'note' and updated == 1:
                 event = 'updateSuccess'
             else:
                 event = ''

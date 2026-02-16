@@ -10,40 +10,51 @@
 {% block content %}
 
 {% if worksheet is None %}
-<h1>No workout for {{ date }}.</h1>
-<p><a href="{% url 'worksheet:index' %}">Go back</a></p>
+    <h1>No workout for {{ date }}.</h1>
+    <p><a href="{% url 'worksheet:index' %}">Go back</a></p>
 {% else %}
-<h1>Workout for {{ worksheet.date }}: {{ worksheet.workout }}</h1>
-{% if worksheet.done %}
-<p>Completed in {{ worksheet.get_duration }}</p>
-{% else %}
-<h2><span id="clock" class="hidden">0:00:00</span></h2>
-{% endif %}
-<section class="worksheet {{ worksheet.get_status }}"
+    <h1>Workout for {{ worksheet.date }}: {{ worksheet.workout }}</h1>
+    {% if worksheet.done %}
+        <p>Completed in {{ worksheet.get_duration }}</p>
+    {% else %}
+        <h2><span id="clock" class="hidden">0:00:00</span></h2>
+    {% endif %}
+    <section class="worksheet {{ worksheet.get_status }}"
+        {% if not worksheet.done %}
+        hx-on:update-success="let e = event.target.parentElement;htmx.removeClass(e, 'error');htmx.addClass(e, 'success');"
+        hx-on:update-error="let e = event.target.parentElement;htmx.removeClass(e, 'success');htmx.addClass(e, 'error');"
+        {% endif %}
+        >
+        <div class="exercise header">Exercise</div>
+        <div class="reps header">Reps</div>
+        <div class="weight header">Weight (kg)</div>
+        {% if results.0.previous %}
+        <div class="reps previous header">Previous reps</div>
+        <div class="weight previous header">Previous weight (kg)</div>
+        {% endif %}
+
+        {% block workout_results %}{% endblock %}
+    </section>
+
+    {% block workout_form %}
     {% if not worksheet.done %}
-    hx-on:update-success="let e = event.target.parentElement;htmx.removeClass(e, 'error');htmx.addClass(e, 'success');"
-    hx-on:update-error="let e = event.target.parentElement;htmx.removeClass(e, 'success');htmx.addClass(e, 'error');"
+        <form action="{% url 'worksheet:close' worksheet.id %}" method="POST">
+            {% csrf_token %}
+            <input type="submit" value="Close">
+        </form>
+        <div id="notePopover" popover>
+            <form id="noteForm"
+                  method="POST"
+                  action=""
+                  hx-post="">
+                <p>Add a note</p>
+                {% csrf_token %}
+                <input type="text" maxlength="200" name="note">
+                <button type="submit">Add note</button>
+            </form>
+        </div>
     {% endif %}
-    >
-    <div class="exercise header">Exercise</div>
-    <div class="reps header">Reps</div>
-    <div class="weight header">Weight (kg)</div>
-    {% if results.0.previous %}
-    <div class="reps previous header">Previous reps</div>
-    <div class="weight previous header">Previous weight (kg)</div>
-    {% endif %}
-
-    {% block workout_results %}{% endblock %}
-</section>
-
-{% block workout_form %}
-{% if not worksheet.done %}
-<form action="{% url 'worksheet:close' worksheet.id %}" method="POST">
-    {% csrf_token %}
-    <input type="submit" value="Close">
-</form>
-{% endif %}
-{% endblock %}
+    {% endblock %}
 
 {% endif %}
 

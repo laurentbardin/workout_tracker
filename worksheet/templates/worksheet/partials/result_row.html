@@ -54,12 +54,15 @@
 {% endif %}
 <div class="result action">
     {% if not worksheet.done %}
-    <img src="{% static 'worksheet/img/note-add.svg' %}"
-         alt="Add note icon"
-         title="Add a note to this result"
-         width=16
-         height=16
-    />
+    <button popovertarget="notePopover"
+            hx-on:click="noteForm.action = '{% url 'worksheet:result' worksheet.id result.id 'note' %}';noteForm.setAttribute('hx-post', noteForm.action);htmx.process(noteForm);">
+        <img src="{% static 'worksheet/img/note-add.svg' %}"
+             alt="Add note icon"
+             title="Add a note to this result"
+             width=16
+             height=16
+             />
+    </button>
     {% endif %}
 </div>
 <div class="result status">
