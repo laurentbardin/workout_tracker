@@ -4,6 +4,7 @@
         popovertarget="notePopover"
         data-note="{{ result.note|default:'' }}"
         hx-on:click="initNoteForm('{% url 'worksheet:result' worksheet.id result.id 'note' %}', this)"
+        hx-swap-oob="true"
         >
     {% if result.note %}
     <img src="{% static 'worksheet/img/note-view.svg' %}"

@@ -4,11 +4,13 @@ import datetime
 from django.db import IntegrityError, transaction
 from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
 from django.shortcuts import render
+from django.template import loader
 from django.urls import reverse
 from django.utils import timezone
 from django.views.generic import TemplateView, View
 
 from .models import Result, Schedule, Workout, Worksheet
+from .forms import ResultNoteForm
 
 # Create your views here.
 class IndexView(TemplateView):
@@ -137,6 +139,7 @@ class WorksheetView(TemplateView):
             context.update({
                 'worksheet': worksheet,
                 'results': results,
+                'note_form': ResultNoteForm(),
             })
 
         return super().render_to_response(context, **response_kwargs)
@@ -224,10 +227,22 @@ class ResultAction(View):
                 filters.update(exercise__weight=True)
 
             case 'note':
-                value = request.POST.get('note', None)
-                if value == '':
+                note_form = ResultNoteForm(request.POST)
+                context = {
+                    'note_form': note_form,
+                    'note_form_url': reverse('worksheet:result', kwargs={
+                        'worksheet_id': worksheet_id,
+                        'result_id': result_id,
+                        'field': 'note'
+                    }),
+                }
+
+                if note_form.is_valid():
                     # Transform empty string to NULL (may not be necessary?)
-                    value = None
+                    value = note_form.cleaned_data['note']
+                    content = loader.render_to_string('worksheet/partials/note_form.html', context, request)
+                else:
+                    return render(request, 'worksheet/partials/note_form.html', context)
 
             case _:
                 return HttpResponseNotFound()
@@ -248,13 +263,14 @@ class ResultAction(View):
             event = 'updateError'
             http_response = render(request, 'worksheet/partials/result_error.html', {'errors': errors})
         elif field == 'note':
-                http_response = render(request, 'worksheet/partials/action_buttons.html', {
-                    'result': Result(id=result_id, note=value),
-                    'worksheet': Worksheet(id=worksheet_id),
-                })
-                # TODO Rework this whole logic so we don't have an intermediate
-                # return
-                return http_response
+            content += loader.render_to_string('worksheet/partials/action_buttons.html', {
+                'result': Result(id=result_id, note=value),
+                'worksheet': Worksheet(id=worksheet_id),
+            }, request)
+            # TODO Rework this whole logic so we don't have an intermediate
+            # return
+            return HttpResponse(content)
+
         else:
             if updated == 1:
                 event = 'updateSuccess'

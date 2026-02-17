@@ -43,19 +43,7 @@
             <input type="submit" value="Close">
         </form>
         <div id="notePopover" popover>
-            <form id="noteForm"
-                  method="POST"
-                  action=""
-                  hx-post=""
-                  hx-target=""
-                  hx-swap="outerHTML"
-                  hx-include="[name='csrfmiddlewaretoken']"
-                  hx-disabled-elt="find input, find button"
-                  >
-                <p>Add a note</p>
-                <input type="text" maxlength="200" name="note">
-                <button type="submit">Add note</button>
-            </form>
+            {% include 'worksheet/partials/note_form.html' %}
         </div>
     {% endif %}
     {% endblock %}

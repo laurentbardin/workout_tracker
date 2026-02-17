@@ -349,6 +349,8 @@ class ResultActionTest(WorksheetMixin, TestCase):
                                                  value='This is a note')
         result = Result.objects.get(pk=1)
         self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="noteForm"')
+        self.assertNotContains(response, '"errorlist"')
         self.assertContains(response, 'data-note="This is a note"')
         self.assertContains(response, '"result-action-1"')
         self.assertContains(response, 'note-view.svg')
@@ -363,6 +365,8 @@ class ResultActionTest(WorksheetMixin, TestCase):
                                                  value='This is a new note')
         result = Result.objects.get(pk=1)
         self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="noteForm"')
+        self.assertNotContains(response, '"errorlist"')
         self.assertContains(response, 'data-note="This is a new note"')
         self.assertContains(response, '"result-action-1"')
         self.assertContains(response, 'note-view.svg')
@@ -377,9 +381,31 @@ class ResultActionTest(WorksheetMixin, TestCase):
                                                  value='')
         result = Result.objects.get(pk=1)
         self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="noteForm"')
+        self.assertNotContains(response, '"errorlist"')
         self.assertContains(response, 'data-note=""')
         self.assertContains(response, '"result-action-1"')
         self.assertContains(response, 'note-add.svg')
+
+        self.assertIsNone(result.reps)
+        self.assertIsNone(result.weight)
+        self.assertIsNone(result.note)
+
+    def test_note_is_rejected_if_too_long(self):
+        worksheet = self._create_worksheet()
+        response = self._update_worksheet_result(worksheet,
+                                                 result_id=1,
+                                                 field='note',
+                                                 value='abc' * 70)
+        result = Result.objects.get(pk=1)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="noteForm"')
+        self.assertContains(response, '"errorlist"')
+        self.assertContains(response, 'Ensure this value has at most 200 characters (it has 210).')
+
+        self.assertNotContains(response, 'data-note')
+        self.assertNotContains(response, '"result-action-1"')
+        self.assertNotContains(response, 'note-view.svg')
 
         self.assertIsNone(result.reps)
         self.assertIsNone(result.weight)

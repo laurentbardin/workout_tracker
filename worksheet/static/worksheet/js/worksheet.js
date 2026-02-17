@@ -42,7 +42,6 @@ function initNoteForm(actionUrl, fromButton) {
     }
     form.action = actionUrl;
     form.setAttribute('hx-post', form.action);
-    form.setAttribute('hx-target', '#' + fromButton.id);
 
     htmx.process(form);
 

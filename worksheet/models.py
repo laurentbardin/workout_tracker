@@ -143,20 +143,6 @@ class Result(models.Model):
     objects = models.Manager()
     results = ResultRelatedManager()
 
-    def clean_fields(self, exclude=None):
-        # Prevent any validation issue if:
-        # * a weight is submitted for a weightless exercise (discard the value)
-        # * an empty weight ('') is submitted for an exercise (has blank=True,
-        #   so the POST request sends an empty string)
-        if (
-            (self.weight is not None and not self.exercise.weight) or
-            (self.exercise.weight and self.weight == '')
-        ):
-            # TODO log a warning?
-            self.weight = None
-
-        return super().clean_fields(exclude)
-
     def reps_status(self):
         return "success" if not self.worksheet.done and self.reps is not None else ''
 
