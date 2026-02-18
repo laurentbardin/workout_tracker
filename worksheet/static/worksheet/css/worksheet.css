@@ -14,6 +14,20 @@
         margin: 0;
     }
 
+    .header, .exercise, .result {
+        display: flex;
+        align-items: center;
+    }
+
+    .header {
+        font-weight: bold;
+        color: var(--color-bg);
+        background-color: var(--color-table);
+        border-width: 0;
+        align-items: end;
+        grid-row: span 2;
+    }
+
     .result {
         transition: background-color 250ms ease-in;
 
@@ -31,20 +45,6 @@
     }
     .result.error {
         background-color: var(--color-error);
-    }
-
-    .header, .exercise, .result {
-        display: flex;
-        align-items: center;
-    }
-
-    .header {
-        font-weight: bold;
-        color: var(--color-bg);
-        background-color: var(--color-table);
-        border-width: 0;
-        align-items: end;
-        grid-row: span 2;
     }
 
     .exercise {
@@ -92,7 +92,6 @@
             grid-column: 6;
 
             &:has(img) {
-                display: flex;
                 justify-content: space-between;
             }
         }
