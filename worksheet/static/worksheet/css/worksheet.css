@@ -59,6 +59,10 @@
     }
     .result.reps {
         grid-column: 4;
+
+        &:has(img) {
+            justify-content: space-between;
+        }
     }
     .result.weight {
         grid-column: 5;
@@ -90,10 +94,6 @@
 
         .result.reps.previous {
             grid-column: 6;
-
-            &:has(img) {
-                justify-content: space-between;
-            }
         }
         .result.weight.previous {
             grid-column: 7;
