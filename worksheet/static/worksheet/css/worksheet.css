@@ -77,11 +77,6 @@
             width: 100%;
             height: 100%;
 
-            img {
-                width: 1.5rem;
-                height: 1.5rem;
-                vertical-align: middle;
-            }
         }
     }
     .result.status {
@@ -95,6 +90,11 @@
 
         .result.reps.previous {
             grid-column: 6;
+
+            &:has(img) {
+                display: flex;
+                justify-content: space-between;
+            }
         }
         .result.weight.previous {
             grid-column: 7;
@@ -119,6 +119,12 @@
     }
     .htmx-request .response {
         display: none;
+    }
+
+    .icon {
+        width: 1.5rem;
+        height: 1.5rem;
+        vertical-align: text-bottom;
     }
 
     input[type="text"] {

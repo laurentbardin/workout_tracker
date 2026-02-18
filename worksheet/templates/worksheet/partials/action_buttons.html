@@ -8,11 +8,13 @@
         >
     {% if result.note %}
     <img src="{% static 'worksheet/img/note-view.svg' %}"
+         class="icon"
          alt="View note icon"
          title="View or modify the note on this result"
          />
     {% else %}
     <img src="{% static 'worksheet/img/note-add.svg' %}"
+         class="icon"
          alt="Add note icon"
          title="Add a note to this result"
          />
