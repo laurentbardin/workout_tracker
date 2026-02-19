@@ -259,26 +259,30 @@ class ResultAction(View):
         except IntegrityError:
             errors = {field: [f"Invalid value {value} for field '{field}'"]}
 
+        event = None
         if errors is not None:
             event = 'updateError'
-            http_response = render(request, 'worksheet/partials/result_error.html', {'errors': errors})
+            http_response = render(request,
+                                   'worksheet/partials/result_error.html',
+                                   {'errors': errors},
+                                   status=http.HTTPStatus.OK)
         elif field == 'note':
             content += loader.render_to_string('worksheet/partials/action_buttons.html', {
                 'result': Result(id=result_id, note=value),
                 'worksheet': Worksheet(id=worksheet_id),
             }, request)
-            # TODO Rework this whole logic so we don't have an intermediate
-            # return
-            return HttpResponse(content)
 
+            http_response = HttpResponse(content)
         else:
             if updated == 1:
                 event = 'updateSuccess'
+                status = http.HTTPStatus.OK
             else:
-                event = ''
+                status = http.HTTPStatus.NO_CONTENT
 
-            http_response = HttpResponse(status=http.HTTPStatus.NO_CONTENT)
+            http_response = HttpResponse(status=status)
 
-        http_response.headers["HX-Trigger-After-Settle"] = event
+        if event:
+            http_response.headers["HX-Trigger-After-Settle"] = event
 
         return http_response
