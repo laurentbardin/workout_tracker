@@ -1,0 +1,26 @@
+{
+  "name": "workout_tracker",
+  "version": "1.0.0",
+  "description": "A small Django application to track workout sessions",
+  "main": "index.js",
+  "directories": {
+    "doc": "doc"
+  },
+  "scripts": {
+    "test": "python manage.py test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/laurentbardin/workout_tracker.git"
+  },
+  "author": "Laurent Bardin",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/laurentbardin/workout_tracker/issues"
+  },
+  "homepage": "https://gitlab.com/laurentbardin/workout_tracker#readme",
+  "dependencies": {
+    "@knadh/oat": "^0.3.0",
+    "htmx.org": "^2.0.8"
+  }
+}
