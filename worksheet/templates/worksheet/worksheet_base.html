@@ -54,6 +54,7 @@
 
 {% block javascript %}
     {{ block.super }}
+    <script src="{% static 'worksheet/js/oat.min.js' %}"></script>
     <script src="{% static 'worksheet/js/htmx.min.js' %}"></script>
     <script src="{% static 'worksheet/js/worksheet.js' %}"></script>
     {% if not worksheet.done %}
