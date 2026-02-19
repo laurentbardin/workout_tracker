@@ -1,0 +1,11 @@
+<form id="noteForm"
+      method="POST"
+      action="{{ note_form_url }}"
+      hx-post="{{ note_form_url }}"
+      hx-swap="outerHTML"
+      hx-include="[name='csrfmiddlewaretoken']"
+      hx-disabled-elt="find input, find button"
+      >
+      {{ note_form }}
+      <button type="submit">Add note</button>
+</form>

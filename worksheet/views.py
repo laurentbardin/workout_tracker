@@ -1,15 +1,16 @@
 import calendar
 import datetime
 
-from django.core.exceptions import ValidationError
 from django.db import IntegrityError, transaction
 from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
 from django.shortcuts import render
+from django.template import loader
 from django.urls import reverse
 from django.utils import timezone
 from django.views.generic import TemplateView, View
 
 from .models import Result, Schedule, Workout, Worksheet
+from .forms import ResultNoteForm
 
 # Create your views here.
 class IndexView(TemplateView):
@@ -138,63 +139,8 @@ class WorksheetView(TemplateView):
             context.update({
                 'worksheet': worksheet,
                 'results': results,
+                'note_form': ResultNoteForm(),
             })
-
-        return super().render_to_response(context, **response_kwargs)
-
-    def post(self, request, *args, **kwargs):
-        post = request.POST.copy()
-
-        self.extra_context = {
-            'reps': post.pop('reps'),
-            'weight': post.pop('weight'),
-            'result_ids': post.pop('result'),
-        }
-
-        return self.update_worksheet(self.get_context_data(**kwargs))
-
-    def update_worksheet(self, context, **response_kwargs):
-        worksheet, results, date = self._get_worksheet_and_results(context)
-
-        if worksheet is None:
-            return HttpResponseRedirect(reverse('worksheet:index'))
-
-        if worksheet.done:
-            return HttpResponseRedirect(reverse(
-                'worksheet:worksheet',
-                args=[date.year, date.month, date.day],
-            ))
-
-        results_dict = {str(r.id): r for r in results}
-
-        result_errors = 0
-        for idx, result_id in enumerate(context['result_ids']):
-            result = results_dict[result_id]
-
-            result.reps = context['reps'][idx]
-            result.weight = context['weight'][idx] or None
-
-            try:
-                result.clean_fields()
-            except ValidationError as ve:
-                result_errors += 1
-
-                if not hasattr(result, 'errors'):
-                    result.errors = {}
-
-                result.errors.update(ve.message_dict)
-
-        if result_errors == 0:
-            Result.objects.bulk_update(results, ["reps", "weight"])
-
-        if worksheet.workout.repeat:
-            self.template_name = 'worksheet/worksheet_repeat.html'
-
-        context.update({
-            'worksheet': worksheet,
-            'results': results,
-            'result_errors': result_errors,
-        })
 
         return super().render_to_response(context, **response_kwargs)
 
@@ -280,6 +226,24 @@ class ResultAction(View):
                 value = request.POST.get('weight', None)
                 filters.update(exercise__weight=True)
 
+            case 'note':
+                note_form = ResultNoteForm(request.POST)
+                context = {
+                    'note_form': note_form,
+                    'note_form_url': reverse('worksheet:result', kwargs={
+                        'worksheet_id': worksheet_id,
+                        'result_id': result_id,
+                        'field': 'note'
+                    }),
+                }
+
+                if note_form.is_valid():
+                    # Transform empty string to NULL (may not be necessary?)
+                    value = note_form.cleaned_data['note']
+                    content = loader.render_to_string('worksheet/partials/note_form.html', context, request)
+                else:
+                    return render(request, 'worksheet/partials/note_form.html', context)
+
             case _:
                 return HttpResponseNotFound()
 
@@ -298,16 +262,22 @@ class ResultAction(View):
         if errors is not None:
             event = 'updateError'
             http_response = render(request, 'worksheet/partials/result_error.html', {'errors': errors})
-        else:
-            response = ''
-            event = ''
-            status_code = http.HTTPStatus.NO_CONTENT
-            if updated == 1:
-                response = '✅'
-                event = 'updateSuccess'
-                status_code = http.HTTPStatus.OK
+        elif field == 'note':
+            content += loader.render_to_string('worksheet/partials/action_buttons.html', {
+                'result': Result(id=result_id, note=value),
+                'worksheet': Worksheet(id=worksheet_id),
+            }, request)
+            # TODO Rework this whole logic so we don't have an intermediate
+            # return
+            return HttpResponse(content)
 
-            http_response = HttpResponse(response, status=status_code)
+        else:
+            if updated == 1:
+                event = 'updateSuccess'
+            else:
+                event = ''
+
+            http_response = HttpResponse(status=http.HTTPStatus.NO_CONTENT)
 
         http_response.headers["HX-Trigger-After-Settle"] = event
 

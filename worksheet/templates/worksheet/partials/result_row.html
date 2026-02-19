@@ -3,6 +3,13 @@
 <div class="result reps {{ row }} {{ result.reps_status }}">
     {% if worksheet.done %}
         {{ result.reps|default:0 }}
+        {% if result.note %}
+        <img src="{% static 'worksheet/img/note-view.svg' %}"
+             class="icon"
+             alt="View note"
+             title="{{ result.note }}"
+             />
+        {% endif %}
     {% else %}
         <input type="text"
                name="reps"
@@ -45,6 +52,13 @@
 {% if result.previous %}
 <div class="result reps previous {{ row }}">
     {{ result.previous.reps|default:0 }}
+    {% if result.previous.note %}
+    <img src="{% static 'worksheet/img/note-view.svg' %}"
+         class="icon"
+         alt="View note"
+         title="{{ result.previous.note }}"
+         />
+    {% endif %}
 </div>
 <div class="result weight previous {{ row }}">
     {% if result.exercise.weight %}
@@ -52,18 +66,12 @@
     {% endif %}
 </div>
 {% endif %}
+<div class="result action">
+    {% if not worksheet.done %}
+        {% include 'worksheet/partials/action_buttons.html' %}
+    {% endif %}
+</div>
 <div class="result status">
     <img class="htmx-indicator" src="{% static 'worksheet/img/loader.svg' %}" alt="Loading..." />
-    <div class="response">
-    {% if result.errors %}
-        <ul class="errors">
-        {% for msg in result.errors.reps %}
-            <li>{{ msg }}</li>
-        {% endfor %}
-        {% for msg in result.errors.weight %}
-            <li>{{ msg }}</li>
-        {% endfor %}
-        </ul>
-    {% endif %}
-    </div>
+    <div class="response"></div>
 </div>

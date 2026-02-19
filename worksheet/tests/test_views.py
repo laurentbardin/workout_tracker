@@ -192,6 +192,49 @@ class WorksheetViewTest(WorksheetMixin, TestCase):
         self.assertContains(response, "Test workout")
         self.assertContains(response, "Completed in 0:37:42")
 
+    def test_note_on_previous_result(self):
+        """
+        Display an icon near previous results which have a note attached
+        """
+        # Create a previous worksheet first
+        today = timezone.localtime()
+        yesterday = today - datetime.timedelta(days=1)
+        worksheet = self._create_worksheet(started_at=yesterday, done=True)
+        self._update_worksheet_result(worksheet, 1, 'note', 'This is an old note')
+
+        # Create the current worksheet and check its display
+        worksheet = self._create_worksheet(started_at=today)
+        response = self.client.get(reverse(
+            "worksheet:worksheet",
+            args=[ worksheet.date.year, worksheet.date.month, worksheet.date.day ]
+        ))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'note-add.svg', 4)
+        self.assertContains(response, 'note-view.svg', 1)
+        self.assertContains(response, 'title="This is an old note"', 1)
+
+    def test_note_on_closed_worksheet(self):
+        """
+        Display an icon near results which have a note attached
+        """
+        yesterday = timezone.localtime() - datetime.timedelta(days=1)
+        worksheet = self._create_worksheet(started_at=yesterday, done=True)
+        worksheet.ended_at = yesterday + datetime.timedelta(minutes=30)
+        worksheet.save()
+
+        self._update_worksheet_result(worksheet, 1, 'note', 'This is an old note')
+        self._update_worksheet_result(worksheet, 2, 'note', 'This is another old note')
+
+        response = self.client.get(reverse(
+            "worksheet:worksheet",
+            args=[ worksheet.date.year, worksheet.date.month, worksheet.date.day ]
+        ))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'note-add.svg', 0)
+        self.assertContains(response, 'note-view.svg', 2)
+        self.assertContains(response, 'title="This is an old note"', 1)
+        self.assertContains(response, 'title="This is another old note"', 1)
+
 class CloseViewTest(WorksheetMixin, TestCase):
     def test_can_close_in_progress_workout(self):
         """
@@ -231,108 +274,6 @@ class CloseViewTest(WorksheetMixin, TestCase):
         worksheet.refresh_from_db()
         self.assertEqual(worksheet.ended_at, ended_at)
 
-class ResultViewTest(WorksheetMixin, TestCase):
-    def test_update_results_of_closed_workout(self):
-        """
-        It is not possible to update the results of a closed workout.
-        """
-        worksheet = self._create_worksheet(done=True)
-        response = self._update_worksheet(worksheet,
-                                          reps=[10, 10, 10, 10],
-                                          weights=[10, 10, 10, 10])
-
-        self.assertEqual(response.status_code, 302)
-
-        for result in worksheet.result_set.all():
-            self.assertIsNone(result.reps)
-            self.assertIsNone(result.weight)
-
-    def test_update_results_of_in_progress_workout(self):
-        """
-        It is possible to update the results of an in-progress workout.
-        """
-        worksheet = self._create_worksheet()
-        response = self._update_worksheet(worksheet,
-                                          reps=[10, 10, 10, 10],
-                                          weights=[10, '', 10, ''])
-
-        self.assertEqual(response.status_code, 200)
-
-        for result in worksheet.result_set.select_related('exercise').all():
-            self.assertEqual(result.reps, 10)
-            if result.exercise.weight:
-                self.assertEqual(result.weight, 10)
-            else:
-                self.assertIsNone(result.weight)
-
-    def test_update_results_with_negative_reps(self):
-        """
-        Updating an exercise results with a negative number of reps produces an
-        error message, rejecting the whole update.
-        """
-        worksheet = self._create_worksheet()
-        response = self._update_worksheet(worksheet,
-                                          reps=[10, 10, -3, -2],
-                                          weights=[10, '', 10, ''])
-
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Number of reps cannot be negative', 2)
-        self.assertContains(response, 'value="-3"', 1)
-        self.assertContains(response, 'value="-2"', 1)
-
-        for result in worksheet.result_set.select_related('exercise').all():
-            self.assertIsNone(result.reps)
-            self.assertIsNone(result.weight)
-
-    def test_update_results_with_negative_weight(self):
-        """
-        Updating an exercise results with a negative weight produces an error
-        message, rejecting the whole update.
-        """
-        worksheet = self._create_worksheet()
-        response = self._update_worksheet(worksheet,
-                                          reps=[10, 10, 10, 10],
-                                          weights=[10, '', -4, ''])
-
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Used weight cannot be negative', 1)
-        self.assertContains(response, 'value="-4"', 1)
-
-        for result in worksheet.result_set.select_related('exercise').all():
-            self.assertIsNone(result.reps)
-            self.assertIsNone(result.weight)
-
-    def test_update_results_of_weightless_exercise_with_weight(self):
-        """
-        Updating an exercise results with weight when said exercise doesn't use
-        weights discards the unexpected values while still updating those that
-        can.
-        """
-        worksheet = self._create_worksheet()
-        response = self._update_worksheet(worksheet,
-                                          reps=[10, 10, 10, 10],
-                                          weights=[10, '', 10, ''])
-        self.assertEqual(response.status_code, 200)
-
-        response = self._update_worksheet(worksheet,
-                                          reps=[10, 10, 10, 10],
-                                          weights=[200, 999999999, 300, -400])
-
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Used weight cannot be negative', 0)
-        self.assertNotContains(response, '999999999')
-        self.assertNotContains(response, '-400')
-
-        for result in worksheet.result_set.select_related('exercise').all():
-            self.assertEqual(result.reps, 10)
-            if not result.exercise.weight:
-                self.assertIsNone(result.weight)
-            else:
-                self.assertIn(result.weight, [200, 300])
-
-    def test_worksheet_show_results_from_previous_same_workout(self):
-        pass
-
 class ResultActionTest(WorksheetMixin, TestCase):
     def test_update_result(self):
         worksheet = self._create_worksheet()
@@ -341,18 +282,20 @@ class ResultActionTest(WorksheetMixin, TestCase):
                                                  field='reps',
                                                  value=10)
         result = Result.objects.get(pk=1)
-        self.assertEqual(response.content, '✅'.encode('utf-8'))
+        self.assertEqual(response.content, b'')
         self.assertEqual(result.reps, 10)
         self.assertIsNone(result.weight)
+        self.assertIsNone(result.note)
 
         response = self._update_worksheet_result(worksheet,
                                                  result_id=1,
                                                  field='weight',
                                                  value=6)
         result.refresh_from_db()
-        self.assertEqual(response.content, '✅'.encode('utf-8'))
+        self.assertEqual(response.content, b'')
         self.assertEqual(result.reps, 10)
         self.assertEqual(result.weight, 6)
+        self.assertIsNone(result.note)
 
     def test_update_result_without_reps(self):
         worksheet = self._create_worksheet()
@@ -364,6 +307,7 @@ class ResultActionTest(WorksheetMixin, TestCase):
         self.assertContains(response, 'Missing number of reps')
         self.assertIsNone(result.reps)
         self.assertIsNone(result.weight)
+        self.assertIsNone(result.note)
 
     def test_update_result_with_negative_values(self):
         worksheet = self._create_worksheet()
@@ -375,6 +319,7 @@ class ResultActionTest(WorksheetMixin, TestCase):
         self.assertContains(response, html.escape("Invalid value -2 for field 'reps'"))
         self.assertIsNone(result.reps)
         self.assertIsNone(result.weight)
+        self.assertIsNone(result.note)
 
         response = self._update_worksheet_result(worksheet,
                                                  result_id=1,
@@ -384,6 +329,7 @@ class ResultActionTest(WorksheetMixin, TestCase):
         self.assertContains(response, html.escape("Invalid value -3 for field 'weight'"))
         self.assertIsNone(result.reps)
         self.assertIsNone(result.weight)
+        self.assertIsNone(result.note)
 
     def test_update_result_with_invalid_values(self):
         worksheet = self._create_worksheet()
@@ -396,6 +342,7 @@ class ResultActionTest(WorksheetMixin, TestCase):
         self.assertContains(response, html.escape("Field 'reps' expected a number but got 'foo'"))
         self.assertIsNone(result.reps)
         self.assertIsNone(result.weight)
+        self.assertIsNone(result.note)
 
         response = self._update_worksheet_result(worksheet,
                                                  result_id=1,
@@ -406,6 +353,7 @@ class ResultActionTest(WorksheetMixin, TestCase):
         self.assertContains(response, html.escape("Field 'weight' expected a number but got 'bar'"))
         self.assertIsNone(result.reps)
         self.assertIsNone(result.weight)
+        self.assertIsNone(result.note)
 
     def test_update_weightless_exercise_with_weight(self):
         worksheet = self._create_worksheet()
@@ -418,6 +366,7 @@ class ResultActionTest(WorksheetMixin, TestCase):
         self.assertEqual(len(response.content), 0)
         self.assertIsNone(result.reps)
         self.assertIsNone(result.weight)
+        self.assertIsNone(result.note)
 
     def test_update_inexistant_result(self):
         worksheet = self._create_worksheet()
@@ -434,6 +383,76 @@ class ResultActionTest(WorksheetMixin, TestCase):
                                                  value=10)
         self.assertEqual(response.status_code, 204)
         self.assertEqual(len(response.content), 0)
+
+    def test_add_modify_remove_note_result(self):
+        worksheet = self._create_worksheet()
+        response = self._update_worksheet_result(worksheet,
+                                                 result_id=1,
+                                                 field='note',
+                                                 value='This is a note')
+        result = Result.objects.get(pk=1)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="noteForm"')
+        self.assertNotContains(response, '"errorlist"')
+        self.assertContains(response, 'data-note="This is a note"')
+        self.assertContains(response, '"result-action-1"')
+        self.assertContains(response, 'note-view.svg')
+
+        self.assertIsNone(result.reps)
+        self.assertIsNone(result.weight)
+        self.assertEqual(result.note, 'This is a note')
+
+        response = self._update_worksheet_result(worksheet,
+                                                 result_id=1,
+                                                 field='note',
+                                                 value='This is a new note')
+        result = Result.objects.get(pk=1)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="noteForm"')
+        self.assertNotContains(response, '"errorlist"')
+        self.assertContains(response, 'data-note="This is a new note"')
+        self.assertContains(response, '"result-action-1"')
+        self.assertContains(response, 'note-view.svg')
+
+        self.assertIsNone(result.reps)
+        self.assertIsNone(result.weight)
+        self.assertEqual(result.note, 'This is a new note')
+
+        response = self._update_worksheet_result(worksheet,
+                                                 result_id=1,
+                                                 field='note',
+                                                 value='')
+        result = Result.objects.get(pk=1)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="noteForm"')
+        self.assertNotContains(response, '"errorlist"')
+        self.assertContains(response, 'data-note=""')
+        self.assertContains(response, '"result-action-1"')
+        self.assertContains(response, 'note-add.svg')
+
+        self.assertIsNone(result.reps)
+        self.assertIsNone(result.weight)
+        self.assertIsNone(result.note)
+
+    def test_note_is_rejected_if_too_long(self):
+        worksheet = self._create_worksheet()
+        response = self._update_worksheet_result(worksheet,
+                                                 result_id=1,
+                                                 field='note',
+                                                 value='abc' * 70)
+        result = Result.objects.get(pk=1)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="noteForm"')
+        self.assertContains(response, '"errorlist"')
+        self.assertContains(response, 'Ensure this value has at most 200 characters (it has 210).')
+
+        self.assertNotContains(response, 'data-note')
+        self.assertNotContains(response, '"result-action-1"')
+        self.assertNotContains(response, 'note-view.svg')
+
+        self.assertIsNone(result.reps)
+        self.assertIsNone(result.weight)
+        self.assertIsNone(result.note)
 
     def test_update_unknown_field(self):
         worksheet = self._create_worksheet()

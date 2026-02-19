@@ -4,7 +4,7 @@ function checkInput(elt, _ev) {
         elt.reportValidity();
     }
 }
-document.checkInput = checkInput
+document.checkInput = checkInput;
 
 function updateClock(elt, start) {
     const start_date = new Date(start);
@@ -32,4 +32,24 @@ function updateClock(elt, start) {
         htmx.swap(elt, values.join(':'), {swapStyle: 'innerHtml'});
     }
 }
-document.updateClock = updateClock
+document.updateClock = updateClock;
+
+function initNoteForm(actionUrl, fromButton) {
+    const form = htmx.find('#noteForm');
+    if (!form) {
+        console.error('Cannot initialise note form: element not found');
+        return;
+    }
+    form.action = actionUrl;
+    form.setAttribute('hx-post', form.action);
+
+    htmx.process(form);
+
+    const input = htmx.find(form, 'input[name="note"]');
+    if (!input) {
+        console.warn('Cannot set input value: element not found');
+    } else {
+        input.value = fromButton.dataset.note;
+    }
+}
+document.initNoteForm = initNoteForm;
