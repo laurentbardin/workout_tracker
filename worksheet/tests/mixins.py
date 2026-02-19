@@ -43,12 +43,12 @@ class WorksheetMixin(ProgramSetupMixin):
         }
 
         if started_at is None:
-            fields['date'] = timezone.localdate()
-        else:
-            fields.update({
-                'started_at': started_at,
-                'date': timezone.localdate(started_at),
-            })
+            started_at = timezone.localtime()
+
+        fields.update({
+            'started_at': started_at,
+            'date': timezone.localdate(started_at),
+        })
 
         worksheet = Worksheet.objects.create(**fields)
         worksheet.result_set(manager="results").create_all()

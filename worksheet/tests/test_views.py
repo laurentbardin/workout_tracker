@@ -192,6 +192,49 @@ class WorksheetViewTest(WorksheetMixin, TestCase):
         self.assertContains(response, "Test workout")
         self.assertContains(response, "Completed in 0:37:42")
 
+    def test_note_on_previous_result(self):
+        """
+        Display an icon near previous results which have a note attached
+        """
+        # Create a previous worksheet first
+        today = timezone.localtime()
+        yesterday = today - datetime.timedelta(days=1)
+        worksheet = self._create_worksheet(started_at=yesterday, done=True)
+        self._update_worksheet_result(worksheet, 1, 'note', 'This is an old note')
+
+        # Create the current worksheet and check its display
+        worksheet = self._create_worksheet(started_at=today)
+        response = self.client.get(reverse(
+            "worksheet:worksheet",
+            args=[ worksheet.date.year, worksheet.date.month, worksheet.date.day ]
+        ))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'note-add.svg', 4)
+        self.assertContains(response, 'note-view.svg', 1)
+        self.assertContains(response, 'title="This is an old note"', 1)
+
+    def test_note_on_closed_worksheet(self):
+        """
+        Display an icon near results which have a note attached
+        """
+        yesterday = timezone.localtime() - datetime.timedelta(days=1)
+        worksheet = self._create_worksheet(started_at=yesterday, done=True)
+        worksheet.ended_at = yesterday + datetime.timedelta(minutes=30)
+        worksheet.save()
+
+        self._update_worksheet_result(worksheet, 1, 'note', 'This is an old note')
+        self._update_worksheet_result(worksheet, 2, 'note', 'This is another old note')
+
+        response = self.client.get(reverse(
+            "worksheet:worksheet",
+            args=[ worksheet.date.year, worksheet.date.month, worksheet.date.day ]
+        ))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'note-add.svg', 0)
+        self.assertContains(response, 'note-view.svg', 2)
+        self.assertContains(response, 'title="This is an old note"', 1)
+        self.assertContains(response, 'title="This is another old note"', 1)
+
 class CloseViewTest(WorksheetMixin, TestCase):
     def test_can_close_in_progress_workout(self):
         """
