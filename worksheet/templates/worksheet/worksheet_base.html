@@ -38,9 +38,9 @@
 
     {% block workout_form %}
     {% if not worksheet.done %}
-        <form action="{% url 'worksheet:close' worksheet.id %}" method="POST">
+        <form action="{% url 'worksheet:close' worksheet.id %}" method="POST" class="mt-4 mb-4">
             {% csrf_token %}
-            <input type="submit" value="Close">
+            <button type="submit">Close</button>
         </form>
         <div id="notePopover" popover>
             {% include 'worksheet/partials/note_form.html' %}
