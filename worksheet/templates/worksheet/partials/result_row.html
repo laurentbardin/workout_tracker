@@ -53,11 +53,12 @@
 <div class="result reps previous {{ row }}">
     {{ result.previous.reps|default:0 }}
     {% if result.previous.note %}
-    <img src="{% static 'worksheet/img/note-view.svg' %}"
-         class="icon"
-         alt="View note"
-         title="{{ result.previous.note }}"
-         />
+    <span title="{{ result.previous.note }}">
+        <img src="{% static 'worksheet/img/note-view.svg' %}"
+             class="icon"
+             alt="View note"
+             />
+    </span>
     {% endif %}
 </div>
 <div class="result weight previous {{ row }}">
