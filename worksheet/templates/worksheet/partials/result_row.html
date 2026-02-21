@@ -23,7 +23,7 @@
                hx-indicator="next .status"
                hx-disabled-elt="this"
                hx-validate="true"
-               hx-on:keyup="checkInput(this, event);"
+               hx-on:keyup="worksheet.checkInput(this, event);"
                required>
     {% endif %}
 </div>
@@ -44,7 +44,7 @@
                    hx-indicator="next .status"
                    hx-disabled-elt="this"
                    hx-validate="true"
-                   hx-on:keyup="checkInput(this, event);"
+                   hx-on:keyup="worksheet.checkInput(this, event);"
                    >
         {% endif %}
     {% endif %}

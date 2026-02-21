@@ -1,12 +1,13 @@
-function checkInput(elt, _ev) {
+const worksheet = window.worksheet || (window.worksheet = {})
+
+worksheet.checkInput = function(elt, _ev) {
     elt.value = elt.value.trim();
     if (!elt.checkValidity()) {
         elt.reportValidity();
     }
 }
-document.checkInput = checkInput;
 
-function updateClock(elt, start) {
+worksheet.updateClock = function(elt, start) {
     const start_date = new Date(start);
     if (isNaN(start_date.getTime())) {
         console.warn('Invalid date', start);
@@ -32,9 +33,15 @@ function updateClock(elt, start) {
         htmx.swap(elt, values.join(':'), {swapStyle: 'innerHtml'});
     }
 }
-document.updateClock = updateClock;
 
-function initNoteForm(actionUrl, fromButton) {
+worksheet.initClock = function(start) {
+    const update = worksheet.updateClock('#clock', start);
+    update();
+    htmx.removeClass('#clock', 'hidden');
+    setInterval(update, 1000);
+}
+
+worksheet.initNoteForm = function(actionUrl, fromButton) {
     const form = htmx.find('#noteForm');
     if (!form) {
         console.error('Cannot initialise note form: element not found');
@@ -52,4 +59,3 @@ function initNoteForm(actionUrl, fromButton) {
         input.value = fromButton.dataset.note;
     }
 }
-document.initNoteForm = initNoteForm;

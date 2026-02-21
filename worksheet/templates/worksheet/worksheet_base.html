@@ -59,12 +59,7 @@
     <script src="{% static 'worksheet/js/worksheet.js' %}"></script>
     {% if not worksheet.done %}
     <script type="text/javascript">
-        htmx.onLoad(function(elt) {
-            let fn = updateClock('#clock', '{{ worksheet.started_at|date:"c" }}');
-            fn();
-            htmx.removeClass('#clock', 'hidden');
-            setInterval(fn, 1000);
-        });
+        htmx.onLoad(() => worksheet.initClock('{{ worksheet.started_at|date:"c" }}'));
     </script>
     {% endif %}
 {% endblock %}

@@ -3,7 +3,7 @@
 <button id="result-action-{{ result.id }}"
         popovertarget="notePopover"
         data-note="{{ result.note|default:'' }}"
-        hx-on:click="initNoteForm('{% url 'worksheet:result' worksheet.id result.id 'note' %}', this)"
+        hx-on:click="worksheet.initNoteForm('{% url 'worksheet:result' worksheet.id result.id 'note' %}', this)"
         hx-swap-oob="true"
         >
     {% if result.note %}
