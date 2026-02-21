@@ -59,3 +59,24 @@ worksheet.initNoteForm = function(actionUrl, fromButton) {
         input.value = fromButton.dataset.note;
     }
 }
+
+worksheet.watchIcon = function(records, _observer) {
+    records.filter(r => r.addedNodes.length > 0).forEach(r => {
+        r.addedNodes.forEach(el => {
+            el.querySelectorAll('[title]').forEach(el => {
+                const text = el.getAttribute('title');
+                if (text) {
+                    el.setAttribute('data-tooltip', text);
+                    if (!el.hasAttribute('aria-label')) {
+                        el.setAttribute('aria-label', text);
+                    }
+                    el.removeAttribute('title');
+                }
+            });
+        });
+    })
+}
+const observer = new MutationObserver(worksheet.watchIcon);
+document.querySelectorAll('section.worksheet .result.action').forEach(el => {
+    observer.observe(el, { childList: true });
+});
