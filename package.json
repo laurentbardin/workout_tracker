@@ -20,7 +20,7 @@
   },
   "homepage": "https://gitlab.com/laurentbardin/workout_tracker#readme",
   "dependencies": {
-    "@knadh/oat": "^0.3.0",
+    "@knadh/oat": "^0.4.0",
     "htmx.org": "^2.0.8"
   }
 }
