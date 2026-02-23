@@ -3,11 +3,19 @@
 <table class="calendar">
     <caption>
         <nav hx-push-url="true">
-            <a href="{{ previous_month_url }}" hx-get="{{ previous_month_url }}" hx-target="closest .calendar" hx-swap="outerHTML">
+            <a id="previous-month"
+               href="{{ previous_month_url }}"
+               hx-get="{{ previous_month_url }}"
+               hx-target="closest .calendar"
+               hx-swap="outerHTML">
                 <img src="{% static 'worksheet/img/arrow-left.svg' %}" width="30" height="30">
             </a>
             <h1>Workout calendar for {{ month | date:"F Y" }}</h1>
-            <a href="{{ next_month_url }}" hx-get="{{ next_month_url }}" hx-target="closest .calendar" hx-swap="outerHTML">
+            <a id="next-month"
+               href="{{ next_month_url }}"
+               hx-get="{{ next_month_url }}"
+               hx-target="closest .calendar"
+               hx-swap="outerHTML">
                 <img src="{% static 'worksheet/img/arrow-right.svg' %}" width="30" height="30">
             </a>
         </nav>

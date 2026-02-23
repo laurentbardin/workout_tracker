@@ -140,7 +140,9 @@ worksheet page where you can start inserting data (and working out).
 When done, you simply close the worksheet with the button at the bottom of the
 page.
 
-On the calendar view, past workouts are clickable if done.
+On the calendar view, past workouts are clickable if done. You can navigate to
+past and future months by clicking the arrows to the left and right of the
+calendar title, or by pressing the Left or Right Arrow keys on your keyboard.
 
 # Notes
 
