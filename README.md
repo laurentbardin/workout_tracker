@@ -5,12 +5,13 @@
 * [Installation](#installation)
   * [1. Clone the repository](#1-clone-the-repository)
   * [2. Install requirements in a virtual environment](#2-install-requirements-in-a-virtual-environment)
-  * [3. (Optional) Database setup](#3-optional-database-setup)
-  * [4. Apply the migrations and the base data set](#4-apply-the-migrations-and-the-base-data-set)
-  * [5. (Optional) Run the tests](#5-optional-run-the-tests)
-  * [6. (Optional) Edit the current user's timezone](#6-optional-edit-the-current-users-timezone)
-  * [7. (Optional) Create the super user account](#7-optional-create-the-super-user-account)
-  * [8. Run the development server](#8-run-the-development-server)
+  * [3. Install the frontend dependencies](#3-install-the-frontend-dependencies)
+  * [4. (Optional) Database setup](#4-optional-database-setup)
+  * [5. Apply the migrations and the base data set](#5-apply-the-migrations-and-the-base-data-set)
+  * [6. (Optional) Run the tests](#6-optional-run-the-tests)
+  * [7. (Optional) Edit the current user's timezone](#7-optional-edit-the-current-users-timezone)
+  * [8. (Optional) Create the super user account](#8-optional-create-the-super-user-account)
+  * [9. Run the development server](#9-run-the-development-server)
 * [Usage](#usage)
 * [Notes](#notes)
   * [No user account needed](#no-user-account-needed)
@@ -75,7 +76,15 @@ $ uv sync
 $ . .venv/bin/activate
 ```
 
-## 3. (Optional) Database setup
+## 3. Install the frontend dependencies
+
+The app has only two lightweight Javascript dependencies:
+[HTMX](https://htmx.org/) and [Oat](https://oat.ink/).
+```sh
+$ npm install
+```
+
+## 4. (Optional) Database setup
 
 By default, the app uses SQLite for a quicker setup, but is perfectly
 compatible with PostgreSQL (the previous step installed the `psycopg` library).
@@ -85,7 +94,7 @@ Simply edit the `pg_conf` and `DATABASES` entries to your liking in
 *Note*: when using PostgreSQL, the server's timezone should be set to
 `Etc/UTC`, just like the app (`TIME_ZONE` in `settings.py`).
 
-## 4. Apply the migrations and the base data set
+## 5. Apply the migrations and the base data set
 ```sh
 $ python manage.py migrate
 $ python manage.py loaddata --app worksheet fixtures/worksheet.json
@@ -93,15 +102,15 @@ $ python manage.py loaddata --app worksheet fixtures/worksheet.json
 This step adds 3 workouts and their exercises, as well as a basic schedule
 (Monday to Saturday).
 
-## 5. (Optional) Run the tests
+## 6. (Optional) Run the tests
 
-After the migrations are run, you should be able to run the tests, and they
-should all pass (fingers crossed).
+After the migrations are applied, you should be able to run the tests, and they
+should all pass (🤞).
 ```sh
 $ python manage.py test
 ```
 
-## 6. (Optional) Edit the current user's timezone
+## 7. (Optional) Edit the current user's timezone
 
 Because this app was thought of as single-user but deals with timezone-aware
 datetimes, I added an app setting to simulate a user setting.
@@ -109,13 +118,13 @@ datetimes, I added an app setting to simulate a user setting.
 In `settings.py`, edit `USER_TIME_ZONE` to match the one of your current
 geographical location. The default is `Europe/Paris`.
 
-## 7. (Optional) Create the super user account
+## 8. (Optional) Create the super user account
 ```sh
 $ python manage.py createsuperuser
 ```
 Can be done later, if you want to take a look at the admin area.
 
-## 8. Run the development server
+## 9. Run the development server
 ```sh
 $ python manage.py runserver
 ```
