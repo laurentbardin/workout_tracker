@@ -131,7 +131,9 @@
             border: 1px solid var(--danger);
 
             &:focus {
-                outline: 1px solid var(--danger);
+                outline: 2px solid var(--danger);
+                outline-offset: 0px;
+                box-shadow: none;
             }
         }
     }
