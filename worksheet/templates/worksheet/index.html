@@ -45,7 +45,7 @@
             {% for date, data in week.items %}
             {% if date == today %}
             <td class="today">
-            {% elif date.month != today.month %}
+            {% elif date.month != active_month %}
             <td class="other_month">
             {% else %}
             <td>
