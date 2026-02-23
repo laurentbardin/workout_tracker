@@ -1,6 +1,5 @@
 .calendar {
     caption-side: top;
-    white-space: nowrap;
     border: none;
     font-size: var(--text-regular);
 
