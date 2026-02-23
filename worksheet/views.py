@@ -83,6 +83,9 @@ class CalendarView(IndexView):
     def render_to_response(self, context, **response_kwargs):
         (self.year, self.month) = (context['year'], context['month'])
 
+        if (self.request.headers.get('HX-Request')):
+            self.template_name = 'worksheet/partials/calendar.html'
+
         return super().render_to_response(context, **response_kwargs)
 
     def _get_month_navigation(self, context, date):
