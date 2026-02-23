@@ -2,11 +2,11 @@
     display: grid;
     grid-template-columns: repeat(5, 6rem) repeat(2, minmax(3rem, auto));
     grid-auto-rows: 3rem;
-    justify-content: var(--justify-normal);
+    justify-content: left;
 
     > * {
         padding: 0.5em 1em;
-        border: 1px solid var(--color-bg-secondary);
+        border: 1px solid var(--secondary);
         border-width: 0 1px 1px 0;
     }
 
@@ -21,8 +21,8 @@
 
     .header {
         font-weight: bold;
-        color: var(--color-bg);
-        background-color: var(--color-table);
+        color: var(--primary-foreground);
+        background-color: var(--primary);
         border-width: 0;
         align-items: end;
         grid-row: span 2;
@@ -32,19 +32,19 @@
         transition: background-color 250ms ease-in;
 
         &:has(input:focus) {
-            background-color: var(--color-info);
+            background-color: var(--info);
         }
     }
 
     .even {
-        background-color: var(--color-accent);
+        background-color: var(--accent);
     }
 
     .result.success {
-        background-color: var(--color-success);
+        background-color: var(--success);
     }
     .result.error {
-        background-color: var(--color-error);
+        background-color: var(--danger);
     }
 
     .exercise {
@@ -73,14 +73,9 @@
         position: relative;
         padding: 0;
 
-        button {
-            padding: 0;
-            margin: 0;
-            background-color: transparent;
-            border-width: 0;
-            width: 100%;
-            height: 100%;
-
+        a {
+            margin: 0 auto;
+            cursor: pointer;
         }
     }
     .result.status {
@@ -127,22 +122,23 @@
     }
 
     input[type="text"] {
-        max-width: 2rem;
-
         &:invalid {
-            border: 1px solid var(--color-error);
+            border: 1px solid var(--danger);
 
             &:focus {
-                outline: 1px solid var(--color-error);
+                outline: 2px solid var(--danger);
+                outline-offset: 0px;
+                box-shadow: none;
             }
         }
     }
 }
 
 #notePopover {
-    border: 1px solid var(--color-bg-secondary);
+    border: 1px solid var(--secondary);
     border-radius: 8px;
-    box-shadow: 0px 0px 5px 5px var(--color-accent);
+    box-shadow: 0px 0px 5px 5px var(--accent);
+    padding: 1rem;
 }
 
 ul.errors {
@@ -150,7 +146,7 @@ ul.errors {
     padding: 0 1rem;
     margin: 0;
     background-color: #fde6e5;
-    border: 1px solid var(--color-error);
+    border: 1px solid var(--danger);
     border-radius: 8px;
     position: relative;
     align-self: start;

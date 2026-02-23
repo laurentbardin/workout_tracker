@@ -1,0 +1,70 @@
+{% load static %}
+
+<table class="calendar">
+    <caption>
+        <nav hx-push-url="true">
+            <a id="previous-month"
+               href="{{ previous_month_url }}"
+               hx-get="{{ previous_month_url }}"
+               hx-target="closest .calendar"
+               hx-swap="outerHTML">
+                <img src="{% static 'worksheet/img/arrow-left.svg' %}" width="30" height="30">
+            </a>
+            <h1>Workout calendar for {{ month | date:"F Y" }}</h1>
+            <a id="next-month"
+               href="{{ next_month_url }}"
+               hx-get="{{ next_month_url }}"
+               hx-target="closest .calendar"
+               hx-swap="outerHTML">
+                <img src="{% static 'worksheet/img/arrow-right.svg' %}" width="30" height="30">
+            </a>
+        </nav>
+        {% if active_worksheets %}
+        <div class="active-worksheets">
+            <p>Some workouts are still in progress:</p>
+            <ul>
+                {% for worksheet in active_worksheets %}
+                <li>{{ worksheet.date }}: <a href="{{ worksheet.get_absolute_url }}">{{ worksheet.workout }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </caption>
+    <thead>
+        <tr>
+            {% for day in days %}
+            <th>{{ day }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for week in calendar %}
+        <tr>
+            {% for date, data in week.items %}
+            {% if date == today %}
+            <td class="today">
+            {% elif date.month != active_month %}
+            <td class="other_month">
+            {% else %}
+            <td>
+            {% endif %}
+                <span>{{ date.day }}</span>
+                {% if data.worksheet %}
+                    <a href="{{ data.worksheet.get_absolute_url }}">{{ data.worksheet.workout }}</a>
+                {% elif data.workout %}
+                    {% if active_worksheets or date != today %}
+                    {{ data.workout }}
+                    {% else %}
+                    <form action="{% url 'worksheet:create' %}" method="POST">
+                        {% csrf_token %}
+                        <button type="submit" title="Start today's workout">{{ data.workout }}</button>
+                    </form>
+                    {% endif %}
+                {% endif %}
+            </td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+

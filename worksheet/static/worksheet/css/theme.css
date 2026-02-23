@@ -1,0 +1,14 @@
+@layer theme {
+    :root {
+        /* https://bulma.io/documentation/features/color-palettes/ */
+        /* https://oklch.com/ */
+        --info: oklch(0.81 0.12 229);
+        --success: oklch(0.74 0.14 160);
+        --warning: oklch(0.82 0.17 79);
+        --error: oklch(0.71 0.1869 11);
+
+        --primary: oklch(0.6286 0.1765 251);
+        --accent: oklch(0.95 0.03 251);
+        --muted: oklch(0.69 0 0);
+    }
+}

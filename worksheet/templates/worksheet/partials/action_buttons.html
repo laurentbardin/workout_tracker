@@ -1,23 +1,25 @@
 {% load static %}
 
-<button id="result-action-{{ result.id }}"
-        popovertarget="notePopover"
-        data-note="{{ result.note|default:'' }}"
-        hx-on:click="initNoteForm('{% url 'worksheet:result' worksheet.id result.id 'note' %}', this)"
-        hx-swap-oob="true"
-        >
+<a id="result-action-{{ result.id }}"
+   data-note="{{ result.note|default:'' }}"
+   data-action-url="{% url 'worksheet:result' worksheet.id result.id 'note' %}"
+   hx-on:click="htmx.find('#notePopover').togglePopover({ source: this })"
+   hx-swap-oob="true"
+   >
     {% if result.note %}
-    <img src="{% static 'worksheet/img/note-view.svg' %}"
-         class="icon"
-         alt="View note icon"
-         title="View or modify the note on this result"
-         />
+    <span title="View or modify the note on this result">
+        <img src="{% static 'worksheet/img/note-view.svg' %}"
+             class="icon"
+             alt="View note icon"
+             />
+    </span>
     {% else %}
-    <img src="{% static 'worksheet/img/note-add.svg' %}"
-         class="icon"
-         alt="Add note icon"
-         title="Add a note to this result"
-         />
+    <span title="Add a note to this result">
+        <img src="{% static 'worksheet/img/note-add.svg' %}"
+             class="icon"
+             alt="Add note icon"
+             />
+    </span>
     {% endif %}
-</button>
+</a>
 

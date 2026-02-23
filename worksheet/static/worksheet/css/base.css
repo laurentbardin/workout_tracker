@@ -1,14 +1,11 @@
-@import 'vars.css';
+@import 'theme.css';
 
 body {
     margin: 0 2em;
 }
 
-form {
-    border: none;
-    border-radius: 0;
-    box-shadow: none;
-    min-width: 0;
+[popover] {
+    margin: auto;
 }
 
 .hidden {
