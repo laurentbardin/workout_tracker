@@ -9,6 +9,7 @@
 
 {% block javascript %}
     {{ block.super }}
+    <script src="{% static 'worksheet/js/oat.min.js' %}"></script>
     <script src="{% static 'worksheet/js/htmx.min.js' %}"></script>
 {% endblock %}
 
@@ -59,7 +60,7 @@
                     {% else %}
                     <form action="{% url 'worksheet:create' %}" method="POST">
                         {% csrf_token %}
-                        <button type="submit">{{ data.workout }}</button>
+                        <button type="submit" title="Start today's workout">{{ data.workout }}</button>
                     </form>
                     {% endif %}
                 {% endif %}

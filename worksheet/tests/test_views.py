@@ -33,7 +33,7 @@ class IndexViewTests(WorksheetMixin, TestCase):
         response = self.client.get(reverse("worksheet:index"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Test workout")
-        self.assertContains(response, '<button type="submit">' + self.workout.name + '</button>', 1)
+        self.assertContains(response, '<button type="submit" title="Start today\'s workout">' + self.workout.name + '</button>', 1)
 
     def test_workout_already_started(self):
         """
