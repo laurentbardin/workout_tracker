@@ -41,21 +41,36 @@ worksheet.initClock = function(start) {
     setInterval(update, 1000);
 }
 
-worksheet.initNoteForm = function(actionUrl, fromButton) {
-    const form = htmx.find('#noteForm');
-    if (!form) {
-        console.error('Cannot initialise note form: element not found');
-        return;
-    }
-    form.action = actionUrl;
-    form.setAttribute('hx-post', form.action);
+worksheet.initPopover = function(popover) {
+    popover.addEventListener('beforetoggle', function (ev) {
+        if (ev.newState == 'closed') {
+            return;
+        }
 
-    htmx.process(form);
+        const form = htmx.find(this, '#noteForm');
+        if (!form) {
+            console.error('Cannot initialise note form: element not found');
+            return;
+        }
 
-    const input = htmx.find(form, 'input[name="note"]');
-    if (!input) {
-        console.warn('Cannot set input value: element not found');
-    } else {
-        input.value = fromButton.dataset.note;
-    }
+        form.action = ev.source.dataset.actionUrl;
+        form.setAttribute('hx-post', form.action);
+
+        htmx.process(form);
+
+        const input = htmx.find(form, 'input[name="note"]');
+        if (!input) {
+            console.warn('Cannot set input value: element not found');
+        } else {
+            input.value = ev.source.dataset.note;
+        }
+    });
+
+    popover.addEventListener('toggle', function (ev) {
+        if (ev.newState == 'closed') {
+            return;
+        }
+
+        htmx.find(this, 'input[name="note"]')?.focus();
+    });
 }

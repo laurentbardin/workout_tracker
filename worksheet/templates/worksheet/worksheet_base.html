@@ -59,7 +59,10 @@
     <script src="{% static 'worksheet/js/worksheet.js' %}"></script>
     {% if not worksheet.done %}
     <script type="text/javascript">
-        htmx.onLoad(() => worksheet.initClock('{{ worksheet.started_at|date:"c" }}'));
+        document.addEventListener('DOMContentLoaded', () => {
+            worksheet.initClock('{{ worksheet.started_at|date:"c" }}')
+            worksheet.initPopover(htmx.find('#notePopover'));
+        });
     </script>
     {% endif %}
 {% endblock %}
