@@ -4,11 +4,12 @@
     {% if worksheet.done %}
         {{ result.reps|default:0 }}
         {% if result.note %}
-        <img src="{% static 'worksheet/img/note-view.svg' %}"
-             class="icon"
-             alt="View note"
-             title="{{ result.note }}"
-             />
+        <span title="{{ result.note }}">
+            <img src="{% static 'worksheet/img/note-view.svg' %}"
+                 class="icon"
+                 alt="View note"
+                 />
+        </span>
         {% endif %}
     {% else %}
         <input type="text"
