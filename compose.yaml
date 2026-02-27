@@ -1,0 +1,20 @@
+name: workout_tracker
+
+services:
+  app:
+    build:
+      context: ./
+      dockerfile: ./contrib/docker/Dockerfile
+      target: backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/home/workout_tracker/data
+    develop:
+      watch:
+        - path: ./workout_tracker
+          action: sync
+          target: /home/workout_tracker/workout_tracker
+        - path: ./worksheet
+          action: sync
+          target: /home/workout_tracker/worksheet

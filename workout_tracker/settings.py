@@ -85,7 +85,7 @@ WSGI_APPLICATION = 'workout_tracker.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 sqlite_conf = {
     'ENGINE': 'django.db.backends.sqlite3',
-    'NAME': BASE_DIR / 'db.sqlite3',
+    'NAME': BASE_DIR / 'data/db.sqlite3',
 }
 pg_conf = {
     'ENGINE': 'django.db.backends.postgresql',
