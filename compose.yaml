@@ -5,9 +5,11 @@ services:
     build:
       context: ./
       dockerfile: ./contrib/docker/Dockerfile
-      target: server
+      target: backend
     ports:
       - "8000:8000"
+    volumes:
+      - ./data:/home/workout_tracker/data
     develop:
       watch:
         - path: ./workout_tracker
