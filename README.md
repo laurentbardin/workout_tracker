@@ -4,15 +4,17 @@
   * [Models](#models)
 * [Installation](#installation)
   * [Docker/Podman](#dockerpodman)
+    * [1. Build the image and launch the container](#1-build-the-image-and-launch-the-container)
+    * [2. Apply the migrations and the base data set](#2-apply-the-migrations-and-the-base-data-set)
   * [Manual installation](#manual-installation)
-      * [1. Install requirements in a virtual environment](#1-install-requirements-in-a-virtual-environment)
-      * [2. Install the frontend dependencies](#2-install-the-frontend-dependencies)
-      * [3. (Optional) Database setup](#3-optional-database-setup)
-      * [4. Apply the migrations and the base data set](#4-apply-the-migrations-and-the-base-data-set)
-      * [5. (Optional) Run the tests](#5-optional-run-the-tests)
-      * [6. (Optional) Edit the current user's timezone](#6-optional-edit-the-current-users-timezone)
-      * [7. (Optional) Create the super user account](#7-optional-create-the-super-user-account)
-      * [8. Run the development server](#8-run-the-development-server)
+    * [1. Install requirements in a virtual environment](#1-install-requirements-in-a-virtual-environment)
+    * [2. Install the frontend dependencies](#2-install-the-frontend-dependencies)
+    * [3. (Optional) PostgreSQL setup](#3-optional-postgresql-setup)
+    * [4. Apply the migrations and the base data set](#4-apply-the-migrations-and-the-base-data-set)
+    * [5. (Optional) Run the tests](#5-optional-run-the-tests)
+    * [6. (Optional) Edit the current user's timezone](#6-optional-edit-the-current-users-timezone)
+    * [7. (Optional) Create the super user account](#7-optional-create-the-super-user-account)
+    * [8. Run the development server](#8-run-the-development-server)
 * [Usage](#usage)
 * [Notes](#notes)
   * [No user account needed](#no-user-account-needed)
@@ -64,9 +66,24 @@ manually.
 
 ## Docker/Podman
 
-Running `make server` should take care of everything: building the image and
-running the container. Then it's just a matter of opening
-[http://localhost:8000](http://localhost:8000) with your browser.
+This method only works with SQLite. The database is located in the `data/`
+directory, which is mounted in the container (see the `Makefile`).
+
+### 1. Build the image and launch the container
+
+Running `make server` should take care of these two steps at once.
+
+### 2. Apply the migrations and the base data set
+
+In another shell:
+```sh
+$ make init-db
+```
+This step adds 3 workouts and their exercises, as well as a basic schedule
+(Monday to Saturday).
+
+You can now open a browser to test the app:
+[http://localhost:8000](http://localhost:8000)
 
 ## Manual installation
 
@@ -95,7 +112,7 @@ The app has only two lightweight Javascript dependencies:
 $ npm install
 ```
 
-### 3. (Optional) Database setup
+### 3. (Optional) PostgreSQL setup
 
 By default, the app uses SQLite for a quicker setup, but is perfectly
 compatible with PostgreSQL (the previous step installed the `psycopg` library).
