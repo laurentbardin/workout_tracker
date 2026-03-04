@@ -134,13 +134,6 @@
     }
 }
 
-#notePopover {
-    border: 1px solid var(--secondary);
-    border-radius: 8px;
-    box-shadow: 0px 0px 5px 5px var(--accent);
-    padding: 1rem;
-}
-
 ul.errors {
     list-style-type: none;
     padding: 0 1rem;

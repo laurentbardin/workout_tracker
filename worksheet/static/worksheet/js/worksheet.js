@@ -5,7 +5,7 @@ worksheet.checkInput = function(elt, _ev) {
     if (!elt.checkValidity()) {
         elt.reportValidity();
     }
-}
+};
 
 worksheet.updateClock = function(elt, start) {
     const start_date = new Date(start);
@@ -32,45 +32,39 @@ worksheet.updateClock = function(elt, start) {
 
         htmx.swap(elt, values.join(':'), {swapStyle: 'innerHtml'});
     }
-}
+};
 
 worksheet.initClock = function(start) {
     const update = worksheet.updateClock('#clock', start);
     update();
     htmx.removeClass('#clock', 'hidden');
     setInterval(update, 1000);
-}
+};
 
-worksheet.initPopover = function(popover) {
-    popover.addEventListener('beforetoggle', function (ev) {
-        if (ev.newState == 'closed') {
-            return;
-        }
+worksheet.toggleNotePopover = function (source) {
+    const popover = htmx.find('#notePopover');
+    if (!popover) {
+        console.error('Cannot toggle popover: element not found');
+        return;
+    }
 
-        const form = htmx.find(this, '#noteForm');
-        if (!form) {
-            console.error('Cannot initialise note form: element not found');
-            return;
-        }
+    const form = htmx.find(popover, '#noteForm');
+    if (!form) {
+        console.error('Cannot initialise note form: element not found');
+        return;
+    }
 
-        form.action = ev.source.dataset.actionUrl;
-        form.setAttribute('hx-post', form.action);
+    form.action = source.dataset.actionUrl;
+    form.setAttribute('hx-post', form.action);
 
-        htmx.process(form);
+    htmx.process(form);
 
-        const input = htmx.find(form, 'input[name="note"]');
-        if (!input) {
-            console.warn('Cannot set input value: element not found');
-        } else {
-            input.value = ev.source.dataset.note;
-        }
-    });
+    const input = htmx.find(form, 'input[name="note"]');
+    if (!input) {
+        console.warn('Cannot set input value: element not found');
+    } else {
+        input.value = source.dataset.note;
+    }
 
-    popover.addEventListener('toggle', function (ev) {
-        if (ev.newState == 'closed') {
-            return;
-        }
-
-        htmx.find(this, 'input[name="note"]')?.focus();
-    });
-}
+    popover.show();
+};

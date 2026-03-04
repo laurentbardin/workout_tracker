@@ -6,7 +6,14 @@
       hx-include="[name='csrfmiddlewaretoken']"
       hx-disabled-elt="find input, find button"
       >
-      {{ note_form }}
-      <button type="submit" class="mt-4">Add note</button>
-      <button type="submit" class="outline" hx-on:click="htmx.find('#id_note').value=''">Delete note</button>
+      <header>
+          <h3>Add a note</h3>
+      </header>
+      <div>
+          {{ note_form }}
+      </div>
+      <footer>
+          <button type="submit" class="">Add note</button>
+          <button type="submit" class="outline" hx-on:click="htmx.find('#id_note').value=''">Delete note</button>
+      </footer<
 </form>
