@@ -41,7 +41,7 @@ worksheet.initClock = function(start) {
     setInterval(update, 1000);
 };
 
-worksheet.toggleNotePopover = function (source) {
+worksheet.showNotePopover = function (source) {
     const popover = htmx.find('#notePopover');
     if (!popover) {
         console.error('Cannot toggle popover: element not found');
