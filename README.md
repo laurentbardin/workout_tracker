@@ -115,7 +115,7 @@ $ npm install
 ### 3. (Optional) PostgreSQL setup
 
 By default, the app uses SQLite for a quicker setup, but is perfectly
-compatible with PostgreSQL (the previous step installed the `psycopg` library).
+compatible with PostgreSQL (the `psycopg` library is part of the dependencies).
 Simply edit the `pg_conf` and `DATABASES` entries to your liking in
 `settings.py`.
 
