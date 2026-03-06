@@ -10,8 +10,24 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
-    <body>
-        {% block content %}{% endblock %}
+    <body data-sidebar-layout>
+        {% block navbar %}
+        <nav data-topnav>
+            <button data-sidebar-toggle aria-label="Toggle menu" class="outline">☰</button>
+            <span>App Name</span>
+        </nav>
+
+        <aside data-sidebar>
+            <header>Logo</header>
+            <nav>...navigation...</nav>
+            <footer>Actions</footer>
+        </aside>
+        {% endblock %}
+
+        <main>
+            {% block content %}{% endblock %}
+        </main>
+
         {% block javascript %}
         {% endblock %}
     </body>

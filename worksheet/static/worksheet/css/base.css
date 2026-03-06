@@ -1,9 +1,5 @@
 @import 'theme.css';
 
-body {
-    margin: 0 2em;
-}
-
 [popover] {
     margin: auto;
 }
