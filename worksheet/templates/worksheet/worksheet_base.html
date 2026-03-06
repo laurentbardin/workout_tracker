@@ -8,7 +8,13 @@
 {% endblock %}
 
 {% block topnav-title %}
-<p><strong>{{ worksheet.workout }}</strong> &mdash; {{ worksheet.date }}</p>
+<p>
+    {% if worksheet is None %}
+    No worksheet found
+    {% else %}
+    <strong>{{ worksheet.workout }}</strong> &mdash; {{ worksheet.date }}
+    {% endif %}
+</p>
 {% endblock %}
 
 {% block topnav-offside %}
@@ -22,7 +28,7 @@
 {% block content %}
 
 {% if worksheet is None %}
-    <h1>No workout for {{ date }}.</h1>
+    <p>No workout for {{ date }}.</p>
     <p><a href="{% url 'worksheet:index' %}">Go back</a></p>
 {% else %}
     <section class="worksheet {{ worksheet.get_status }}"
