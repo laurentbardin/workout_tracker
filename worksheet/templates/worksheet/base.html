@@ -29,9 +29,9 @@
 
         {% block sidebar %}
         <aside data-sidebar>
-            <header>Logo</header>
-            <nav>...navigation...</nav>
-            <footer>Actions</footer>
+            <nav>
+                <a href="{% url 'worksheet:index' %}">Home</a>
+            </nav>
         </aside>
         {% endblock %}
 
