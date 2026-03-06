@@ -1,21 +1,12 @@
+[data-topnav] nav {
+    display: flex;
+    justify-content: space-between;
+}
+
 .calendar {
     caption-side: top;
     border: none;
     font-size: var(--text-regular);
-
-    caption {
-        .active-worksheets {
-            text-align: left;
-            padding: 0 1em;
-        }
-
-        nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 0;
-        }
-    }
 
     thead {
         background-color: var(--primary);

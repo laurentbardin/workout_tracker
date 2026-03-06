@@ -84,7 +84,11 @@ class CalendarView(IndexView):
         (self.year, self.month) = (context['year'], context['month'])
 
         if (self.request.headers.get('HX-Request')):
-            self.template_name = 'worksheet/partials/calendar.html'
+            self._get_calendar(context)
+            content = loader.render_to_string('worksheet/partials/calendar.html', context, self.request)
+            content += loader.render_to_string('worksheet/partials/calendar_title.html', context, self.request)
+
+            return HttpResponse(content)
 
         return super().render_to_response(context, **response_kwargs)
 
