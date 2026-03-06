@@ -190,7 +190,7 @@ class WorksheetViewTest(WorksheetMixin, TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Test workout")
-        self.assertContains(response, "Completed in 0:37:42")
+        self.assertContains(response, "Completed in <strong>0:37:42</strong>")
 
     def test_note_on_previous_result(self):
         """

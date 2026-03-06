@@ -11,12 +11,23 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body data-sidebar-layout>
-        {% block navbar %}
+        {% block topnav %}
         <nav data-topnav>
-            <button data-sidebar-toggle aria-label="Toggle menu" class="outline">☰</button>
-            <span>App Name</span>
+            <div class="row">
+                <div class="col-4">
+                    <span>Workout Tracker</span>
+                </div>
+                <div class="col-4 align-center">
+                    <span>{% block topnav-title %}Title{% endblock %}</span>
+                </div>
+                <div class="col-4 align-right">
+                    <span>{% block topnav-offside %}Offside{% endblock %}</span>
+                </div>
+            </div>
         </nav>
+        {% endblock %}
 
+        {% block sidebar %}
         <aside data-sidebar>
             <header>Logo</header>
             <nav>...navigation...</nav>
