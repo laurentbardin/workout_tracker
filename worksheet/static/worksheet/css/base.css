@@ -4,6 +4,10 @@
     margin: auto;
 }
 
+main {
+    padding-right: var(--space-4);
+}
+
 .hidden {
     visibility: hidden;
 }
