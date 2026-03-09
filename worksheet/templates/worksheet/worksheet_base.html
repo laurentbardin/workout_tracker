@@ -53,7 +53,27 @@
             <button type="submit">Close</button>
         </form>
         <dialog id="notePopover" closedby="any" popover>
-            {% include 'worksheet/partials/note_form.html' %}
+            {% partialdef note_form inline %}
+            <form id="noteForm"
+                  method="POST"
+                  action="{{ note_form_url }}"
+                  hx-post="{{ note_form_url }}"
+                  hx-swap="outerHTML"
+                  hx-include="[name='csrfmiddlewaretoken']"
+                  hx-disabled-elt="find input, find button"
+                  >
+                  <header>
+                      <h3>Add a note</h3>
+                  </header>
+                  <div>
+                      {{ note_form }}
+                  </div>
+                  <footer>
+                      <button type="submit" class="">Add note</button>
+                      <button type="submit" class="outline" hx-on:click="htmx.find('#id_note').value=''">Delete note</button>
+                  </footer>
+            </form>
+            {% endpartialdef %}
         </dialog>
     {% endif %}
     {% endblock %}
@@ -74,3 +94,13 @@
     </script>
     {% endif %}
 {% endblock %}
+
+{% partialdef result_error %}
+<ul class="errors">
+{% for messages in errors.values %}
+    {% for msg in messages %}
+    <li>{{ msg }}</li>
+    {% endfor %}
+{% endfor %}
+</ul>
+{% endpartialdef %}

@@ -6,7 +6,7 @@
     <div class="exercise repeat">{{ forloop.counter}}. {{ exercise_name }}</div>
     {% for result in results %}
         {% cycle 'odd' 'even' as row silent %}
-        {% include 'worksheet/partials/result_row.html' %}
+        {% include 'worksheet/worksheet.html#result_row' %}
     {% endfor %}
 {% endfor %}
 {% endblock %}
