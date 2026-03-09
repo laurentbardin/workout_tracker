@@ -6,13 +6,13 @@ from django.utils import timezone
 class WorksheetManager(models.Manager):
     def get_active(self, before=None):
         """
-        Get the list of in progress workouts, if any, before a certain date. If
-        none is specified, use today.
+        Get the list of in progress workouts, if any, before a certain date
+        (inclusive). If none is specified, use today.
         """
         if before is None or not isinstance(before, (datetime.datetime, datetime.date)):
             before = timezone.localdate()
 
-        return super().get_queryset().filter(done=False, date__lt=before)
+        return super().get_queryset().filter(done=False, date__lte=before)
 
     def close(self, pk=None):
         if pk is not None:

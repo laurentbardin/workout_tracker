@@ -9,13 +9,13 @@
 
 {% block javascript %}
     {{ block.super }}
-    <script src="{% static 'worksheet/js/oat.min.js' %}"></script>
-    <script src="{% static 'worksheet/js/htmx.min.js' %}"></script>
     <script src="{% static 'worksheet/js/index.js' %}"></script>
 {% endblock %}
 
+{% block topnav-title %}
+    {% include 'worksheet/partials/calendar_title.html' %}
+{% endblock %}
+
 {% block content %}
-
-{% include 'worksheet/partials/calendar.html' %}
-
+    {% include 'worksheet/partials/calendar.html' %}
 {% endblock content %}

@@ -10,9 +10,53 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
-    <body>
-        {% block content %}{% endblock %}
+    <body data-sidebar-layout>
+        {% block topnav %}
+        <nav data-topnav>
+            <div class="row">
+                <div class="col-4">
+                    <span>Workout Tracker</span>
+                </div>
+                <div class="col-4 align-center">
+                    {% block topnav-title %}{% endblock %}
+                </div>
+                <div class="col-4 align-right">
+                    <span>{% block topnav-offside %}{% endblock %}</span>
+                </div>
+            </div>
+        </nav>
+        {% endblock %}
+
+        {% block sidebar %}
+        <aside data-sidebar>
+            <nav>
+                <ul>
+                    <li>
+                        <a href="{% url 'worksheet:index' %}">Home</a>
+                    </li>
+                    <li>
+                        <details open>
+                            <summary>Active Worksheets <span class="badge secondary">{{ active_worksheets | length }}</span></summary>
+                            <ul>
+                                {% for worksheet in active_worksheets %}
+                                <li>
+                                    <a href="{{ worksheet.get_absolute_url }}">{{ worksheet.workout }}</a>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </details>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+        {% endblock %}
+
+        <main>
+            {% block content %}{% endblock %}
+        </main>
+
         {% block javascript %}
+        <script src="{% static 'worksheet/js/htmx.min.js' %}"></script>
         {% endblock %}
     </body>
 </html>

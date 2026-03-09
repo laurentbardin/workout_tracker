@@ -4,9 +4,9 @@ calendar.navigate = function(key) {
     let anchor;
 
     if (key == 'ArrowLeft') {
-        anchor = htmx.find('.calendar #previous-month')
+        anchor = htmx.find('a#previous-month')
     } else if (key == 'ArrowRight') {
-        anchor = htmx.find('.calendar #next-month')
+        anchor = htmx.find('a#next-month')
     } else {
         return;
     }

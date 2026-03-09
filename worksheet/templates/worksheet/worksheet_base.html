@@ -7,18 +7,28 @@
 <link rel="stylesheet" href="{% static 'worksheet/css/worksheet.css' %}">
 {% endblock %}
 
+{% block topnav-title %}
+    {% if worksheet is None %}
+    No worksheet found
+    {% else %}
+    <strong>{{ worksheet.workout }}</strong> &mdash; {{ worksheet.date }}
+    {% endif %}
+{% endblock %}
+
+{% block topnav-offside %}
+    {% if worksheet.done %}
+        Completed in <strong>{{ worksheet.get_duration }}</strong>
+    {% else %}
+        <strong><span id="clock" class="hidden">0:00:00</span></strong>
+    {% endif %}
+{% endblock %}
+
 {% block content %}
 
 {% if worksheet is None %}
-    <h1>No workout for {{ date }}.</h1>
+    <p>No workout for {{ date }}.</p>
     <p><a href="{% url 'worksheet:index' %}">Go back</a></p>
 {% else %}
-    <h1>Workout for {{ worksheet.date }}: {{ worksheet.workout }}</h1>
-    {% if worksheet.done %}
-        <p>Completed in {{ worksheet.get_duration }}</p>
-    {% else %}
-        <h2><span id="clock" class="hidden">0:00:00</span></h2>
-    {% endif %}
     <section class="worksheet {{ worksheet.get_status }}"
         {% if not worksheet.done %}
         hx-on:update-success="let e = event.target.parentElement;htmx.removeClass(e, 'error');htmx.addClass(e, 'success');"
@@ -55,7 +65,6 @@
 {% block javascript %}
     {{ block.super }}
     <script src="{% static 'worksheet/js/oat.min.js' %}"></script>
-    <script src="{% static 'worksheet/js/htmx.min.js' %}"></script>
     <script src="{% static 'worksheet/js/worksheet.js' %}"></script>
     {% if not worksheet.done %}
     <script type="text/javascript">

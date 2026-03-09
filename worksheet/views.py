@@ -4,7 +4,7 @@ import datetime
 from django.db import IntegrityError, transaction
 from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
 from django.shortcuts import render
-from django.template import loader
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
 from django.views.generic import TemplateView, View
@@ -66,7 +66,6 @@ class IndexView(TemplateView):
         context['today'] = today
         context['active_month'] = self.month
         context['days'] = list(calendar.day_name)
-        context['active_worksheets'] = Worksheet.objects.get_active().all()
 
         self._get_month_navigation(context, today)
 
@@ -84,7 +83,11 @@ class CalendarView(IndexView):
         (self.year, self.month) = (context['year'], context['month'])
 
         if (self.request.headers.get('HX-Request')):
-            self.template_name = 'worksheet/partials/calendar.html'
+            self._get_calendar(context)
+            content = render_to_string('worksheet/partials/calendar.html', context, self.request)
+            content += render_to_string('worksheet/partials/calendar_title.html', context, self.request)
+
+            return HttpResponse(content)
 
         return super().render_to_response(context, **response_kwargs)
 
@@ -244,7 +247,7 @@ class ResultAction(View):
                 if note_form.is_valid():
                     # Transform empty string to NULL (may not be necessary?)
                     value = note_form.cleaned_data['note']
-                    content = loader.render_to_string('worksheet/partials/note_form.html', context, request)
+                    content = render_to_string('worksheet/partials/note_form.html', context, request)
                 else:
                     return render(request, 'worksheet/partials/note_form.html', context)
 
@@ -271,7 +274,7 @@ class ResultAction(View):
                                    {'errors': errors},
                                    status=http.HTTPStatus.OK)
         elif field == 'note':
-            content += loader.render_to_string('worksheet/partials/action_buttons.html', {
+            content += render_to_string('worksheet/partials/action_buttons.html', {
                 'result': Result(id=result_id, note=value),
                 'worksheet': Worksheet(id=worksheet_id),
             }, request)

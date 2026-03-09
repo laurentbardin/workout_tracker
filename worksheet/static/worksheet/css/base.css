@@ -1,11 +1,11 @@
 @import 'theme.css';
 
-body {
-    margin: 0 2em;
-}
-
 [popover] {
     margin: auto;
+}
+
+main {
+    padding-right: var(--space-4);
 }
 
 .hidden {
