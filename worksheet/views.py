@@ -247,9 +247,9 @@ class ResultAction(View):
                 if note_form.is_valid():
                     # Transform empty string to NULL (may not be necessary?)
                     value = note_form.cleaned_data['note']
-                    content = render_to_string('worksheet/partials/note_form.html', context, request)
+                    content = render_to_string('worksheet/worksheet_base.html#note_form', context, request)
                 else:
-                    return render(request, 'worksheet/partials/note_form.html', context)
+                    return render(request, 'worksheet/worksheet_base.html#note_form', context)
 
             case _:
                 return HttpResponseNotFound()
@@ -270,11 +270,11 @@ class ResultAction(View):
         if errors is not None:
             event = 'updateError'
             http_response = render(request,
-                                   'worksheet/partials/result_error.html',
+                                   'worksheet/worksheet_base.html#result_error',
                                    {'errors': errors},
                                    status=http.HTTPStatus.OK)
         elif field == 'note':
-            content += render_to_string('worksheet/partials/action_buttons.html', {
+            content += render_to_string('worksheet/worksheet.html#action_buttons', {
                 'result': Result(id=result_id, note=value),
                 'worksheet': Worksheet(id=worksheet_id),
             }, request)
