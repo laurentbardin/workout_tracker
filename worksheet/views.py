@@ -66,7 +66,6 @@ class IndexView(TemplateView):
         context['today'] = today
         context['active_month'] = self.month
         context['days'] = list(calendar.day_name)
-        context['active_worksheets'] = Worksheet.objects.get_active().all()
 
         self._get_month_navigation(context, today)
 

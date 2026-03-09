@@ -30,7 +30,23 @@
         {% block sidebar %}
         <aside data-sidebar>
             <nav>
-                <a href="{% url 'worksheet:index' %}">Home</a>
+                <ul>
+                    <li>
+                        <a href="{% url 'worksheet:index' %}">Home</a>
+                    </li>
+                    <li>
+                        <details open>
+                            <summary>Active Worksheets <span class="badge secondary">{{ active_worksheets | length }}</span></summary>
+                            <ul>
+                                {% for worksheet in active_worksheets %}
+                                <li>
+                                    <a href="{{ worksheet.get_absolute_url }}">{{ worksheet.workout }}</a>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </details>
+                    </li>
+                </ul>
             </nav>
         </aside>
         {% endblock %}

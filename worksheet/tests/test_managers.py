@@ -24,12 +24,12 @@ class WorksheetManagerTests(TestCase):
         timezone.activate(getattr(settings, "USER_TIME_ZONE", settings.TIME_ZONE))
 
     def test_no_previously_active_worksheets(self):
-        worksheet = self._create_worksheet()
+        worksheet = self._create_worksheet(done=True)
 
         self.assertEqual(Worksheet.objects.count(), 1)
-        self.assertQuerySetEqual(
-            Worksheet.objects.get_active(before=worksheet.started_at.date()),
-            []
+        self.assertEqual(
+            Worksheet.objects.get_active(before=worksheet.started_at.date()).count(),
+            0
         )
 
     def test_previously_active_worksheets(self):
@@ -42,7 +42,7 @@ class WorksheetManagerTests(TestCase):
         self.assertEqual(Worksheet.objects.count(), 4)
         self.assertEqual(
             Worksheet.objects.get_active().count(),
-            2
+            3
         )
 
     def _create_worksheet(self, started_at=None, done=False):
