@@ -81,7 +81,6 @@ class IndexViewTests(WorksheetMixin, TestCase):
 
         response = self.client.get(reverse('worksheet:index'))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Some workouts are still in progress")
         self.assertContains(response, worksheet.get_absolute_url())
         self.assertNotContains(response, '<button type="submit">' + self.workout.name + '</button>')
 

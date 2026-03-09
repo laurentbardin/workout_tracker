@@ -84,8 +84,8 @@ class CalendarView(IndexView):
 
         if (self.request.headers.get('HX-Request')):
             self._get_calendar(context)
-            content = render_to_string('worksheet/partials/calendar.html', context, self.request)
-            content += render_to_string('worksheet/partials/calendar_title.html', context, self.request)
+            content = render_to_string('worksheet/index.html#calendar', context, self.request)
+            content += render_to_string('worksheet/index.html#title', context, self.request)
 
             return HttpResponse(content)
 
