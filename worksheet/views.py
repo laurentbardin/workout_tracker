@@ -233,24 +233,6 @@ class ResultAction(View):
                 value = request.POST.get('weight', None)
                 filters.update(exercise__weight=True)
 
-            case 'note':
-                note_form = ResultNoteForm(request.POST)
-                context = {
-                    'note_form': note_form,
-                    'note_form_url': reverse('worksheet:result', kwargs={
-                        'worksheet_id': worksheet_id,
-                        'result_id': result_id,
-                        'field': 'note'
-                    }),
-                }
-
-                if note_form.is_valid():
-                    # Transform empty string to NULL (may not be necessary?)
-                    value = note_form.cleaned_data['note']
-                    content = render_to_string('worksheet/worksheet_base.html#note_form', context, request)
-                else:
-                    return render(request, 'worksheet/worksheet_base.html#note_form', context)
-
             case _:
                 return HttpResponseNotFound()
 
@@ -273,13 +255,6 @@ class ResultAction(View):
                                    'worksheet/worksheet_base.html#result_error',
                                    {'errors': errors},
                                    status=http.HTTPStatus.OK)
-        elif field == 'note':
-            content += render_to_string('worksheet/worksheet.html#action_buttons', {
-                'result': Result(id=result_id, note=value),
-                'worksheet': Worksheet(id=worksheet_id),
-            }, request)
-
-            http_response = HttpResponse(content)
         else:
             if updated == 1:
                 event = 'updateSuccess'
@@ -293,3 +268,31 @@ class ResultAction(View):
             http_response.headers["HX-Trigger-After-Settle"] = event
 
         return http_response
+
+class NoteAction(View):
+    def post(self, request, worksheet_id, result_id):
+        # TODO Make this a PUT request
+        note_form = ResultNoteForm(request.POST)
+        context = {
+            'note_form': note_form,
+            'note_form_url': reverse('worksheet:note', kwargs={
+                'worksheet_id': worksheet_id,
+                'result_id': result_id,
+            }),
+        }
+
+        if not note_form.is_valid():
+            return render(request, 'worksheet/worksheet_base.html#note_form', context)
+
+        value = note_form.cleaned_data['note']
+        Result.objects.filter(pk=result_id, worksheet=worksheet_id).update(note=value)
+
+        context.update({
+            'result': Result(id=result_id, note=value),
+            'worksheet': Worksheet(id=worksheet_id),
+        })
+
+        content = render_to_string('worksheet/worksheet_base.html#note_form', context, request)
+        content += render_to_string('worksheet/worksheet.html#action_buttons', context, request)
+
+        return HttpResponse(content)

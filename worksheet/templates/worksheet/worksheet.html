@@ -81,7 +81,7 @@
                 {% partialdef action_buttons inline %}
                 <a id="result-action-{{ result.id }}"
                    data-note="{{ result.note|default:'' }}"
-                   data-action-url="{% url 'worksheet:result' worksheet.id result.id 'note' %}"
+                   data-action-url="{% url 'worksheet:note' worksheet.id result.id %}"
                    hx-on:click="worksheet.showNotePopover(this)"
                    hx-swap-oob="true"
                    >

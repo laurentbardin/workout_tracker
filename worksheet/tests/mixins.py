@@ -56,17 +56,22 @@ class WorksheetMixin(ProgramSetupMixin):
         return worksheet
 
     def _update_worksheet_result(self, worksheet, result_id, field, value):
-        # Don't filter 'field' values during testing, the view should handle
-        # that
+        route_args = {
+            'worksheet_id': worksheet.id,
+            'result_id': result_id,
+        }
+        data = {
+            field: str(value),
+        } if value is not None else {}
+
+        if field == 'note':
+            route = 'worksheet:note'
+        else:
+            route = 'worksheet:result'
+            route_args['field'] = field
+
         response = self.client.post(
-            reverse("worksheet:result", kwargs={
-                'worksheet_id': worksheet.id,
-                'result_id': result_id,
-                'field': field,
-            }),
-            {
-                field: str(value),
-            } if value is not None else {}
+            reverse(route, kwargs=route_args), data
         )
 
         return response

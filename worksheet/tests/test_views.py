@@ -389,7 +389,6 @@ class ResultActionTest(WorksheetMixin, TestCase):
                                                  result_id=1,
                                                  field='note',
                                                  value='This is a note')
-        result = Result.objects.get(pk=1)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'id="noteForm"')
         self.assertNotContains(response, '"errorlist"')
@@ -397,6 +396,7 @@ class ResultActionTest(WorksheetMixin, TestCase):
         self.assertContains(response, '"result-action-1"')
         self.assertContains(response, 'note-view.svg')
 
+        result = Result.objects.get(pk=1)
         self.assertIsNone(result.reps)
         self.assertIsNone(result.weight)
         self.assertEqual(result.note, 'This is a note')
@@ -405,7 +405,6 @@ class ResultActionTest(WorksheetMixin, TestCase):
                                                  result_id=1,
                                                  field='note',
                                                  value='This is a new note')
-        result = Result.objects.get(pk=1)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'id="noteForm"')
         self.assertNotContains(response, '"errorlist"')
@@ -413,6 +412,7 @@ class ResultActionTest(WorksheetMixin, TestCase):
         self.assertContains(response, '"result-action-1"')
         self.assertContains(response, 'note-view.svg')
 
+        result = Result.objects.get(pk=1)
         self.assertIsNone(result.reps)
         self.assertIsNone(result.weight)
         self.assertEqual(result.note, 'This is a new note')
@@ -421,7 +421,6 @@ class ResultActionTest(WorksheetMixin, TestCase):
                                                  result_id=1,
                                                  field='note',
                                                  value='')
-        result = Result.objects.get(pk=1)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'id="noteForm"')
         self.assertNotContains(response, '"errorlist"')
@@ -429,6 +428,7 @@ class ResultActionTest(WorksheetMixin, TestCase):
         self.assertContains(response, '"result-action-1"')
         self.assertContains(response, 'note-add.svg')
 
+        result = Result.objects.get(pk=1)
         self.assertIsNone(result.reps)
         self.assertIsNone(result.weight)
         self.assertIsNone(result.note)
@@ -439,7 +439,6 @@ class ResultActionTest(WorksheetMixin, TestCase):
                                                  result_id=1,
                                                  field='note',
                                                  value='abc' * 70)
-        result = Result.objects.get(pk=1)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'id="noteForm"')
         self.assertContains(response, '"errorlist"')
@@ -449,6 +448,7 @@ class ResultActionTest(WorksheetMixin, TestCase):
         self.assertNotContains(response, '"result-action-1"')
         self.assertNotContains(response, 'note-view.svg')
 
+        result = Result.objects.get(pk=1)
         self.assertIsNone(result.reps)
         self.assertIsNone(result.weight)
         self.assertIsNone(result.note)
