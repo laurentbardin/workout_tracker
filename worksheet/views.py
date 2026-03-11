@@ -252,7 +252,7 @@ class ResultAction(View):
         if errors is not None:
             event = 'updateError'
             http_response = render(request,
-                                   'worksheet/worksheet_base.html#result_error',
+                                   'worksheet/partials.html#result_error',
                                    {'errors': errors},
                                    status=http.HTTPStatus.OK)
         else:
