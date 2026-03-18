@@ -59,15 +59,16 @@ specific `Worksheet`.
 
 It all starts with cloning the repository:
 ```sh
-$ git clone git@gitlab.com:laurentbardin/workout_tracker
+$ git clone --depth=1 git@gitlab.com:laurentbardin/workout_tracker
 ```
 Then, you can quickly test the app using Docker/Podman, or install everything
 manually.
 
 ## Docker/Podman
 
-This method only works with SQLite. The database is located in the `data/`
-directory, which is mounted in the container (see the `Makefile`).
+This method only works with SQLite (because there is no PostgreSQL image
+involved). The database is located in the `data/` directory, which is mounted
+in the container (see the `Makefile`).
 
 ### 1. Build the image and launch the container
 
