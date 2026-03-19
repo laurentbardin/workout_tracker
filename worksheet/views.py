@@ -265,13 +265,15 @@ class ResultAction(View):
             http_response = HttpResponse(status=status)
 
         if event:
-            http_response.headers["HX-Trigger-After-Settle"] = event
+            http_response["HX-Trigger-After-Settle"] = event
 
         return http_response
 
 class NoteAction(View):
     def post(self, request, worksheet_id, result_id):
         # TODO Make this a PUT request
+        import json
+
         note_form = ResultNoteForm(request.POST)
         context = {
             'note_form': note_form,
@@ -295,4 +297,13 @@ class NoteAction(View):
         content = render_to_string('worksheet/worksheet_base.html#note_form', context, request)
         content += render_to_string('worksheet/worksheet.html#action_buttons', context, request)
 
-        return HttpResponse(content)
+        response = HttpResponse(content)
+
+        if value is None:
+            message = { 'noteDeleted': 'Note deleted' }
+        else:
+            message = { 'noteAdded': 'Note added' }
+
+        response["HX-Trigger"] = json.dumps(message)
+
+        return response

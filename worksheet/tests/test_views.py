@@ -1,5 +1,6 @@
 import datetime
 import html
+import json
 import random
 
 from django.test import TestCase
@@ -89,6 +90,7 @@ class CalendarViewTest(TestCase):
         today = timezone.localdate()
 
         response = self.client.get(reverse('worksheet:calendar', args=[ today.year, today.month ]))
+        self.assertContains(response, '<!doctype html>')
         self.assertContains(response, f"Workout calendar for {today.strftime('%B %Y')}")
         self.assertContains(response, 'class="today"', 1)
 
@@ -98,6 +100,7 @@ class CalendarViewTest(TestCase):
                              1)
 
         response = self.client.get(reverse('worksheet:calendar', args=[ date.year, date.month ]))
+        self.assertContains(response, '<!doctype html>')
         self.assertContains(response, f"Workout calendar for {date.strftime('%B %Y')}")
         self.assertNotContains(response, 'class="today"')
 
@@ -107,8 +110,17 @@ class CalendarViewTest(TestCase):
                              1)
 
         response = self.client.get(reverse('worksheet:calendar', args=[ date.year, date.month ]))
+        self.assertContains(response, '<!doctype html>')
         self.assertContains(response, f"Workout calendar for {date.strftime('%B %Y')}")
         self.assertNotContains(response, 'class="today"')
+
+    def test_calendar_responds_to_htmx_requests(self):
+        today = timezone.localdate()
+
+        response = self.client.get(reverse('worksheet:calendar', args=[ today.year, today.month ]), headers={'HX-Request': 1})
+        self.assertNotContains(response, '<!doctype html>')
+        self.assertContains(response, f"Workout calendar for {today.strftime('%B %Y')}")
+        self.assertContains(response, 'class="today"', 1)
 
 class CreateViewTest(ProgramSetupMixin, TestCase):
     def test_creation_when_not_scheduled(self):
@@ -395,6 +407,7 @@ class ResultActionTest(WorksheetMixin, TestCase):
         self.assertContains(response, 'data-note="This is a note"')
         self.assertContains(response, '"result-action-1"')
         self.assertContains(response, 'note-view.svg')
+        self.assertEqual(response.get("HX-Trigger"), json.dumps({ 'noteAdded': 'Note added' }))
 
         result = Result.objects.get(pk=1)
         self.assertIsNone(result.reps)
@@ -411,6 +424,7 @@ class ResultActionTest(WorksheetMixin, TestCase):
         self.assertContains(response, 'data-note="This is a new note"')
         self.assertContains(response, '"result-action-1"')
         self.assertContains(response, 'note-view.svg')
+        self.assertEqual(response.get("HX-Trigger"), json.dumps({ 'noteAdded': 'Note added' }))
 
         result = Result.objects.get(pk=1)
         self.assertIsNone(result.reps)
@@ -427,6 +441,7 @@ class ResultActionTest(WorksheetMixin, TestCase):
         self.assertContains(response, 'data-note=""')
         self.assertContains(response, '"result-action-1"')
         self.assertContains(response, 'note-add.svg')
+        self.assertEqual(response.get("HX-Trigger"), json.dumps({ 'noteDeleted': 'Note deleted' }))
 
         result = Result.objects.get(pk=1)
         self.assertIsNone(result.reps)
@@ -443,6 +458,7 @@ class ResultActionTest(WorksheetMixin, TestCase):
         self.assertContains(response, 'id="noteForm"')
         self.assertContains(response, '"errorlist"')
         self.assertContains(response, 'Ensure this value has at most 200 characters (it has 210).')
+        self.assertIsNone(response.get("HX-Trigger"))
 
         self.assertNotContains(response, 'data-note')
         self.assertNotContains(response, '"result-action-1"')

@@ -30,11 +30,11 @@
     <p><a href="{% url 'worksheet:index' %}">Go back</a></p>
 {% else %}
     <section class="worksheet {{ worksheet.get_status }}"
-        {% if not worksheet.done %}
-        hx-on:update-success="let e = event.target.parentElement;htmx.removeClass(e, 'error');htmx.addClass(e, 'success');"
-        hx-on:update-error="let e = event.target.parentElement;htmx.removeClass(e, 'success');htmx.addClass(e, 'error');"
-        {% endif %}
-        >
+             {% if not worksheet.done %}
+             hx-on:update-success="let e = event.target.parentElement;htmx.removeClass(e, 'error');htmx.addClass(e, 'success');"
+             hx-on:update-error="let e = event.target.parentElement;htmx.removeClass(e, 'success');htmx.addClass(e, 'error');"
+             {% endif %}
+             >
         <div class="exercise header">Exercise</div>
         <div class="reps header">Reps</div>
         <div class="weight header">Weight (kg)</div>
@@ -69,7 +69,7 @@
                       {{ note_form }}
                   </div>
                   <footer>
-                      <button type="submit" class="">Add note</button>
+                      <button type="submit">Add note</button>
                       <button type="submit" class="outline" hx-on:click="htmx.find('#id_note').value=''">Delete note</button>
                   </footer>
             </form>
@@ -84,13 +84,20 @@
 
 {% block javascript %}
     {{ block.super }}
+    {% if not worksheet.done %}
     <script src="{% static 'worksheet/js/oat.min.js' %}"></script>
     <script src="{% static 'worksheet/js/worksheet.js' %}"></script>
-    {% if not worksheet.done %}
+
     <script type="text/javascript">
         document.addEventListener('DOMContentLoaded', () => {
             worksheet.initClock('{{ worksheet.started_at|date:"c" }}')
         });
+
+        function notifySuccess(evt) {
+            ot.toast(evt.detail.value, 'Success', { placement: 'top-center', variant: 'success', duration: 2500 });
+        }
+        document.addEventListener('noteAdded', notifySuccess);
+        document.addEventListener('noteDeleted', notifySuccess);
     </script>
     {% endif %}
 {% endblock %}
