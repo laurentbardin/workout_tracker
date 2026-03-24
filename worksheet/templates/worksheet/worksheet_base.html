@@ -86,18 +86,12 @@
     {{ block.super }}
     {% if not worksheet.done %}
     <script src="{% static 'worksheet/js/oat.min.js' %}"></script>
-    <script src="{% static 'worksheet/js/worksheet.js' %}"></script>
+    <script src="{% static 'worksheet/js/worksheet.js' %}" type="module"></script>
 
     <script type="text/javascript">
         document.addEventListener('DOMContentLoaded', () => {
             worksheet.initClock('{{ worksheet.started_at|date:"c" }}')
         });
-
-        function notifySuccess(evt) {
-            ot.toast(evt.detail.value, 'Success', { placement: 'top-center', variant: 'success', duration: 2500 });
-        }
-        document.addEventListener('noteAdded', notifySuccess);
-        document.addEventListener('noteDeleted', notifySuccess);
     </script>
     {% endif %}
 {% endblock %}

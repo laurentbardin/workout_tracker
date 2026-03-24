@@ -1,3 +1,8 @@
+import { notifySuccess } from './ui.js';
+
+document.addEventListener('noteAdded', notifySuccess);
+document.addEventListener('noteDeleted', notifySuccess);
+
 (function(w) {
     if (typeof w.worksheet != 'undefined') {
         console.warn('window.worksheet already defined');
