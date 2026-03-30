@@ -12,7 +12,7 @@ default:
     paths:
       - .cache/pip
     key:
-      file:
+      files:
         - requirements.txt
   before_script:
     - python --version ; pip --version  # For debugging
