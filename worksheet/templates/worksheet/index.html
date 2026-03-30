@@ -58,6 +58,8 @@
                     <span>{{ date.day }}</span>
                     {% if data.worksheet %}
                         <a href="{{ data.worksheet.get_absolute_url }}">{{ data.worksheet.workout }}</a>
+                        <br>
+                        ({{ data.worksheet.done_exercise }} / {{ data.worksheet.total_exercise }})
                     {% elif data.workout %}
                         {% if active_worksheets or date != today %}
                         {{ data.workout }}

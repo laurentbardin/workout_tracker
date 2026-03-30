@@ -2,6 +2,7 @@ import calendar
 import datetime
 
 from django.db import IntegrityError, transaction
+from django.db.models import Count
 from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
 from django.shortcuts import render
 from django.template.loader import render_to_string
@@ -40,7 +41,16 @@ class IndexView(TemplateView):
         worksheets = {
             worksheet.date: worksheet
             for worksheet in Worksheet.objects.filter(
+                # weeks is a list of list of datetime.date objects, so we want
+                # worksheets from the first day of the first week to the last
+                # day of the last week (inclusive)
                 date__range=(weeks[0][0], weeks[-1][-1])
+            ).annotate(
+                # Add the total number of exercises...
+                total_exercise=Count("result")
+            ).annotate(
+                # ... and the number of completed exercises
+                done_exercise=Count("result__reps")
             ).select_related('workout').all()
         }
 

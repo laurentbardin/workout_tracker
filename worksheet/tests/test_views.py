@@ -85,8 +85,8 @@ class IndexViewTests(WorksheetMixin, TestCase):
         self.assertContains(response, worksheet.get_absolute_url())
         self.assertNotContains(response, '<button type="submit">' + self.workout.name + '</button>')
 
-class CalendarViewTest(TestCase):
-    def test_calendar_display_current_month(self):
+class CalendarViewTest(WorksheetMixin, TestCase):
+    def test_calendar_displays_current_month(self):
         today = timezone.localdate()
 
         response = self.client.get(reverse('worksheet:calendar', args=[ today.year, today.month ]))
@@ -94,7 +94,7 @@ class CalendarViewTest(TestCase):
         self.assertContains(response, f"Workout calendar for {today.strftime('%B %Y')}")
         self.assertContains(response, 'class="today"', 1)
 
-    def test_calendar_display_arbitrary_past_month(self):
+    def test_calendar_displays_arbitrary_past_month(self):
         date = datetime.date(timezone.localdate().year + random.randint(-10, -1),
                              random.randint(1, 12),
                              1)
@@ -104,7 +104,7 @@ class CalendarViewTest(TestCase):
         self.assertContains(response, f"Workout calendar for {date.strftime('%B %Y')}")
         self.assertNotContains(response, 'class="today"')
 
-    def test_calendar_display_arbitrary_future_month(self):
+    def test_calendar_displays_arbitrary_future_month(self):
         date = datetime.date(timezone.localdate().year + random.randint(1, 10),
                              random.randint(1, 12),
                              1)
@@ -121,6 +121,20 @@ class CalendarViewTest(TestCase):
         self.assertNotContains(response, '<!doctype html>')
         self.assertContains(response, f"Workout calendar for {today.strftime('%B %Y')}")
         self.assertContains(response, 'class="today"', 1)
+
+    def test_calendar_displays_workout_completion_status(self):
+        worksheet = self._create_worksheet()
+        today = timezone.localdate()
+
+        response = self.client.get(reverse('worksheet:calendar', args=[ today.year, today.month ]))
+        self.assertContains(response, '(0 / 4)')
+
+        self._update_worksheet_result(worksheet, result_id=1, field='reps', value=10)
+        self._update_worksheet_result(worksheet, result_id=2, field='reps', value=10)
+        self._update_worksheet_result(worksheet, result_id=2, field='weight', value=10)
+
+        response = self.client.get(reverse('worksheet:calendar', args=[ today.year, today.month ]))
+        self.assertContains(response, '(2 / 4)')
 
 class CreateViewTest(ProgramSetupMixin, TestCase):
     def test_creation_when_not_scheduled(self):
