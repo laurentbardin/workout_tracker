@@ -4,7 +4,7 @@ COPY package.json package-lock.json .
 RUN npm install
 
 
-FROM python:3 AS backend
+FROM python:3-alpine AS backend
 WORKDIR /home/workout_tracker
 
 COPY requirements.txt manage.py .
