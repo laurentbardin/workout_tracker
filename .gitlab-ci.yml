@@ -3,28 +3,60 @@
 # This specific template is located at:
 # https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Python.gitlab-ci.yml
 
-# Official language image. Look for the different tagged releases at:
-# https://hub.docker.com/r/library/python/tags/
-default:
-  image: python:latest
-  # https://pip.pypa.io/en/stable/topics/caching/
-  cache:
-    paths:
-      - .cache/pip
-    key:
-      files:
-        - requirements.txt
-  before_script:
-    - python --version ; pip --version  # For debugging
-    - python -mvenv .venv
-    - source .venv/bin/activate
+stages:
+  - test
+  - build
 
 # Change pip's cache directory to be inside the project directory since we can
 # only cache local items.
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
 
-test:
+unit tests:
+  stage: test
+  # Official language image. Look for the different tagged releases at:
+  # https://hub.docker.com/r/library/python/tags/
+  image: python:latest
+  rules:
+    # Run on push to master or on merge requests
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $CI_PIPELINE_SOURCE == "merge_request_event"
+    # Only run for new tags if any relevant file is modified
+    - if: $CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/
+      changes:
+        paths:
+          - workout_tracker/**/*.py
+          - worksheet/**/*.py
+          - worksheet/templates/**/*.html
+        compare_to: $CI_DEFAULT_BRANCH
+  cache:
+    # https://pip.pypa.io/en/stable/topics/caching/
+    paths:
+      - .cache/pip
+    key:
+      files:
+        - requirements.txt
   script:
+    - python --version ; pip --version  # For debugging
     - pip install -r requirements.txt
     - python manage.py test
+
+docker build:
+  stage: build
+  image: docker:29-cli
+  services:
+    - docker:dind
+  rules:
+    # Only run for new version tags...
+    - if: $CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/
+      exists:
+        - contrib/docker/Dockerfile
+      when: always
+    - when: never
+  before_script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+  script:
+    - export DOCKER_IMAGE_NAME="$CI_REGISTRY_IMAGE:${CI_COMMIT_TAG:1}"
+    - docker build --pull --tag $DOCKER_IMAGE_NAME -f contrib/docker/Dockerfile .
+    - docker push $DOCKER_IMAGE_NAME
+    - docker tag $DOCKER_IMAGE_NAME $CI_REGISTRY_IMAGE:latest
+    - docker push $CI_REGISTRY_IMAGE:latest
