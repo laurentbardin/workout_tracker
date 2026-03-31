@@ -2,6 +2,7 @@ name: workout_tracker
 
 services:
   app:
+    image: registry.gitlab.com/laurentbardin/workout_tracker
     build:
       context: ./
       dockerfile: ./contrib/docker/Dockerfile
