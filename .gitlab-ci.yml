@@ -6,6 +6,7 @@
 stages:
   - test
   - build
+  - release
 
 # Change pip's cache directory to be inside the project directory since we can
 # only cache local items.
@@ -21,7 +22,7 @@ unit tests:
     # Run on push to master or on merge requests
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $CI_PIPELINE_SOURCE == "merge_request_event"
     # Only run for new tags if any relevant file is modified
-    - if: $CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/
+    - if: $CI_COMMIT_TAG =~ /^v\d+\.\d+(\.\d+)?$/
       changes:
         paths:
           - workout_tracker/**/*.py
@@ -46,17 +47,30 @@ docker build:
   services:
     - docker:dind
   rules:
-    # Only run for new version tags...
-    - if: $CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/
+    # Only run for new version tags
+    - if: $CI_COMMIT_TAG =~ /^v\d+\.\d+(\.\d+)?$/
       exists:
         - contrib/docker/Dockerfile
       when: always
     - when: never
+  variables:
+    DOCKER_IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
   before_script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
   script:
-    - export DOCKER_IMAGE_NAME="$CI_REGISTRY_IMAGE:${CI_COMMIT_TAG:1}"
     - docker build --pull --tag $DOCKER_IMAGE_NAME -f contrib/docker/Dockerfile .
-    - docker push $DOCKER_IMAGE_NAME
+    - docker tag $DOCKER_IMAGE_NAME $CI_REGISTRY_IMAGE:${CI_COMMIT_TAG:1}
     - docker tag $DOCKER_IMAGE_NAME $CI_REGISTRY_IMAGE:latest
-    - docker push $CI_REGISTRY_IMAGE:latest
+    - docker push --all-tags $CI_REGISTRY_IMAGE
+
+create release:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/cli:latest
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^v\d+\.\d+(\.\d+)?$/
+  script:
+    - echo "Creating release $CI_COMMIT_TAG with description '$CI_COMMIT_TAG_MESSAGE'"
+  release:
+    tag_name: $CI_COMMIT_TAG
+    description: |
+      $CI_COMMIT_TAG_MESSAGE
