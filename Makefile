@@ -7,5 +7,6 @@ server: data/db.sqlite3
 	@docker compose -p workout_tracker up
 
 data/db.sqlite3:
+	@mkdir -p data
 	@docker run $(DOCKER_RUN_ARGS) $(IMAGE) python manage.py migrate
 	@docker run $(DOCKER_RUN_ARGS) $(IMAGE) python manage.py loaddata --app worksheet fixtures/worksheet.json
