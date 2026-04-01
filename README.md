@@ -66,8 +66,14 @@ manually.
 ## Docker/Podman
 
 This method only works with SQLite (because there is no PostgreSQL image
-involved). The database is located in the `data/` directory, which is mounted
-in the container (see the `compose.yaml` file).
+involved). The custom image doesn't contain any code from the app itself, it
+only comes with the frontend and backend dependencies installed. The actual app
+code is mounted into the container at run time.
+
+```sh
+$ cd workout_tracker
+$ make server
+```
 
 Running `make server` should take care of everything: downloading the image,
 initialising the SQLite database (adding 3 workouts and their exercises, as well
