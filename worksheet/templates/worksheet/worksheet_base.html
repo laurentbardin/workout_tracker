@@ -12,6 +12,7 @@
     No worksheet found
     {% else %}
     <strong>{{ worksheet.workout }}</strong> &mdash; {{ worksheet.date }}
+    <meter id="worksheet-progress" min="0" max="{{ meter.max }}" low="{{ meter.low }}" high="{{ meter.high }}" value="{{ meter.value }}" optimum="{{ meter.optimum }}"></meter>
     {% endif %}
 {% endblock %}
 
@@ -29,12 +30,7 @@
     <p>No workout for {{ date }}.</p>
     <p><a href="{% url 'worksheet:index' %}">Go back</a></p>
 {% else %}
-    <section class="worksheet {{ worksheet.get_status }}"
-             {% if not worksheet.done %}
-             hx-on:update-success="let e = event.target.parentElement;htmx.removeClass(e, 'error');htmx.addClass(e, 'success');"
-             hx-on:update-error="let e = event.target.parentElement;htmx.removeClass(e, 'success');htmx.addClass(e, 'error');"
-             {% endif %}
-             >
+    <section class="worksheet {{ worksheet.get_status }}">
         <div class="exercise header">Exercise</div>
         <div class="reps header">Reps</div>
         <div class="weight header">Weight (kg)</div>
@@ -93,9 +89,30 @@
             worksheet.initClock('{{ worksheet.started_at|date:"c" }}')
         });
 
+        {% if not worksheet.done %}
+        function updateSuccess(evt) {
+            let e = evt.target.parentElement;
+            htmx.removeClass(e, 'error');
+            htmx.addClass(e, 'success');
+
+            if (evt.detail.meter.value) {
+                htmx.find('#worksheet-progress').value = evt.detail.meter.value;
+            }
+        };
+        function updateError(evt) {
+            let e = evt.target.parentElement;
+            htmx.removeClass(e, 'success');
+            htmx.addClass(e, 'error');
+        };
+
+        let elt = htmx.find('section.worksheet');
+        elt.addEventListener('updateSuccess', updateSuccess);
+        elt.addEventListener('updateError', updateError);
+        {% endif %}
+
         function notifySuccess(evt) {
             ot.toast(evt.detail.value, 'Success', { placement: 'top-center', variant: 'success', duration: 2500 });
-        }
+        };
         document.addEventListener('noteAdded', notifySuccess);
         document.addEventListener('noteDeleted', notifySuccess);
     </script>
