@@ -19,8 +19,15 @@ unit tests:
   # https://hub.docker.com/r/library/python/tags/
   image: python:latest
   rules:
-    # Run on push to master or on merge requests
+    # Run on push to master or on merge requests when relevant files are changed
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        - workout_tracker/**/*.py
+        - worksheet/**/*.py
+        - worksheet/templates/**/*.html
+        - worksheet/static/**/*.js
+        - requirements.txt
+        - package*.json
   cache:
     # https://pip.pypa.io/en/stable/topics/caching/
     paths:
@@ -44,8 +51,7 @@ docker build:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
         - contrib/docker/Dockerfile
-        - package.json
-        - package-lock.json
+        - package*.json
         - requirements.txt
       exists:
         - contrib/docker/Dockerfile
