@@ -1,8 +1,11 @@
-.PHONY: server init-db
+.PHONY: server
 
-server:
-	@docker compose up --watch
+IMAGE := registry.gitlab.com/laurentbardin/workout_tracker:latest
+DOCKER_RUN_ARGS := -v ./data:/home/workout_tracker/data --rm --name workout_tracker
 
-init-db:
-	@docker exec workout_tracker-app-1 python manage.py migrate
-	@docker exec workout_tracker-app-1 python manage.py loaddata --app worksheet fixtures/worksheet.json
+server: data/db.sqlite3
+	@docker compose -p workout_tracker up --watch
+
+data/db.sqlite3:
+	@docker run $(DOCKER_RUN_ARGS) $(IMAGE) python manage.py migrate
+	@docker run $(DOCKER_RUN_ARGS) $(IMAGE) python manage.py loaddata --app worksheet fixtures/worksheet.json
