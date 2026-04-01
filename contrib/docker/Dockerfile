@@ -5,6 +5,7 @@ RUN --mount=type=bind,source=package.json,target=package.json \
     npm install
 
 
+
 FROM python:3-alpine AS backend
 WORKDIR /home/workout_tracker
 
