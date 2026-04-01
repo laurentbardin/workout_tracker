@@ -21,14 +21,6 @@ unit tests:
   rules:
     # Run on push to master or on merge requests
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $CI_PIPELINE_SOURCE == "merge_request_event"
-    # Only run for new tags if any relevant file is modified
-    - if: $CI_COMMIT_TAG =~ /^v\d+\.\d+(\.\d+)?$/
-      changes:
-        paths:
-          - workout_tracker/**/*.py
-          - worksheet/**/*.py
-          - worksheet/templates/**/*.html
-        compare_to: $CI_DEFAULT_BRANCH
   cache:
     # https://pip.pypa.io/en/stable/topics/caching/
     paths:
