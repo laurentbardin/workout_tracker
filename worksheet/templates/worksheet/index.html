@@ -9,6 +9,7 @@
 
 {% block javascript %}
     {{ block.super }}
+    <script src="{% static 'worksheet/js/oat.min.js' %}"></script>
     <script src="{% static 'worksheet/js/index.js' %}"></script>
 {% endblock %}
 
@@ -66,7 +67,23 @@
                         {% else %}
                         <form action="{% url 'worksheet:create' %}" method="POST">
                             {% csrf_token %}
-                            <button type="submit" title="Start today's workout">{{ data.workout }}</button>
+                            {% if workouts %}
+                            <ot-dropdown>
+                                <menu class="buttons">
+                                    <li><button title="Start today's workout" name="workout">{{ data.workout }}</button></li>
+                                    <li>
+                                        <button type="button" popovertarget="select-workout" aria-label="Select a workout">+</button>
+                                    </li>
+                                </menu>
+                                <menu id="select-workout" popover>
+                                    {% for w in workouts %}
+                                    <button role="menuitem" name="workout" value="{{ w.id }}">{{ w }}</button>
+                                    {% endfor %}
+                                </menu>
+                            </ot-dropdown>
+                            {% else %}
+                            <button title="Start today's workout" name="workout">{{ data.workout }}</button>
+                            {% endif %}
                         </form>
                         {% endif %}
                     {% endif %}

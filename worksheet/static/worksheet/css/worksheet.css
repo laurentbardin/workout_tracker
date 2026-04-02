@@ -132,6 +132,10 @@
             }
         }
     }
+
+    [popover] {
+        margin: auto;
+    }
 }
 
 h2:has(#clock) {

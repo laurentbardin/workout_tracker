@@ -4,7 +4,7 @@ import json
 import math
 
 from django.db import IntegrityError, transaction
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
 from django.shortcuts import render
 from django.template.loader import render_to_string
@@ -15,7 +15,6 @@ from django.views.generic import TemplateView, View
 from .models import Result, Schedule, Workout, Worksheet
 from .forms import ResultNoteForm
 
-# Create your views here.
 class IndexView(TemplateView):
     """
     The index displays a calendar view of the current month with past and
@@ -61,7 +60,38 @@ class IndexView(TemplateView):
             for schedule in Schedule.objects.select_related('workout').all()
         }
 
+        context['calendar'] = self._build_calendar(weeks, worksheets, schedules)
+        context['today'] = today
+        context['active_month'] = self.month
+        context['days'] = list(calendar.day_name)
+
+        # Avoid a request if possible
+        if (
+            (
+                self.month == today.month or            # showing the current month
+                any([today in week for week in weeks])  # or today is visible
+            ) and
+            schedules.get(today.isoweekday()) and       # with a workout scheduled for today
+            not worksheets.get(today.isoweekday())      # that is not already active.
+        ):
+            context['workouts'] = Workout.objects.exclude(
+                pk=schedules.get(today.isoweekday()).workout.id
+            ).all()
+
+        self._get_month_navigation(context, today)
+
+    def _get_month_navigation(self, context, date):
+        month = date.replace(day=1)
+        context['month'] = month
+
+        previous_month = month - datetime.timedelta(days=1)
+        next_month = month + datetime.timedelta(days=32)
+        context['previous_month_url'] = reverse('worksheet:calendar', args=[previous_month.year, previous_month.month])
+        context['next_month_url'] = reverse('worksheet:calendar', args=[next_month.year, next_month.month])
+
+    def _build_calendar(self, weeks, worksheets, schedules):
         workout_calendar = []
+
         for week in weeks:
             calendar_week = {}
             for date in week:
@@ -74,21 +104,7 @@ class IndexView(TemplateView):
 
             workout_calendar.append(calendar_week)
 
-        context['calendar'] = workout_calendar
-        context['today'] = today
-        context['active_month'] = self.month
-        context['days'] = list(calendar.day_name)
-
-        self._get_month_navigation(context, today)
-
-    def _get_month_navigation(self, context, date):
-        month = date.replace(day=1)
-        context['month'] = month
-
-        previous_month = month - datetime.timedelta(days=1)
-        next_month = month + datetime.timedelta(days=32)
-        context['previous_month_url'] = reverse('worksheet:calendar', args=[previous_month.year, previous_month.month])
-        context['next_month_url'] = reverse('worksheet:calendar', args=[next_month.year, next_month.month])
+        return workout_calendar
 
 class CalendarView(IndexView):
     def render_to_response(self, context, **response_kwargs):
@@ -119,10 +135,14 @@ class CreateView(View):
         if Worksheet.objects.get_active().exists():
             return HttpResponseRedirect(reverse('worksheet:index'))
 
-        # Likewise if no workout is scheduled for today
-        weekday = timezone.localdate().isoweekday()
+        # Likewise if the requested workout doesn't exist, or none is scheduled
+        # for today
         try:
-            workout = Workout.objects.get(schedule__day=weekday)
+            if (workout_id := request.POST.get('workout')):
+                workout = Workout.objects.get(pk=workout_id)
+            else:
+                weekday = timezone.localdate().isoweekday()
+                workout = Workout.objects.get(schedule__day=weekday)
         except Workout.DoesNotExist:
             return HttpResponseRedirect(reverse('worksheet:index'))
 
