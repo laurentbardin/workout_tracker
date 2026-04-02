@@ -108,6 +108,8 @@ class Worksheet(models.Model):
         if self.ended_at is None:
             self.ended_at = timezone.now()
 
+        self.save()
+
         return self
 
     def get_duration(self):

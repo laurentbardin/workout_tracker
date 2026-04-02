@@ -17,7 +17,7 @@ class WorksheetManager(models.Manager):
     def close(self, pk=None):
         if pk is not None:
             worksheet = super().get_queryset().get(pk=pk, done=False)
-            worksheet.close().save()
+            worksheet.close()
 
     def get_or_create(self, defaults=None, **kwargs):
         try:

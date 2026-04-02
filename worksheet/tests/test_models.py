@@ -16,6 +16,11 @@ class WorkoutModelTests(TestCase):
         self.assertIs(worksheet.done, False)
         self.assertIsNone(worksheet.ended_at)
 
+        # Necessary to prevent an error when closing the worksheet, as the
+        # close() methode saves the worksheet, which is "prohibited to prevent
+        # data loss due to unsaved related object 'workout'".
+        workout.save()
+
         worksheet.close()
         self.assertIs(worksheet.done, True)
         self.assertIsInstance(worksheet.ended_at, datetime.datetime)
