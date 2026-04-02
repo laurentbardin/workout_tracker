@@ -128,14 +128,14 @@ class CalendarViewTest(WorksheetMixin, TestCase):
         today = timezone.localdate()
 
         response = self.client.get(reverse('worksheet:calendar', args=[ today.year, today.month ]))
-        self.assertContains(response, '(0 / 4)')
+        self.assertContains(response, '(0 / 5)')
 
         self._update_worksheet_result(worksheet, result_id=1, field='reps', value=10)
         self._update_worksheet_result(worksheet, result_id=2, field='reps', value=10)
         self._update_worksheet_result(worksheet, result_id=2, field='weight', value=10)
 
         response = self.client.get(reverse('worksheet:calendar', args=[ today.year, today.month ]))
-        self.assertContains(response, '(2 / 4)')
+        self.assertContains(response, '(2 / 5)')
 
 class CreateViewTest(ProgramSetupMixin, TestCase):
     def test_creation_when_not_scheduled(self):
@@ -173,13 +173,14 @@ class CreateViewTest(ProgramSetupMixin, TestCase):
         self.assertContains(response, "2. Exercise 2")
         self.assertContains(response, "3. Exercise 3")
         self.assertContains(response, "4. Exercise 4")
+        self.assertContains(response, "5. Exercise 5")
 
         worksheet = Worksheet.objects.get(
             workout=self.workout,
             date=date,
             done=False,
         )
-        self.assertEqual(worksheet.result_set.count(), 4)
+        self.assertEqual(worksheet.result_set.count(), 5)
 
 class WorksheetViewTest(WorksheetMixin, WorksheetTestCase):
     def test_non_existing_worksheet(self):
@@ -235,7 +236,7 @@ class WorksheetViewTest(WorksheetMixin, WorksheetTestCase):
             args=[ worksheet.date.year, worksheet.date.month, worksheet.date.day ]
         ))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'note-add.svg', 4)
+        self.assertContains(response, 'note-add.svg', 5)
         self.assertContains(response, 'note-view.svg', 1)
         self.assertContains(response, 'title="This is an old note"', 1)
 

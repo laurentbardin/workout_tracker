@@ -19,6 +19,7 @@ class ProgramSetupMixin:
             Exercise(name="Exercise 2", weight=False),
             Exercise(name="Exercise 3", weight=True),
             Exercise(name="Exercise 4", weight=False),
+            Exercise(name="Exercise 5", weight=False),
         ])
         workout = Workout.objects.create(
             name="Test workout",
