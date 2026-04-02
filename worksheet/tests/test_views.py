@@ -1,5 +1,6 @@
 import datetime
 import html
+import math
 import random
 
 from django.test import TestCase
@@ -180,7 +181,7 @@ class CreateViewTest(ProgramSetupMixin, TestCase):
         )
         self.assertEqual(worksheet.result_set.count(), 4)
 
-class WorksheetViewTest(WorksheetMixin, TestCase):
+class WorksheetViewTest(WorksheetMixin, WorksheetTestCase):
     def test_non_existing_worksheet(self):
         """
         Display a simple message when a worksheet doesn't exist
@@ -259,6 +260,43 @@ class WorksheetViewTest(WorksheetMixin, TestCase):
         self.assertContains(response, 'note-view.svg', 2)
         self.assertContains(response, 'title="This is an old note"', 1)
         self.assertContains(response, 'title="This is another old note"', 1)
+
+    def test_completion_meter_is_displayed(self):
+        """
+        Display a progression meter on the active worksheet page
+        """
+        worksheet = self._create_worksheet(done=True)
+        response = self.client.get(reverse(
+            "worksheet:worksheet",
+            args=[ worksheet.date.year, worksheet.date.month, worksheet.date.day ]
+        ))
+
+        expected_max = expected_optimum = worksheet.result_set.count()
+        expected_low = math.ceil(expected_max / 2)
+        expected_high = expected_max - 1
+
+        self.assertContains(response, f'<meter id="worksheet-progress" min="0" '
+                            f'max="{expected_max}" low="{expected_low}" '
+                            f'high="{expected_high}" value="0" optimum="{expected_optimum}"></meter>')
+
+    def test_completion_meter_is_reflecting_progress(self):
+        worksheet = self._create_worksheet(done=True)
+        self._update_worksheet_result(worksheet, 1, 'reps', '10')
+
+        response = self.client.get(reverse(
+            "worksheet:worksheet",
+            args=[ worksheet.date.year, worksheet.date.month, worksheet.date.day ]
+        ))
+
+        expected_max = expected_optimum = worksheet.result_set.count()
+        expected_low = math.ceil(expected_max / 2)
+        expected_high = expected_max - 1
+        expected_value = 1
+
+        self.assertContains(response, f'<meter id="worksheet-progress" '
+                            f'min="0" max="{expected_max}" '
+                            f'low="{expected_low}" high="{expected_high}" '
+                            f'value="{expected_value}" optimum="{expected_optimum}"></meter>')
 
 class CloseViewTest(WorksheetMixin, TestCase):
     def test_can_close_in_progress_workout(self):

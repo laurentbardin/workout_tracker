@@ -39,7 +39,6 @@ class WorksheetMixin(ProgramSetupMixin):
     def _create_worksheet(self, started_at=None, done=False):
         fields = {
             'workout': self.workout,
-            'done': done,
         }
 
         if started_at is None:
@@ -52,6 +51,9 @@ class WorksheetMixin(ProgramSetupMixin):
 
         worksheet = Worksheet.objects.create(**fields)
         worksheet.result_set(manager="results").create_all()
+
+        if done:
+            worksheet.close()
 
         return worksheet
 
