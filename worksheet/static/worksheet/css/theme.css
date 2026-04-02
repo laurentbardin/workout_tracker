@@ -9,6 +9,6 @@
 
         --primary: oklch(0.6286 0.1765 251);
         --accent: oklch(0.95 0.03 251);
-        --muted: oklch(0.69 0 0);
+        --muted-dark: oklch(0.69 0 0);
     }
 }

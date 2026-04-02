@@ -47,8 +47,8 @@
                 left: 0.25rem;
             }
 
-            &.other_month {
-                color: var(--muted);
+            &.other-month {
+                color: var(--muted-dark);
             }
         }
     }

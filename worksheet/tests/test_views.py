@@ -1,6 +1,6 @@
 import datetime
 import html
-import json
+import math
 import random
 
 from django.test import TestCase
@@ -10,6 +10,7 @@ from django.utils import timezone
 from worksheet.models import (
     Worksheet, Result, Schedule,
 )
+from worksheet.tests.base import WorksheetTestCase
 from worksheet.tests.mixins import ProgramSetupMixin, WorksheetMixin
 
 class IndexViewTests(WorksheetMixin, TestCase):
@@ -127,14 +128,14 @@ class CalendarViewTest(WorksheetMixin, TestCase):
         today = timezone.localdate()
 
         response = self.client.get(reverse('worksheet:calendar', args=[ today.year, today.month ]))
-        self.assertContains(response, '(0 / 4)')
+        self.assertContains(response, '(0 / 5)')
 
         self._update_worksheet_result(worksheet, result_id=1, field='reps', value=10)
         self._update_worksheet_result(worksheet, result_id=2, field='reps', value=10)
         self._update_worksheet_result(worksheet, result_id=2, field='weight', value=10)
 
         response = self.client.get(reverse('worksheet:calendar', args=[ today.year, today.month ]))
-        self.assertContains(response, '(2 / 4)')
+        self.assertContains(response, '(2 / 5)')
 
 class CreateViewTest(ProgramSetupMixin, TestCase):
     def test_creation_when_not_scheduled(self):
@@ -172,15 +173,16 @@ class CreateViewTest(ProgramSetupMixin, TestCase):
         self.assertContains(response, "2. Exercise 2")
         self.assertContains(response, "3. Exercise 3")
         self.assertContains(response, "4. Exercise 4")
+        self.assertContains(response, "5. Exercise 5")
 
         worksheet = Worksheet.objects.get(
             workout=self.workout,
             date=date,
             done=False,
         )
-        self.assertEqual(worksheet.result_set.count(), 4)
+        self.assertEqual(worksheet.result_set.count(), 5)
 
-class WorksheetViewTest(WorksheetMixin, TestCase):
+class WorksheetViewTest(WorksheetMixin, WorksheetTestCase):
     def test_non_existing_worksheet(self):
         """
         Display a simple message when a worksheet doesn't exist
@@ -234,7 +236,7 @@ class WorksheetViewTest(WorksheetMixin, TestCase):
             args=[ worksheet.date.year, worksheet.date.month, worksheet.date.day ]
         ))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'note-add.svg', 4)
+        self.assertContains(response, 'note-add.svg', 5)
         self.assertContains(response, 'note-view.svg', 1)
         self.assertContains(response, 'title="This is an old note"', 1)
 
@@ -259,6 +261,43 @@ class WorksheetViewTest(WorksheetMixin, TestCase):
         self.assertContains(response, 'note-view.svg', 2)
         self.assertContains(response, 'title="This is an old note"', 1)
         self.assertContains(response, 'title="This is another old note"', 1)
+
+    def test_completion_meter_is_displayed(self):
+        """
+        Display a progression meter on the active worksheet page
+        """
+        worksheet = self._create_worksheet(done=True)
+        response = self.client.get(reverse(
+            "worksheet:worksheet",
+            args=[ worksheet.date.year, worksheet.date.month, worksheet.date.day ]
+        ))
+
+        expected_max = expected_optimum = worksheet.result_set.count()
+        expected_low = math.ceil(expected_max / 2)
+        expected_high = expected_max - 1
+
+        self.assertContains(response, f'<meter id="worksheet-progress" min="0" '
+                            f'max="{expected_max}" low="{expected_low}" '
+                            f'high="{expected_high}" value="0" optimum="{expected_optimum}"></meter>')
+
+    def test_completion_meter_is_reflecting_progress(self):
+        worksheet = self._create_worksheet(done=True)
+        self._update_worksheet_result(worksheet, 1, 'reps', '10')
+
+        response = self.client.get(reverse(
+            "worksheet:worksheet",
+            args=[ worksheet.date.year, worksheet.date.month, worksheet.date.day ]
+        ))
+
+        expected_max = expected_optimum = worksheet.result_set.count()
+        expected_low = math.ceil(expected_max / 2)
+        expected_high = expected_max - 1
+        expected_value = 1
+
+        self.assertContains(response, f'<meter id="worksheet-progress" '
+                            f'min="0" max="{expected_max}" '
+                            f'low="{expected_low}" high="{expected_high}" '
+                            f'value="{expected_value}" optimum="{expected_optimum}"></meter>')
 
 class CloseViewTest(WorksheetMixin, TestCase):
     def test_can_close_in_progress_workout(self):
@@ -299,15 +338,27 @@ class CloseViewTest(WorksheetMixin, TestCase):
         worksheet.refresh_from_db()
         self.assertEqual(worksheet.ended_at, ended_at)
 
-class ResultActionTest(WorksheetMixin, TestCase):
+class ResultActionTest(WorksheetMixin, WorksheetTestCase):
     def test_update_result(self):
         worksheet = self._create_worksheet()
         response = self._update_worksheet_result(worksheet,
                                                  result_id=1,
                                                  field='reps',
                                                  value=10)
-        result = Result.objects.get(pk=1)
         self.assertEqual(response.content, b'')
+        self.assertHeaderJSONEqual(
+            response,
+            'hx-trigger-after-settle',
+            {
+                'updateSuccess': {
+                    'meter': {
+                        'value': 1,
+                    },
+                },
+            },
+        )
+
+        result = Result.objects.get(pk=1)
         self.assertEqual(result.reps, 10)
         self.assertIsNone(result.weight)
         self.assertIsNone(result.note)
@@ -316,8 +367,20 @@ class ResultActionTest(WorksheetMixin, TestCase):
                                                  result_id=1,
                                                  field='weight',
                                                  value=6)
-        result.refresh_from_db()
         self.assertEqual(response.content, b'')
+        self.assertHeaderJSONEqual(
+            response,
+            'hx-trigger-after-settle',
+            {
+                'updateSuccess': {
+                    'meter': {
+                        'value': None,
+                    },
+                },
+            },
+        )
+
+        result.refresh_from_db()
         self.assertEqual(result.reps, 10)
         self.assertEqual(result.weight, 6)
         self.assertIsNone(result.note)
@@ -328,8 +391,10 @@ class ResultActionTest(WorksheetMixin, TestCase):
                                                  result_id=1,
                                                  field='reps',
                                                  value=None)
-        result = Result.objects.get(pk=1)
         self.assertContains(response, 'Missing number of reps')
+        self.assertHasNotHeader(response, 'hx-trigger-after-settle')
+
+        result = Result.objects.get(pk=1)
         self.assertIsNone(result.reps)
         self.assertIsNone(result.weight)
         self.assertIsNone(result.note)
@@ -340,8 +405,10 @@ class ResultActionTest(WorksheetMixin, TestCase):
                                                  result_id=1,
                                                  field='reps',
                                                  value=-2)
-        result = Result.objects.get(pk=1)
         self.assertContains(response, html.escape("Invalid value -2 for field 'reps'"))
+        self.assertHeaderEqual(response, 'hx-trigger-after-settle', 'updateError')
+
+        result = Result.objects.get(pk=1)
         self.assertIsNone(result.reps)
         self.assertIsNone(result.weight)
         self.assertIsNone(result.note)
@@ -350,8 +417,10 @@ class ResultActionTest(WorksheetMixin, TestCase):
                                                  result_id=1,
                                                  field='weight',
                                                  value=-3)
-        result.refresh_from_db()
         self.assertContains(response, html.escape("Invalid value -3 for field 'weight'"))
+        self.assertHeaderEqual(response, 'hx-trigger-after-settle', 'updateError')
+
+        result.refresh_from_db()
         self.assertIsNone(result.reps)
         self.assertIsNone(result.weight)
         self.assertIsNone(result.note)
@@ -363,8 +432,10 @@ class ResultActionTest(WorksheetMixin, TestCase):
                                                  field='reps',
                                                  value="foo")
 
-        result = Result.objects.get(pk=1)
         self.assertContains(response, html.escape("Field 'reps' expected a number but got 'foo'"))
+        self.assertHeaderEqual(response, 'hx-trigger-after-settle', 'updateError')
+
+        result = Result.objects.get(pk=1)
         self.assertIsNone(result.reps)
         self.assertIsNone(result.weight)
         self.assertIsNone(result.note)
@@ -374,8 +445,10 @@ class ResultActionTest(WorksheetMixin, TestCase):
                                                  field='weight',
                                                  value="bar")
 
-        result.refresh_from_db()
         self.assertContains(response, html.escape("Field 'weight' expected a number but got 'bar'"))
+        self.assertHeaderEqual(response, 'hx-trigger-after-settle', 'updateError')
+
+        result.refresh_from_db()
         self.assertIsNone(result.reps)
         self.assertIsNone(result.weight)
         self.assertIsNone(result.note)
@@ -386,9 +459,11 @@ class ResultActionTest(WorksheetMixin, TestCase):
                                                  result_id=2,
                                                  field='weight',
                                                  value=10)
-        result = Result.objects.get(pk=2)
         self.assertEqual(response.status_code, 204)
         self.assertEqual(len(response.content), 0)
+        self.assertHasNotHeader(response, 'hx-trigger-after-settle')
+
+        result = Result.objects.get(pk=2)
         self.assertIsNone(result.reps)
         self.assertIsNone(result.weight)
         self.assertIsNone(result.note)
@@ -401,6 +476,7 @@ class ResultActionTest(WorksheetMixin, TestCase):
                                                  value=10)
         self.assertEqual(response.status_code, 204)
         self.assertEqual(len(response.content), 0)
+        self.assertHasNotHeader(response, 'hx-trigger-after-settle')
 
         response = self._update_worksheet_result(worksheet,
                                                  result_id=42,
@@ -408,6 +484,7 @@ class ResultActionTest(WorksheetMixin, TestCase):
                                                  value=10)
         self.assertEqual(response.status_code, 204)
         self.assertEqual(len(response.content), 0)
+        self.assertHasNotHeader(response, 'hx-trigger-after-settle')
 
     def test_add_modify_remove_note_result(self):
         worksheet = self._create_worksheet()
@@ -421,7 +498,7 @@ class ResultActionTest(WorksheetMixin, TestCase):
         self.assertContains(response, 'data-note="This is a note"')
         self.assertContains(response, '"result-action-1"')
         self.assertContains(response, 'note-view.svg')
-        self.assertEqual(response.get("HX-Trigger"), json.dumps({ 'noteAdded': 'Note added' }))
+        self.assertHeaderJSONEqual(response, "HX-Trigger", { 'noteAdded': 'Note added' })
 
         result = Result.objects.get(pk=1)
         self.assertIsNone(result.reps)
@@ -438,7 +515,7 @@ class ResultActionTest(WorksheetMixin, TestCase):
         self.assertContains(response, 'data-note="This is a new note"')
         self.assertContains(response, '"result-action-1"')
         self.assertContains(response, 'note-view.svg')
-        self.assertEqual(response.get("HX-Trigger"), json.dumps({ 'noteAdded': 'Note added' }))
+        self.assertHeaderJSONEqual(response, "HX-Trigger", { 'noteAdded': 'Note added' })
 
         result = Result.objects.get(pk=1)
         self.assertIsNone(result.reps)
@@ -455,7 +532,7 @@ class ResultActionTest(WorksheetMixin, TestCase):
         self.assertContains(response, 'data-note=""')
         self.assertContains(response, '"result-action-1"')
         self.assertContains(response, 'note-add.svg')
-        self.assertEqual(response.get("HX-Trigger"), json.dumps({ 'noteDeleted': 'Note deleted' }))
+        self.assertHeaderJSONEqual(response, "HX-Trigger", { 'noteDeleted': 'Note deleted' })
 
         result = Result.objects.get(pk=1)
         self.assertIsNone(result.reps)
@@ -472,7 +549,7 @@ class ResultActionTest(WorksheetMixin, TestCase):
         self.assertContains(response, 'id="noteForm"')
         self.assertContains(response, '"errorlist"')
         self.assertContains(response, 'Ensure this value has at most 200 characters (it has 210).')
-        self.assertIsNone(response.get("HX-Trigger"))
+        self.assertHasNotHeader(response, "HX-Trigger")
 
         self.assertNotContains(response, 'data-note')
         self.assertNotContains(response, '"result-action-1"')
@@ -489,7 +566,9 @@ class ResultActionTest(WorksheetMixin, TestCase):
                                                  result_id=1,
                                                  field='foobar',
                                                  value=10)
-        result = Result.objects.get(pk=1)
         self.assertEqual(response.status_code, 404)
+        self.assertHasNotHeader(response, "HX-Trigger-After-Settle")
+
+        result = Result.objects.get(pk=1)
         self.assertIsNone(result.reps)
         self.assertIsNone(result.weight)

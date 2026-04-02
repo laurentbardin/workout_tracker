@@ -19,6 +19,7 @@ class ProgramSetupMixin:
             Exercise(name="Exercise 2", weight=False),
             Exercise(name="Exercise 3", weight=True),
             Exercise(name="Exercise 4", weight=False),
+            Exercise(name="Exercise 5", weight=False),
         ])
         workout = Workout.objects.create(
             name="Test workout",
@@ -39,7 +40,6 @@ class WorksheetMixin(ProgramSetupMixin):
     def _create_worksheet(self, started_at=None, done=False):
         fields = {
             'workout': self.workout,
-            'done': done,
         }
 
         if started_at is None:
@@ -52,6 +52,9 @@ class WorksheetMixin(ProgramSetupMixin):
 
         worksheet = Worksheet.objects.create(**fields)
         worksheet.result_set(manager="results").create_all()
+
+        if done:
+            worksheet.close()
 
         return worksheet
 

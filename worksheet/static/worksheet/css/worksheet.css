@@ -134,6 +134,10 @@
     }
 }
 
+h2:has(#clock) {
+    margin-bottom: 0;
+}
+
 ul.errors {
     list-style-type: none;
     padding: 0 1rem;

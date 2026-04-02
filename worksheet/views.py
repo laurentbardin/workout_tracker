@@ -1,5 +1,7 @@
 import calendar
 import datetime
+import json
+import math
 
 from django.db import IntegrityError, transaction
 from django.db.models import Count
@@ -157,6 +159,13 @@ class WorksheetView(TemplateView):
                 'worksheet': worksheet,
                 'results': results,
                 'note_form': ResultNoteForm(),
+                'meter': {
+                    'max': worksheet.total_exercise,
+                    'low': math.ceil(worksheet.total_exercise / 2),
+                    'high': worksheet.total_exercise - 1,
+                    'optimum': worksheet.total_exercise,
+                    'value': worksheet.done_exercise,
+                },
             })
 
         return super().render_to_response(context, **response_kwargs)
@@ -167,7 +176,11 @@ class WorksheetView(TemplateView):
         date = datetime.date(context['year'], context['month'], context['day'])
 
         try:
-            worksheet = Worksheet.objects.select_related('workout').get(date=date)
+            worksheet = Worksheet.objects.select_related('workout').annotate(
+                total_exercise=Count("result")
+            ).annotate(
+                done_exercise=Count("result__reps")
+            ).get(date=date)
         except Worksheet.DoesNotExist:
             # TODO logging
             pass
@@ -267,7 +280,16 @@ class ResultAction(View):
                                    status=http.HTTPStatus.OK)
         else:
             if updated == 1:
-                event = 'updateSuccess'
+                event = json.dumps({
+                    'updateSuccess': {
+                        'meter': {
+                            'value':
+                            Result.objects.filter(worksheet=worksheet_id,
+                                                  reps__isnull=False).count()
+                            if field == 'reps' else None
+                        }
+                    }
+                })
                 status = http.HTTPStatus.OK
             else:
                 status = http.HTTPStatus.NO_CONTENT
@@ -282,8 +304,6 @@ class ResultAction(View):
 class NoteAction(View):
     def post(self, request, worksheet_id, result_id):
         # TODO Make this a PUT request
-        import json
-
         note_form = ResultNoteForm(request.POST)
         context = {
             'note_form': note_form,
