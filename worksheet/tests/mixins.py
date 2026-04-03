@@ -3,34 +3,51 @@ from django.urls import reverse
 from django.utils import timezone
 
 from worksheet.models import (
-    Exercise, Program, Workout, Worksheet,
+    Exercise, Workout, Worksheet,
 )
 
 class ProgramSetupMixin:
     """
-    This class sets up a workout with 4 associated exercises.
+    This class sets up a workout with 5 associated exercises.
     """
+    exercise_id = None
+    workout_id = None
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
 
-        exercises = Exercise.objects.bulk_create([
-            Exercise(name="Exercise 1", weight=True),
-            Exercise(name="Exercise 2", weight=False),
-            Exercise(name="Exercise 3", weight=True),
-            Exercise(name="Exercise 4", weight=False),
-            Exercise(name="Exercise 5", weight=False),
-        ])
-        workout = Workout.objects.create(
-            name="Test workout",
-            repeat=False,
-        )
-        cls.workout = workout
+        if cls.exercise_id is None:
+            cls.exercise_id = 1
 
-        for ex in exercises:
-            Program.objects.create(workout=workout, exercise=ex)
+        if cls.workout_id is None:
+            cls.workout_id = 1
+
+        exercises = cls._create_exercises(5)
+        cls.workout = cls._create_workout(exercises)
 
         timezone.activate(getattr(settings, "USER_TIME_ZONE", settings.TIME_ZONE))
+
+    @classmethod
+    def _create_exercises(cls, n):
+        exercises = []
+        for i in range(n):
+            exercises.append(Exercise(name=f"Exercise {cls.exercise_id}", weight=not i%2))
+            cls.exercise_id += 1
+
+        return Exercise.objects.bulk_create(exercises)
+
+    @classmethod
+    def _create_workout(cls, exercises):
+        workout = Workout.objects.create(
+            name=f"Test workout {cls.workout_id}",
+            repeat=False,
+        )
+        workout.exercises.set(exercises)
+
+        cls.workout_id += 1
+
+        return workout
 
 class WorksheetMixin(ProgramSetupMixin):
     """
