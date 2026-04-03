@@ -23,22 +23,14 @@ class ProgramSetupMixin:
         if cls.workout_id is None:
             cls.workout_id = 1
 
-        exercises = cls._create_exercises(5)
-        cls.workout = cls._create_workout(exercises)
+        cls.workout = cls._create_workout()
 
         timezone.activate(getattr(settings, "USER_TIME_ZONE", settings.TIME_ZONE))
 
     @classmethod
-    def _create_exercises(cls, n):
-        exercises = []
-        for i in range(n):
-            exercises.append(Exercise(name=f"Exercise {cls.exercise_id}", weight=not i%2))
-            cls.exercise_id += 1
+    def _create_workout(cls):
+        exercises = cls._create_exercises(5)
 
-        return Exercise.objects.bulk_create(exercises)
-
-    @classmethod
-    def _create_workout(cls, exercises):
         workout = Workout.objects.create(
             name=f"Test workout {cls.workout_id}",
             repeat=False,
@@ -48,6 +40,15 @@ class ProgramSetupMixin:
         cls.workout_id += 1
 
         return workout
+
+    @classmethod
+    def _create_exercises(cls, n):
+        exercises = []
+        for i in range(n):
+            exercises.append(Exercise(name=f"Exercise {cls.exercise_id}", weight=not i%2))
+            cls.exercise_id += 1
+
+        return Exercise.objects.bulk_create(exercises)
 
 class WorksheetMixin(ProgramSetupMixin):
     """
