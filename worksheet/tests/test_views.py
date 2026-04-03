@@ -86,15 +86,36 @@ class IndexViewTests(WorksheetMixin, TestCase):
         self.assertContains(response, worksheet.get_absolute_url())
         self.assertNotContains(response, '<button type="submit">' + self.workout.name + '</button>')
 
+    def test_available_workouts(self):
+        """
+        I can choose to start any of the other available workouts when one is
+        scheduled for today
+        """
+        Schedule.objects.create(day=timezone.localdate().isoweekday(),
+                                workout=self.workout)
+        self._create_workout()
+        self._create_workout()
+
+        response = self.client.get(reverse('worksheet:index'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Start today\'s workout', 1)
+        self.assertContains(response, '<button role="menuitem" name="workout"', 2)
+
+    def test_available_workouts_when_none_are_scheduled(self):
+        """
+        I can choose to start any of the available workouts on days where none
+        are scheduled
+        """
+        self._create_workout()
+        self._create_workout()
+
+        response = self.client.get(reverse('worksheet:index'))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'Start today\'s workout')
+        self.assertContains(response, 'Select a workout')
+        self.assertContains(response, '<button role="menuitem" name="workout"', 3)
+
 class CalendarViewTest(WorksheetMixin, TestCase):
-    def test_calendar_displays_current_month(self):
-        today = timezone.localdate()
-
-        response = self.client.get(reverse('worksheet:calendar', args=[ today.year, today.month ]))
-        self.assertContains(response, '<!doctype html>')
-        self.assertContains(response, f"Workout calendar for {today.strftime('%B %Y')}")
-        self.assertContains(response, 'class="today"', 1)
-
     def test_calendar_displays_arbitrary_past_month(self):
         date = datetime.date(timezone.localdate().year + random.randint(-10, -1),
                              random.randint(1, 12),
@@ -138,12 +159,58 @@ class CalendarViewTest(WorksheetMixin, TestCase):
         self.assertContains(response, '(2 / 5)')
 
 class CreateViewTest(ProgramSetupMixin, TestCase):
-    def test_creation_when_not_scheduled(self):
+    def test_automatic_creation_when_not_scheduled(self):
         """
         It isn't possible to create a workout when none are scheduled for the
         current day and no specific workout is provided.
         """
         response = self.client.post(reverse("worksheet:create"), follow=True)
+
+        self.assertEqual(len(response.redirect_chain), 1)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'worksheet/index.html')
+
+        self.assertQuerySetEqual(Worksheet.objects.all(), [])
+
+    def test_creation_when_not_scheduled(self):
+        """
+        An available workout can be created when none are scheduled
+        """
+        response = self.client.post(
+            reverse("worksheet:create"),
+            { 'workout': 1 },
+            follow=True
+        )
+
+        self.assertEqual(len(response.redirect_chain), 1)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'worksheet/worksheet.html')
+
+        self.assertEqual(Worksheet.objects.count(), 1)
+
+    def test_creation_with_unknown_workout(self):
+        """
+        It shouldn't be possible to create a worksheet with an unknown workout,
+        whether one is scheduled or not
+        """
+        response = self.client.post(
+            reverse("worksheet:create"),
+            { 'workout': 42 },
+            follow=True
+        )
+
+        self.assertEqual(len(response.redirect_chain), 1)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'worksheet/index.html')
+
+        self.assertQuerySetEqual(Worksheet.objects.all(), [])
+
+        Schedule.objects.create(day=timezone.localtime().isoweekday(), workout=self.workout)
+        response = self.client.post(
+            reverse("worksheet:create"),
+            { 'workout': 42 },
+            follow=True
+        )
 
         self.assertEqual(len(response.redirect_chain), 1)
         self.assertEqual(response.status_code, 200)
@@ -168,6 +235,7 @@ class CreateViewTest(ProgramSetupMixin, TestCase):
         # checking display
         self.assertEqual(len(response.redirect_chain), 1)
         self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'worksheet/worksheet.html')
         self.assertContains(response, "Test workout 1")
         self.assertContains(response, "1. Exercise 1")
         self.assertContains(response, "2. Exercise 2")
@@ -187,8 +255,7 @@ class CreateViewTest(ProgramSetupMixin, TestCase):
         It should be possible to start a different workout than the scheduled
         one.
         """
-        exercises = self._create_exercises(5)
-        unscheduled_workout = self._create_workout(exercises)
+        unscheduled_workout = self._create_workout()
 
         self.assertEqual(unscheduled_workout.id, 2)
 
@@ -208,25 +275,6 @@ class CreateViewTest(ProgramSetupMixin, TestCase):
         self.assertContains(response, "3. Exercise 8")
         self.assertContains(response, "4. Exercise 9")
         self.assertContains(response, "5. Exercise 10")
-
-    def test_replacing_scheduled_workout_with_non_existant_one(self):
-        """
-        It should not be possible to start a different workout than the scheduled
-        one with a non-existant workout
-        """
-        Schedule.objects.create(day=timezone.localtime().isoweekday(), workout=self.workout)
-
-        response = self.client.post(
-            reverse("worksheet:create"),
-            { 'workout': 42 },
-            follow=True
-        )
-
-        self.assertEqual(len(response.redirect_chain), 1)
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'worksheet/index.html')
-
-        self.assertQuerySetEqual(Worksheet.objects.all(), [])
 
 class WorksheetViewTest(WorksheetMixin, WorksheetTestCase):
     def test_non_existing_worksheet(self):

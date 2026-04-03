@@ -71,12 +71,14 @@ class IndexView(TemplateView):
                 self.month == today.month or            # showing the current month
                 any([today in week for week in weeks])  # or today is visible
             ) and
-            schedules.get(today.isoweekday()) and       # with a workout scheduled for today
-            not worksheets.get(today.isoweekday())      # that is not already active.
+            not worksheets.get(today)                   # and there are no active worksheet
         ):
-            context['workouts'] = Workout.objects.exclude(
-                pk=schedules.get(today.isoweekday()).workout.id
-            ).all()
+            if schedules.get(today.isoweekday()):
+                context['workouts'] = Workout.objects.exclude(
+                    pk=schedules.get(today.isoweekday()).workout.id
+                )
+            else:
+                context['workouts'] = Workout.objects.all()
 
         self._get_month_navigation(context, today)
 
