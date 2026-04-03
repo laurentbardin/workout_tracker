@@ -20,7 +20,7 @@
     {% if worksheet.done %}
         Completed in <strong>{{ worksheet.get_duration }}</strong>
     {% else %}
-        <h2><span id="clock" class="hidden">0:00:00</span></h2>
+        <h2><span id="clock" class="hidden" data-started-at="{{ worksheet.started_at|date:"c" }}">0:00:00</span></h2>
     {% endif %}
 {% endblock %}
 
@@ -82,39 +82,34 @@
     {{ block.super }}
     {% if not worksheet.done %}
     <script src="{% static 'worksheet/js/oat.min.js' %}"></script>
+    <script src="{% static 'worksheet/js/event.js' %}"></script>
     <script src="{% static 'worksheet/js/worksheet.js' %}"></script>
 
     <script type="text/javascript">
-        document.addEventListener('DOMContentLoaded', () => {
-            worksheet.initClock('{{ worksheet.started_at|date:"c" }}')
-        });
-
-        {% if not worksheet.done %}
-        function updateSuccess(evt) {
-            let e = evt.target.parentElement;
-            htmx.removeClass(e, 'error');
-            htmx.addClass(e, 'success');
-
-            if (evt.detail.meter.value) {
-                htmx.find('#worksheet-progress').value = evt.detail.meter.value;
-            }
-        };
-        function updateError(evt) {
-            let e = evt.target.parentElement;
-            htmx.removeClass(e, 'success');
-            htmx.addClass(e, 'error');
-        };
-
-        let elt = htmx.find('section.worksheet');
-        elt.addEventListener('updateSuccess', updateSuccess);
-        elt.addEventListener('updateError', updateError);
-        {% endif %}
-
-        function notifySuccess(evt) {
-            ot.toast(evt.detail.value, 'Success', { placement: 'top-center', variant: 'success', duration: 2500 });
-        };
-        document.addEventListener('noteAdded', notifySuccess);
-        document.addEventListener('noteDeleted', notifySuccess);
+        registerEvents([
+            {
+                event: 'DOMContentLoaded',
+                cb: worksheet.initClock,
+            },
+            {
+                event: 'updateSuccess',
+                element: 'section.worksheet',
+                cb: worksheet.updateSuccess,
+            },
+            {
+                event: 'updateError',
+                element: 'section.worksheet',
+                cb: worksheet.updateError,
+            },
+            {
+                event: 'noteAdded',
+                cb: worksheet.notifySuccess,
+            },
+            {
+                event: 'noteDeleted',
+                cb: worksheet.notifySuccess,
+            },
+        ]);
     </script>
     {% endif %}
 {% endblock %}

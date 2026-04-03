@@ -11,46 +11,47 @@
         }
     }
 
-    function updateClock(elt, start) {
-        const start_date = new Date(start);
-        if (isNaN(start_date.getTime())) {
-            console.warn('Cannot setup clock: invalid date', start);
+    clock = {
+        selector: '#clock',
+        elt: undefined,
+        startTime: undefined,
+    };
+
+    function initClock() {
+        clock.elt = htmx.find(clock.selector)
+        if (!clock.elt) {
+            console.warn(`Cannot setup clock: element ${clock.selector} not found`);
             return;
         }
 
-        const clock = htmx.find(elt)
-        if (!clock) {
-            console.warn(`Cannot setup clock: element ${elt} not found`, start);
+        clock.startTime = new Date(clock.elt.dataset.startedAt);
+        if (isNaN(clock.startTime)) {
+            console.warn('Cannot setup clock: invalid date', clock.elt.dataset.startedAt);
             return;
         }
 
-        return function() {
-            // Discard milliseconds
-            let duration = Math.floor((new Date() - start_date) / 1000);
-
-            // Extract the number of seconds and minutes
-            const values = [];
-            const units = [60, 60];
-            units.forEach((u) => {
-                values.push(String(duration % u).padStart(2, '0'));
-                duration = Math.floor(duration / u);
-            })
-
-            // Only the number of hours remain in duration
-            values.push(duration);
-            values.reverse();
-
-            htmx.swap(clock, values.join(':'), {swapStyle: 'innerHtml'});
-        }
+        updateClock();
+        htmx.removeClass('#clock', 'hidden');
+        setInterval(updateClock, 1000);
     }
 
-    function initClock(start) {
-        const update = updateClock('#clock', start);
-        if (update) {
-            update();
-            htmx.removeClass('#clock', 'hidden');
-            setInterval(update, 1000);
-        }
+    function updateClock() {
+        // Discard milliseconds
+        let duration = Math.floor((new Date() - clock.startTime) / 1000);
+
+        // Extract the number of seconds and minutes
+        const values = [];
+        const units = [60, 60];
+        units.forEach((u) => {
+            values.push(String(duration % u).padStart(2, '0'));
+            duration = Math.floor(duration / u);
+        })
+
+        // Only the number of hours remain in duration
+        values.push(duration);
+        values.reverse();
+
+        htmx.swap(clock.elt, values.join(':'), {swapStyle: 'innerHtml'});
     }
 
     function showNotePopover(source) {
@@ -81,9 +82,32 @@
         popover.show();
     }
 
+    function updateSuccess(evt) {
+        const e = evt.target.parentElement;
+        htmx.removeClass(e, 'error');
+        htmx.addClass(e, 'success');
+
+        if (evt.detail.meter.value) {
+            htmx.find('#worksheet-progress').value = evt.detail.meter.value;
+        }
+    }
+
+    function updateError(evt) {
+        const e = evt.target.parentElement;
+        htmx.removeClass(e, 'success');
+        htmx.addClass(e, 'error');
+    }
+
+    function notifySuccess(evt) {
+        ot.toast(evt.detail.value, 'Success', { placement: 'top-center', variant: 'success', duration: 2500 });
+    }
+
     w.worksheet = {
         checkInput: checkInput,
         initClock: initClock,
         showNotePopover: showNotePopover,
+        updateSuccess: updateSuccess,
+        updateError: updateError,
+        notifySuccess: notifySuccess,
     };
 })(window);
