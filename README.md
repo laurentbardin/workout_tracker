@@ -65,9 +65,9 @@ manually.
 
 ## Docker/Podman
 
-This method only works with SQLite (because there is no PostgreSQL image
-involved). The custom image doesn't contain any code from the app itself, it
-only comes with the frontend and backend dependencies installed. The actual app
+This is a convenience method to quickly get the app running on your machine:
+the custom image doesn't contain any code from the app itself, it only comes
+with the frontend and backend dependencies already installed. The actual app
 code is mounted into the container at run time.
 
 ```sh
