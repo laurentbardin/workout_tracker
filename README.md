@@ -57,9 +57,15 @@ specific `Worksheet`.
 *Note:* please be aware that I am by no means a designer, and don't have any
 pretention to be, so the app may look raw.
 
+<details>
+<summary>A screenshot of the homepage showing the schedule on a calendar for the current month</summary>
 ![A screenshot of the homepage showing the schedule on a calendar for the current month](doc/screenshot-1.png "Homepage showing the current month")
+</details>
 
+<details>
+<summary>A screenshot of the worksheet of the currently active workout</summary>
 ![A screenshot of the worksheet of the currently active workout](doc/screenshot-2.png "A workout in progress")
+</details>
 
 # Installation
 
