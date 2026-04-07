@@ -633,6 +633,28 @@ class ResultActionTest(WorksheetMixin, WorksheetTestCase):
         self.assertIsNone(result.weight)
         self.assertIsNone(result.note)
 
+    def test_non_existant_note_cannot_be_deleted(self):
+        """
+        Deleting an empty (NULL) note should not provide any feedback (no op)
+        """
+        worksheet = self._create_worksheet()
+        response = self._update_worksheet_result(worksheet,
+                                                 result_id=1,
+                                                 field='note',
+                                                 value='')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="noteForm"')
+        self.assertNotContains(response, '"errorlist"')
+        self.assertContains(response, 'data-note=""')
+        self.assertContains(response, '"result-action-1"')
+        self.assertContains(response, 'note-add.svg')
+        self.assertHasNotHeader(response, "HX-Trigger")
+
+        result = Result.objects.get(pk=1)
+        self.assertIsNone(result.reps)
+        self.assertIsNone(result.weight)
+        self.assertIsNone(result.note)
+
     def test_note_is_rejected_if_too_long(self):
         worksheet = self._create_worksheet()
         response = self._update_worksheet_result(worksheet,

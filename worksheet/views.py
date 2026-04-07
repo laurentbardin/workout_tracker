@@ -339,7 +339,10 @@ class NoteAction(View):
             return render(request, 'worksheet/worksheet_base.html#note_form', context)
 
         value = note_form.cleaned_data['note']
-        Result.objects.filter(pk=result_id, worksheet=worksheet_id).update(note=value)
+        qs = Result.objects.filter(pk=result_id, worksheet=worksheet_id)
+        if value is None:
+            qs = qs.filter(note__isnull=False)
+        updated = qs.update(note=value)
 
         context.update({
             'result': Result(id=result_id, note=value),
@@ -351,11 +354,12 @@ class NoteAction(View):
 
         response = HttpResponse(content)
 
-        if value is None:
-            message = { 'noteDeleted': 'Note deleted' }
-        else:
-            message = { 'noteAdded': 'Note added' }
+        if updated:
+            if value is None:
+                message = { 'noteDeleted': 'Note deleted' }
+            else:
+                message = { 'noteAdded': 'Note added' }
 
-        response["HX-Trigger"] = json.dumps(message)
+            response["HX-Trigger"] = json.dumps(message)
 
         return response
