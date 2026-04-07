@@ -2,6 +2,7 @@
 
 * [Overview](#overview)
   * [Models](#models)
+  * [Screenshots](#screenshots)
 * [Installation](#installation)
   * [Docker/Podman](#dockerpodman)
   * [Manual installation](#manual-installation)
@@ -30,9 +31,6 @@ This is an app built to tackle two issues at the same time:
 The first one can be considered done, and the second is still in progress (as
 learning often is).
 
-*Note:* please be aware that I am by no means a designer, and don't have any
-pretention to be, so the app may look raw.
-
 ## Models
 
 The app consists of 4 main and 2 intermediary models. You can deploy the
@@ -53,6 +51,15 @@ A `Worksheet` is an instance of a given `Workout`, on a given date.
 Finally, a `Result` is the actual data associated with an `Exercise` and a
 specific `Worksheet`.
 </details>
+
+## Screenshots
+
+*Note:* please be aware that I am by no means a designer, and don't have any
+pretention to be, so the app may look raw.
+
+![A screenshot of the homepage showing the schedule on a calendar for the current month](doc/worksheet.png "Homepage showing the current month")
+
+![A screenshot of the worksheet of the currently active workout](doc/worksheet.png "A workout in progress")
 
 # Installation
 
