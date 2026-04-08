@@ -19,7 +19,7 @@
 {% block topnav-offside %}
     {% if worksheet.done %}
     Completed in <strong>{{ worksheet.get_duration }}</strong>
-    {% else %}
+    {% elif worksheet is not None %}
     <div class="flex items-center justify-end">
         <h2><span id="clock" class="hidden" data-started-at="{{ worksheet.started_at|date:"c" }}">0:00:00</span></h2>
         <form action="{% url 'worksheet:close' worksheet.id %}" method="POST">
