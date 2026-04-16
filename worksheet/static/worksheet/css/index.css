@@ -40,11 +40,16 @@
                 border-bottom-width: 1px;
             }
 
-            span {
+            .day {
                 position: absolute;
                 font-size: 0.75rem;
                 top: 0.25rem;
                 left: 0.25rem;
+            }
+
+            .skipped {
+                text-decoration: line-through;
+                color: var(--muted-dark);
             }
 
             &.other-month {

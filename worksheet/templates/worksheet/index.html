@@ -1,6 +1,6 @@
 {% extends 'worksheet/base.html' %}
 
-{% load static %}
+{% load static classes %}
 
 {% block stylesheet %}
 {{ block.super }}
@@ -56,13 +56,13 @@
                     class="other-month"
                 {% endif %}
                 >
-                    <span>{{ date.day }}</span>
+                    <span class="day">{{ date.day }}</span>
                     {% if data.worksheet %}
                         <a href="{{ data.worksheet.get_absolute_url }}">{{ data.worksheet.workout }}</a>
                         <br>
                         ({{ data.worksheet.done_exercise }} / {{ data.worksheet.total_exercise }})
                     {% elif data.workout and date != today %}
-                        {{ data.workout }}
+                        <span class="{% classes skipped=data.skipped %}">{{ data.workout }}</span>
                     {% elif date == today %}
                     {% partial start-workout %}
                     {% endif %}

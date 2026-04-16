@@ -26,17 +26,21 @@ class IndexView(TemplateView):
     year = None
     month = None
 
+    def __init__(self, *args, **kwargs):
+        self.today = timezone.localdate()
+
+        return super().__init__(*args, **kwargs)
+
     def render_to_response(self, context, **response_kwargs):
         self._get_calendar(context)
 
         return super().render_to_response(context, **response_kwargs)
 
     def _get_calendar(self, context):
-        today = timezone.localdate()
-        cal = calendar.Calendar()
-
         if self.year is None or self.month is None:
-            (self.year, self.month) = (today.year, today.month)
+            (self.year, self.month) = (self.today.year, self.today.month)
+
+        cal = calendar.Calendar()
         weeks = list(cal.monthdatescalendar(self.year, self.month))
 
         worksheets = {
@@ -61,26 +65,26 @@ class IndexView(TemplateView):
         }
 
         context['calendar'] = self._build_calendar(weeks, worksheets, schedules)
-        context['today'] = today
+        context['today'] = self.today
         context['active_month'] = self.month
         context['days'] = list(calendar.day_name)
 
         # Avoid a request if possible
         if (
             (
-                self.month == today.month or            # showing the current month
-                any([today in week for week in weeks])  # or today is visible
+                self.month == self.today.month or            # showing the current month
+                any([self.today in week for week in weeks])  # or today is visible
             ) and
-            not worksheets.get(today)                   # and there are no active worksheet
+            not worksheets.get(self.today)                   # and there are no active worksheet
         ):
-            if schedules.get(today.isoweekday()):
+            if schedules.get(self.today.isoweekday()):
                 context['workouts'] = Workout.objects.exclude(
-                    pk=schedules.get(today.isoweekday()).workout.id
+                    pk=schedules.get(self.today.isoweekday()).workout.id
                 )
             else:
                 context['workouts'] = Workout.objects.all()
 
-        self._get_month_navigation(context, today)
+        self._get_month_navigation(context, self.today)
 
     def _get_month_navigation(self, context, date):
         month = date.replace(day=1)
@@ -100,7 +104,10 @@ class IndexView(TemplateView):
                 if date in worksheets:
                     calendar_week[date] = {'worksheet': worksheets[date]}
                 elif date.isoweekday() in schedules:
-                    calendar_week[date] = {'workout': schedules[date.isoweekday()].workout}
+                    calendar_week[date] = {
+                        'workout': schedules[date.isoweekday()].workout,
+                        'skipped': date < self.today
+                    }
                 else:
                     calendar_week[date] = None
 
