@@ -9,6 +9,7 @@ urlpatterns = [
     path('<int:year>/<int:month>/', views.CalendarView.as_view(), name='calendar'),
     path('worksheet/', views.CreateView.as_view(), name='create'),
     path('worksheet/<int:year>/<int:month>/<int:day>/', views.WorksheetView.as_view(), name='worksheet'),
+
     path('worksheet/<int:worksheet_id>/close', views.CloseAction.as_view(), name='close'),
     path('worksheet/<int:worksheet_id>/result/<int:result_id>/note', views.NoteAction.as_view(), name='note'),
     path('worksheet/<int:worksheet_id>/result/<int:result_id>/<str:field>', views.ResultAction.as_view(), name='result'),

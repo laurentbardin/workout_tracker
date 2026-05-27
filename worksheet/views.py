@@ -170,12 +170,13 @@ class CreateView(View):
 
 class WorksheetView(TemplateView):
     """
-    Show or update a worksheet for a specific date.
+    Show a worksheet for a specific date.
     """
     template_name = 'worksheet/worksheet.html'
 
     def render_to_response(self, context, **response_kwargs):
-        worksheet, results, date = self._get_worksheet_and_results(context)
+        date = datetime.date(context['year'], context['month'], context['day'])
+        worksheet, results = Worksheet.objects.get_with_results(date)
 
         if worksheet is None:
             context['date'] = date
@@ -198,58 +199,6 @@ class WorksheetView(TemplateView):
             })
 
         return super().render_to_response(context, **response_kwargs)
-
-    def _get_worksheet_and_results(self, context):
-        worksheet = None
-        results = None
-        date = datetime.date(context['year'], context['month'], context['day'])
-
-        try:
-            worksheet = Worksheet.objects.select_related('workout').annotate(
-                total_exercise=Count("result")
-            ).annotate(
-                done_exercise=Count("result__reps")
-            ).get(date=date)
-        except Worksheet.DoesNotExist:
-            # TODO logging
-            pass
-
-        if worksheet is not None:
-            results = self._get_results(worksheet)
-            self._get_previous_results(worksheet, results)
-
-        return worksheet, results, date
-
-    def _get_results(self, worksheet):
-        qs = worksheet.result_set.select_related('exercise')
-
-        if worksheet.workout.repeat:
-            qs = qs.order_by(
-                "exercise__program",
-                "_order"
-            ).filter(
-                exercise__workout=worksheet.workout
-            )
-
-        return qs.all()
-
-    def _get_previous_results(self, worksheet, results):
-        """
-        Fetch the results of the same previous workout to display and
-        compare, if any.
-        """
-        # This is only relevant or useful if a workout is in progress
-        if not worksheet.done:
-            previous_worksheet = Worksheet.objects.filter(
-                workout=worksheet.workout,
-                date__lt=worksheet.date,
-                done=True,
-            ).order_by("-date").first()
-
-            if previous_worksheet is not None:
-                for res, prev in zip(results,
-                                     self._get_results(previous_worksheet)):
-                    res.previous = prev
 
 class CloseAction(View):
     def post(self, request, worksheet_id=None):
