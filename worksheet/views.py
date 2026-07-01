@@ -116,6 +116,11 @@ class IndexView(TemplateView):
         return workout_calendar
 
 class CalendarView(IndexView):
+    """
+    CalendarView displays a calendar for a specific month of a specific year.
+    It inherits from IndexView and overrides only the minimum necessary values
+    (i.e. year and month) to work properly.
+    """
     def render_to_response(self, context, **response_kwargs):
         (self.year, self.month) = (context['year'], context['month'])
 
@@ -203,7 +208,7 @@ class WorksheetView(TemplateView):
 class CloseAction(View):
     def post(self, request, worksheet_id=None):
         try:
-            Worksheet.objects.close(pk=worksheet_id)
+            Worksheet.objects.get(pk=worksheet_id, done=False).close()
         except Worksheet.DoesNotExist:
             pass
 

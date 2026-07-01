@@ -13,12 +13,7 @@ class WorksheetManager(models.Manager):
         if before is None or not isinstance(before, (datetime.datetime, datetime.date)):
             before = timezone.localdate()
 
-        return super().get_queryset().filter(done=False, date__lte=before)
-
-    def close(self, pk=None):
-        if pk is not None:
-            worksheet = super().get_queryset().get(pk=pk, done=False)
-            worksheet.close()
+        return self.filter(done=False, date__lte=before)
 
     def get_or_create(self, defaults=None, **kwargs):
         try:
