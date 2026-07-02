@@ -69,7 +69,11 @@ class IndexView(TemplateView):
         context['active_month'] = self.month
         context['days'] = list(calendar.day_name)
 
-        # Avoid a request if possible
+        # Build the menu to select which workout to start (defaults to the
+        # scheduled one). We avoid making the necessary request if no such menu
+        # has to be displayed: when displaying a different month than the
+        # current one and today is not visible, or there already is an active
+        # worksheet.
         if (
             (
                 self.month == self.today.month or            # showing the current month
