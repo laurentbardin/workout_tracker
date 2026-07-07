@@ -31,12 +31,14 @@ class IndexView(TemplateView):
 
         return super().__init__(*args, **kwargs)
 
-    def render_to_response(self, context, **response_kwargs):
-        self._get_calendar(context)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
 
-        return super().render_to_response(context, **response_kwargs)
+        context.update(self._get_calendar_context())
 
-    def _get_calendar(self, context):
+        return context
+
+    def _get_calendar_context(self):
         if self.year is None or self.month is None:
             (self.year, self.month) = (self.today.year, self.today.month)
 
@@ -64,10 +66,12 @@ class IndexView(TemplateView):
             for schedule in Schedule.objects.select_related('workout').all()
         }
 
-        context['calendar'] = self._build_calendar(weeks, worksheets, schedules)
-        context['today'] = self.today
-        context['active_month'] = self.month
-        context['days'] = list(calendar.day_name)
+        context = {
+            'calendar': self._get_calendar(weeks, worksheets, schedules),
+            'today': self.today,
+            'active_month': self.month,
+            'days': list(calendar.day_name),
+        }
 
         # Build the menu to select which workout to start (defaults to the
         # scheduled one). We avoid making the necessary request if no such menu
@@ -88,9 +92,13 @@ class IndexView(TemplateView):
             else:
                 context['workouts'] = Workout.objects.all()
 
-        self._get_month_navigation(context, self.today)
+        context.update(self._get_month_navigation(self.today))
 
-    def _get_month_navigation(self, context, date):
+        return context
+
+    def _get_month_navigation(self, date):
+        context = {}
+
         month = date.replace(day=1)
         context['month'] = month
 
@@ -99,7 +107,9 @@ class IndexView(TemplateView):
         context['previous_month_url'] = reverse('worksheet:calendar', args=[previous_month.year, previous_month.month])
         context['next_month_url'] = reverse('worksheet:calendar', args=[next_month.year, next_month.month])
 
-    def _build_calendar(self, weeks, worksheets, schedules):
+        return context
+
+    def _get_calendar(self, weeks, worksheets, schedules):
         workout_calendar = []
 
         for week in weeks:
@@ -125,22 +135,34 @@ class CalendarView(IndexView):
     It inherits from IndexView and overrides only the minimum necessary values
     (i.e. year and month) to work properly.
     """
+    def get_context_data(self, **kwargs):
+        """
+        Properly set up this view's properties so that the calendar is
+        correctly computed
+        """
+        (self.year, self.month) = (kwargs['year'], kwargs['month'])
+
+        context = super().get_context_data(**kwargs)
+
+        return context
+
     def render_to_response(self, context, **response_kwargs):
-        (self.year, self.month) = (context['year'], context['month'])
+        if self.request.headers.get('HX-Request') is None:
+            return super().render_to_response(context, **response_kwargs)
 
-        if (self.request.headers.get('HX-Request')):
-            self._get_calendar(context)
-            content = render_to_string('worksheet/index.html#calendar', context, self.request)
-            content += render_to_string('worksheet/index.html#title', context, self.request)
+        response = HttpResponse()
 
-            return HttpResponse(content)
+        calendar = render_to_string('worksheet/index.html#calendar', context, self.request)
+        title = render_to_string('worksheet/index.html#title', context, self.request)
 
-        return super().render_to_response(context, **response_kwargs)
+        response.content = [calendar, title]
 
-    def _get_month_navigation(self, context, date):
+        return response
+
+    def _get_month_navigation(self, date):
         date = datetime.date(self.year, self.month, 1)
 
-        super()._get_month_navigation(context, date)
+        return super()._get_month_navigation(date)
 
 class CreateView(View):
     """
@@ -183,16 +205,18 @@ class WorksheetView(TemplateView):
     """
     template_name = 'worksheet/worksheet.html'
 
-    def render_to_response(self, context, **response_kwargs):
+    repeat_workout = False
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
         date = datetime.date(context['year'], context['month'], context['day'])
         worksheet, results = Worksheet.objects.get_with_results(date)
 
         if worksheet is None:
             context['date'] = date
         else:
-
-            if worksheet.workout.repeat:
-                self.template_name = 'worksheet/worksheet_repeat.html'
+            self.repeat_workout = worksheet.workout.repeat
 
             context.update({
                 'worksheet': worksheet,
@@ -206,6 +230,12 @@ class WorksheetView(TemplateView):
                     'value': worksheet.done_exercise,
                 },
             })
+
+        return context
+
+    def render_to_response(self, context, **response_kwargs):
+        if self.repeat_workout:
+            self.template_name = 'worksheet/worksheet_repeat.html'
 
         return super().render_to_response(context, **response_kwargs)
 
