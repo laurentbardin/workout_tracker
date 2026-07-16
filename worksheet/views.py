@@ -45,9 +45,7 @@ class IndexView(TemplateView):
         cal = calendar.Calendar()
         weeks = list(cal.monthdatescalendar(self.year, self.month))
 
-        worksheets = {
-            worksheet.date: worksheet
-            for worksheet in Worksheet.objects.filter(
+        visible_worksheets = Worksheet.objects.filter(
                 # weeks is a list of list of datetime.date objects, so we want
                 # worksheets from the first day of the first week to the last
                 # day of the last week (inclusive)
@@ -58,7 +56,11 @@ class IndexView(TemplateView):
             ).annotate(
                 # ... and the number of completed exercises
                 done_exercise=Count("result__reps")
-            ).select_related('workout').all()
+            ).select_related('workout')
+
+        worksheets = {
+            worksheet.date: worksheet
+            for worksheet in visible_worksheets.all()
         }
 
         schedules = {
@@ -336,6 +338,8 @@ class NoteAction(View):
         value = note_form.cleaned_data['note']
         qs = Result.objects.filter(pk=result_id, worksheet=worksheet_id)
         if value is None:
+            # Only delete existing notes in order to prevent a useless "Note
+            # deleted" message
             qs = qs.filter(note__isnull=False)
         updated = qs.update(note=value)
 
@@ -344,10 +348,10 @@ class NoteAction(View):
             'worksheet': Worksheet(id=worksheet_id),
         })
 
-        content = render_to_string('worksheet/worksheet_base.html#note_form', context, request)
-        content += render_to_string('worksheet/worksheet.html#action_buttons', context, request)
+        form = render_to_string('worksheet/worksheet_base.html#note_form', context, request)
+        buttons = render_to_string('worksheet/worksheet.html#action_buttons', context, request)
 
-        response = HttpResponse(content)
+        response = HttpResponse([form, buttons])
 
         if updated:
             if value is None:
