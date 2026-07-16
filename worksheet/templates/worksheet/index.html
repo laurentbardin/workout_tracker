@@ -14,8 +14,8 @@
 {% endblock %}
 
 {% block topnav-title %}
-    {% partialdef title inline %}
-    <nav id="calendar-nav" hx-push-url="true" hx-swap-oob="outerHTML">
+    {% partialdef calendar_nav inline %}
+    <nav id="calendar-nav" hx-push-url="true" {% if htmx_request %}hx-swap-oob="outerHTML"{% endif %}>
         <a id="previous-month"
            href="{{ previous_month_url }}"
            hx-get="{{ previous_month_url }}"

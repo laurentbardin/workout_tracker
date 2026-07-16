@@ -155,9 +155,9 @@ class CalendarView(IndexView):
         response = HttpResponse()
 
         calendar = render_to_string('worksheet/index.html#calendar', context, self.request)
-        title = render_to_string('worksheet/index.html#title', context, self.request)
+        nav = render_to_string('worksheet/index.html#calendar_nav', context, self.request)
 
-        response.content = [calendar, title]
+        response.content = [calendar, nav]
 
         return response
 
