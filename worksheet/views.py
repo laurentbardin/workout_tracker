@@ -222,6 +222,10 @@ class WorksheetView(TemplateView):
 
             context.update({
                 'worksheet': worksheet,
+                'calendar_url': reverse(
+                    'worksheet:calendar',
+                    kwargs={ 'year': worksheet.date.year, 'month': worksheet.date.month }
+                ),
                 'results': results,
                 'note_form': ResultNoteForm(),
                 'meter': {

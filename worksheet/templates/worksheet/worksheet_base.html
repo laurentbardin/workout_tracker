@@ -11,8 +11,11 @@
     {% if worksheet is None %}
     No worksheet found
     {% else %}
-    <strong>{{ worksheet.workout }}</strong> &mdash; {{ worksheet.date }}
-    <meter id="worksheet-progress" min="0" max="{{ meter.max }}" low="{{ meter.low }}" high="{{ meter.high }}" value="{{ meter.value }}" optimum="{{ meter.optimum }}"></meter>
+    <strong>{{ worksheet.workout }}</strong> &mdash; <a href="{{ calendar_url }}">{{ worksheet.date }}</a>
+    <meter id="worksheet-progress"
+        min="0" max="{{ meter.max }}"
+        low="{{ meter.low }}" high="{{ meter.high }}"
+        optimum="{{ meter.optimum }}" value="{{ meter.value }}"></meter>
     {% endif %}
 {% endblock %}
 
