@@ -77,6 +77,14 @@
             console.warn('Cannot set input value: element not found');
         } else {
             input.value = source.dataset.note;
+
+            if (input.value) {
+                htmx.findAll(form, '.update-note, .delete-note').forEach((e) => htmx.removeClass(e, 'hidden'));
+                htmx.findAll(form, '.add-note').forEach((e) => htmx.addClass(e, 'hidden'));
+            } else {
+                htmx.findAll(form, '.update-note, .delete-note').forEach((e) => htmx.addClass(e, 'hidden'));
+                htmx.findAll(form, '.add-note').forEach((e) => htmx.removeClass(e, 'hidden'));
+            }
         }
 
         popover.show();

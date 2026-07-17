@@ -372,7 +372,7 @@ class WorksheetViewTest(WorksheetMixin, WorksheetTestCase):
 
         self.assertContains(response, f'<meter id="worksheet-progress" min="0" '
                             f'max="{expected_max}" low="{expected_low}" '
-                            f'high="{expected_high}" value="0" optimum="{expected_optimum}"></meter>')
+                            f'high="{expected_high}" optimum="{expected_optimum}" value="0"></meter>')
 
     def test_completion_meter_is_reflecting_progress(self):
         worksheet = self._create_worksheet(done=True)
@@ -391,7 +391,7 @@ class WorksheetViewTest(WorksheetMixin, WorksheetTestCase):
         self.assertContains(response, f'<meter id="worksheet-progress" '
                             f'min="0" max="{expected_max}" '
                             f'low="{expected_low}" high="{expected_high}" '
-                            f'value="{expected_value}" optimum="{expected_optimum}"></meter>')
+                            f'optimum="{expected_optimum}" value="{expected_value}"></meter>')
 
 class CloseViewTest(WorksheetMixin, TestCase):
     def test_can_close_in_progress_workout(self):

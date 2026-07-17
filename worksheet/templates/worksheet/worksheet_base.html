@@ -12,10 +12,7 @@
     No worksheet found
     {% else %}
     <strong>{{ worksheet.workout }}</strong> &mdash; <a href="{{ calendar_url }}">{{ worksheet.date }}</a>
-    <meter id="worksheet-progress"
-        min="0" max="{{ meter.max }}"
-        low="{{ meter.low }}" high="{{ meter.high }}"
-        optimum="{{ meter.optimum }}" value="{{ meter.value }}"></meter>
+    <meter id="worksheet-progress" min="0" max="{{ meter.max }}" low="{{ meter.low }}" high="{{ meter.high }}" optimum="{{ meter.optimum }}" value="{{ meter.value }}"></meter>
     {% endif %}
 {% endblock %}
 
@@ -64,14 +61,15 @@
                   hx-disabled-elt="find input, find button"
                   >
                   <header>
-                      <h3>Add a note</h3>
+                      <h3><span class="add-note">Add a note</span> <span class="update-note">Update a note</span></h3>
                   </header>
                   <div>
                       {{ note_form }}
                   </div>
                   <footer>
-                      <button type="submit">Add note</button>
-                      <button type="submit" class="outline" hx-on:click="htmx.find('#id_note').value=''">Delete note</button>
+                      <button type="submit" class="add-note">Add note</button>
+                      <button type="submit" class="update-note">Update note</button>
+                      <button type="submit" class="outline delete-note" hx-on:click="htmx.find('#id_note').value=''">Delete note</button>
                   </footer>
             </form>
             {% endpartialdef %}
