@@ -7,10 +7,9 @@
   * [Docker/Podman](#dockerpodman)
   * [Manual installation](#manual-installation)
     * [1. Install requirements in a virtual environment](#1-install-requirements-in-a-virtual-environment)
-    * [2. Install the frontend dependencies](#2-install-the-frontend-dependencies)
-    * [3. (Optional) PostgreSQL setup](#3-optional-postgresql-setup)
-    * [4. Apply the migrations and the base data set](#4-apply-the-migrations-and-the-base-data-set)
-    * [5. Run the development server](#5-run-the-development-server)
+    * [2. (Optional) PostgreSQL setup](#2-optional-postgresql-setup)
+    * [3. Apply the migrations and the base data set](#3-apply-the-migrations-and-the-base-data-set)
+    * [4. Run the development server](#4-run-the-development-server)
   * [Optional refinements](#optional-refinements)
     * [1. Run the tests](#1-run-the-tests)
     * [2. Edit the current user's timezone](#2-edit-the-current-users-timezone)
@@ -80,8 +79,8 @@ manually.
 
 This is a convenience method to quickly get the app running on your machine:
 the custom image doesn't contain any code from the app itself, it only comes
-with the frontend and backend dependencies already installed. The actual app
-code is mounted into the container at run time.
+with the backend dependencies already installed. The actual app code is mounted
+into the container at run time.
 
 ```sh
 $ cd workout_tracker
@@ -114,15 +113,7 @@ $ uv sync
 $ . .venv/bin/activate
 ```
 
-### 2. Install the frontend dependencies
-
-The app has only two lightweight Javascript dependencies:
-[HTMX](https://htmx.org/) and [Oat](https://oat.ink/).
-```sh
-$ npm install
-```
-
-### 3. (Optional) PostgreSQL setup
+### 2. (Optional) PostgreSQL setup
 
 By default, the app uses SQLite for a quicker setup, but is perfectly
 compatible with PostgreSQL (the `psycopg` library is part of the dependencies).
@@ -132,7 +123,7 @@ Simply edit the `pg_conf` and `DATABASES` entries to your liking in
 *Note*: when using PostgreSQL, the server's timezone should be set to
 `Etc/UTC`, just like the app (`TIME_ZONE` in `settings.py`).
 
-### 4. Apply the migrations and the base data set
+### 3. Apply the migrations and the base data set
 ```sh
 $ python manage.py migrate
 $ python manage.py loaddata --app worksheet fixtures/worksheet.json
@@ -140,7 +131,7 @@ $ python manage.py loaddata --app worksheet fixtures/worksheet.json
 This step adds 3 workouts and their exercises, as well as a basic schedule
 (Monday to Saturday).
 
-### 5. Run the development server
+### 4. Run the development server
 ```sh
 $ python manage.py runserver
 ```
@@ -197,8 +188,9 @@ builtin user management for that reason.
 ## CSS Grid
 
 Even though tables are a perfect use case for the way worksheets are presented,
-some issues arose when adding the form to post the data using HTMX. As I wanted
-to improve my knowledge of CSS Grid, this was a good opportunity to do so.
+some issues arose when adding the form to post the data using
+[HTMX](https://htmx.org/). As I wanted to improve my knowledge of CSS Grid, this
+was a good opportunity to do so.
 
 ## HTMX
 
