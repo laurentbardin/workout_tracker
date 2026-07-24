@@ -124,6 +124,13 @@ Simply edit the `pg_conf` and `DATABASES` entries to your liking in
 `Etc/UTC`, just like the app (`TIME_ZONE` in `settings.py`).
 
 ### 3. Apply the migrations and the base data set
+
+If using SQLite (the default), create the data dir first:
+```sh
+$ mkdir data
+```
+
+Then:
 ```sh
 $ python manage.py migrate
 $ python manage.py loaddata --app worksheet fixtures/worksheet.json
