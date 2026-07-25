@@ -10,4 +10,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./:/home/workout_tracker/
+      - db-data:/home/workout_tracker/data
+
+volumes:
+  db-data:
