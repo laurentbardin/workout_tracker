@@ -149,15 +149,17 @@ Open a browser to test the app: [http://localhost:8000](http://localhost:8000)
 
 ## Optional refinements
 
-You can do any of the following whether you used Docker or went with a manual
-installation.
-
 ### 1. Run the tests
 
 Once the migrations are applied, you should be able to run the tests, and they
 should all pass (🤞).
 ```sh
 $ python manage.py test
+```
+
+If using docker:
+```sh
+$ docker exec <container> python manage.py test
 ```
 
 ### 2. Edit the current user's timezone
@@ -172,7 +174,12 @@ geographical location. The default is `Europe/Paris`.
 ```sh
 $ python manage.py createsuperuser
 ```
-If you want to take a look at the admin area.
+This will allow you to take a look at the admin area, if desired.
+
+If using docker:
+```sh
+$ docker exec -t <container> python manage.py createsuperuser
+```
 
 # Usage
 
