@@ -77,19 +77,13 @@ manually.
 
 ## Docker/Podman
 
-This is a convenience method to quickly get the app running on your machine:
-the custom image doesn't contain any code from the app itself, it only comes
-with the backend dependencies already installed. The actual app code is mounted
-into the container at run time.
+This is a convenience method to quickly get the app running using a container
+built against the latest tagged version of the repository.
 
 ```sh
 $ cd workout_tracker
 $ make server
 ```
-
-Running `make server` should take care of everything: downloading the image,
-initialising the SQLite database (adding 3 workouts and their exercises, as well
-as a basic schedule from Monday to Saturday), and running a container.
 
 You can now open a browser to test the app:
 [http://localhost:8000](http://localhost:8000)
