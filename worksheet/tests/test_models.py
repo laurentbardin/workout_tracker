@@ -4,6 +4,7 @@ from django.test import TestCase
 
 from worksheet.models import Exercise, Result, Workout, Worksheet
 
+
 class WorkoutModelTests(TestCase):
     def test_close_worksheet(self):
         """

@@ -8,10 +8,13 @@ from django.urls import reverse
 from django.utils import timezone
 
 from worksheet.models import (
-    Worksheet, Result, Schedule,
+    Result,
+    Schedule,
+    Worksheet,
 )
 from worksheet.tests.base import WorksheetTestCase
 from worksheet.tests.mixins import ProgramSetupMixin, WorksheetMixin
+
 
 class IndexViewTests(WorksheetMixin, TestCase):
     def test_index_display_current_month(self):

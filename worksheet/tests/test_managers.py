@@ -6,6 +6,7 @@ from django.utils import timezone
 
 from worksheet.models import Exercise, Program, Workout, Worksheet
 
+
 class WorksheetManagerTests(TestCase):
     @classmethod
     def setUpClass(cls):

@@ -5,6 +5,7 @@ import django.utils.timezone
 from django.conf import settings
 from django.db import migrations, models
 
+
 def make_dates_unique(apps, schema_editor):
     target_tz = getattr(settings, "USER_TIME_ZONE", settings.TIME_ZONE)
     Worksheet = apps.get_model("worksheet", "Worksheet")

@@ -2,6 +2,7 @@ import json
 
 from worksheet.models import Worksheet
 
+
 def active_worksheets(request):
     return { 'active_worksheets': Worksheet.objects.get_active().all() }
 
@@ -22,4 +23,4 @@ def htmx_config(request):
     return { 'htmx_config': json.dumps(config) }
 
 def htmx_request(request):
-    return { 'htmx_request': True if request.headers.get('HX-Request') else False }
+    return { 'htmx_request': bool(request.headers.get('HX-Request')) }

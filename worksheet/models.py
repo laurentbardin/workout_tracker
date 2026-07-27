@@ -9,6 +9,7 @@ from django.utils import timezone
 
 from .managers import ResultRelatedManager, WorksheetManager
 
+
 # Create your models here.
 class Exercise(models.Model):
     name = models.CharField(max_length=50)

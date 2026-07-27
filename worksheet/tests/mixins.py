@@ -3,8 +3,11 @@ from django.urls import reverse
 from django.utils import timezone
 
 from worksheet.models import (
-    Exercise, Workout, Worksheet,
+    Exercise,
+    Workout,
+    Worksheet,
 )
+
 
 class ProgramSetupMixin:
     """

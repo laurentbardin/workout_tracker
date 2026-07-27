@@ -12,8 +12,9 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.generic import TemplateView, View
 
-from .models import Result, Schedule, Workout, Worksheet
 from .forms import ResultNoteForm
+from .models import Result, Schedule, Workout, Worksheet
+
 
 class IndexView(TemplateView):
     """
@@ -29,7 +30,7 @@ class IndexView(TemplateView):
     def __init__(self, *args, **kwargs):
         self.today = timezone.localdate()
 
-        return super().__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -83,7 +84,7 @@ class IndexView(TemplateView):
         if (
             (
                 self.month == self.today.month or            # showing the current month
-                any([self.today in week for week in weeks])  # or today is visible
+                any(self.today in week for week in weeks)  # or today is visible
             ) and
             not worksheets.get(self.today)                   # and there are no active worksheet
         ):

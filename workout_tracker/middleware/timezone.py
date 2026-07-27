@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.utils import timezone
 
+
 class TimezoneMiddleware:
     """
     Activate the local timezone for the request.

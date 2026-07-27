@@ -1,6 +1,7 @@
 from django.contrib import admin
 
-from .models import Exercise, Workout, Worksheet, Program, Schedule
+from .models import Exercise, Program, Schedule, Workout, Worksheet
+
 
 class ProgramInline(admin.TabularInline):
     model = Program
