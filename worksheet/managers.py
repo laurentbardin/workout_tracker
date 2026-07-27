@@ -25,8 +25,8 @@ class WorksheetManager(models.Manager):
                     worksheet.result_set(manager="results").create_all()
 
         except DatabaseError:
-            # TODO do something useful here
-            raise
+            # TODO logging
+            created = False
 
         return worksheet, created
 

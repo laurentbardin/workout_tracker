@@ -189,15 +189,23 @@ class CreateView(View):
         except Workout.DoesNotExist:
             return HttpResponseRedirect(reverse('worksheet:index'))
 
-        worksheet, _ = Worksheet.objects.get_or_create(
+        worksheet, created = Worksheet.objects.get_or_create(
             workout=workout,
             date=timezone.localdate(),
         )
 
-        return HttpResponseRedirect(reverse(
-            'worksheet:worksheet',
-            args=[ worksheet.date.year, worksheet.date.month, worksheet.date.day, ]
-        ))
+        if created:
+            response = HttpResponseRedirect(reverse(
+                'worksheet:worksheet',
+                args=[ worksheet.date.year, worksheet.date.month, worksheet.date.day, ]
+            ))
+        else:
+            # TODO Add an error message to be displayed to the user, as well as
+            # all related tests:
+            # https://docs.djangoproject.com/en/6.0/ref/contrib/messages/
+            response = HttpResponseRedirect(reverse('worksheet:index'))
+
+        return response
 
     def get(self, request):
         return HttpResponseRedirect(reverse('worksheet:index'))
