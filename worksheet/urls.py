@@ -13,6 +13,4 @@ urlpatterns = [
     path('worksheet/<int:worksheet_id>/close', views.CloseAction.as_view(), name='close'),
     path('worksheet/<int:worksheet_id>/result/<int:result_id>/note', views.NoteAction.as_view(), name='note'),
     path('worksheet/<int:worksheet_id>/result/<int:result_id>/<str:field>', views.ResultAction.as_view(), name='result'),
-
-    path('test/', views.TestView.as_view(), name='test'),
 ]

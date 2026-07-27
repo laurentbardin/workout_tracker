@@ -15,12 +15,6 @@ from django.views.generic import TemplateView, View
 from .models import Result, Schedule, Workout, Worksheet
 from .forms import ResultNoteForm
 
-class TestView(View):
-    def get(self, request, *args, **kwargs):
-        r = HttpResponse()
-        r.content = ["foo", "bar"]
-        return r
-
 class IndexView(TemplateView):
     """
     The index displays a calendar view of the current month with past and
