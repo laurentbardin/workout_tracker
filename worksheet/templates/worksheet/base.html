@@ -58,6 +58,43 @@
 
         {% block javascript %}
         <script src="{% static 'worksheet/js/htmx.min.js' %}"></script>
+        <script src="{% static 'worksheet/js/oat.min.js' %}"></script>
+        <script src="{% static 'worksheet/js/common.js' %}"></script>
+
+        {% if messages %}
+        <script type="text/javascript">
+            function handleMessage(msg, level) {
+                switch (level) {
+                    case {{ DEFAULT_MESSAGE_LEVELS.DEBUG }}:
+                        console.debug(msg);
+                        break;
+
+                    case {{ DEFAULT_MESSAGE_LEVELS.INFO }}:
+                        console.info(msg);
+                        break;
+
+                    case {{ DEFAULT_MESSAGE_LEVELS.SUCCESS }}:
+                        notifySuccess(msg);
+                        break;
+
+                    case {{ DEFAULT_MESSAGE_LEVELS.WARNING }}:
+                        notifyWarning(msg);
+                        break;
+
+                    case {{ DEFAULT_MESSAGE_LEVELS.ERROR }}:
+                        notifyError(msg);
+                        break;
+
+                    default:
+                        console.warn(`Unhandled level ${level} for message '${msg}'`);
+                        break;
+                }
+            }
+            {% for message in messages %}
+            handleMessage('{{ message | escapejs }}', {{ message.level }});
+            {% endfor %}
+        </script>
+        {% endif %}
         {% endblock %}
     </body>
 </html>

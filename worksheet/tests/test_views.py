@@ -6,6 +6,7 @@ import random
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.html import escapejs
 
 from worksheet.models import (
     Result,
@@ -172,6 +173,7 @@ class CreateViewTest(ProgramSetupMixin, TestCase):
         self.assertEqual(len(response.redirect_chain), 1)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'worksheet/index.html')
+        self.assertContains(response, escapejs('No workout scheduled for today.'))
 
         self.assertQuerySetEqual(Worksheet.objects.all(), [])
 
@@ -205,6 +207,7 @@ class CreateViewTest(ProgramSetupMixin, TestCase):
         self.assertEqual(len(response.redirect_chain), 1)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'worksheet/index.html')
+        self.assertContains(response, escapejs("The specified workout doesn't exist."))
 
         self.assertQuerySetEqual(Worksheet.objects.all(), [])
 
@@ -218,6 +221,7 @@ class CreateViewTest(ProgramSetupMixin, TestCase):
         self.assertEqual(len(response.redirect_chain), 1)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'worksheet/index.html')
+        self.assertContains(response, escapejs("The specified workout doesn't exist."))
 
         self.assertQuerySetEqual(Worksheet.objects.all(), [])
 

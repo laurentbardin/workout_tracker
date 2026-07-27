@@ -83,7 +83,6 @@
 {% block javascript %}
     {{ block.super }}
     {% if not worksheet.done %}
-    <script src="{% static 'worksheet/js/oat.min.js' %}"></script>
     <script src="{% static 'worksheet/js/event.js' %}"></script>
     <script src="{% static 'worksheet/js/worksheet.js' %}"></script>
 

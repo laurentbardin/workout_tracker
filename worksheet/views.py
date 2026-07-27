@@ -3,6 +3,7 @@ import datetime
 import json
 import math
 
+from django.contrib import messages
 from django.db import IntegrityError, transaction
 from django.db.models import Count
 from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
@@ -187,6 +188,12 @@ class CreateView(View):
                 weekday = timezone.localdate().isoweekday()
                 workout = Workout.objects.get(schedule__day=weekday)
         except Workout.DoesNotExist:
+            if workout_id is not None:
+                messages.warning(request, "The specified workout doesn't exist.")
+                messages.debug(request, f"Unknown workout {workout_id}")
+            else:
+                messages.warning(request, "No workout scheduled for today.")
+
             return HttpResponseRedirect(reverse('worksheet:index'))
 
         worksheet, created = Worksheet.objects.get_or_create(
@@ -195,14 +202,13 @@ class CreateView(View):
         )
 
         if created:
+            messages.success(request, "Worksheet created")
             response = HttpResponseRedirect(reverse(
                 'worksheet:worksheet',
                 args=[ worksheet.date.year, worksheet.date.month, worksheet.date.day, ]
             ))
         else:
-            # TODO Add an error message to be displayed to the user, as well as
-            # all related tests:
-            # https://docs.djangoproject.com/en/6.0/ref/contrib/messages/
+            messages.error(request, "An error occured when creating today's worksheet. Please try again later.")
             response = HttpResponseRedirect(reverse('worksheet:index'))
 
         return response

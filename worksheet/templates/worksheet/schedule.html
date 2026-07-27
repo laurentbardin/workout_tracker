@@ -1,0 +1,37 @@
+{% extends "worksheet/base.html" %}
+
+{% block topnav-title %}
+Schedule
+{% endblock topnav-title %}
+
+{% block content %}
+<div id="schedule">
+{% for s in schedule %}
+    <article class="card" draggable="true" data-day="{{ s.day }}" data-workout="{{ s.workout.id }}">
+        <header>
+            <h3>{{ s.get_day }}</h3>
+        </header>
+        <p>{{ s.workout.name }}</p>
+    </article>
+{% endfor %}
+</div>
+{% endblock content %}
+
+{% block javascript %}
+    {{ block.super }}
+    <script type="text/javascript">
+        const schedule = document.querySelector('#schedule');
+        schedule.addEventListener('dragstart', function (event) {
+            //
+        });
+        schedule.querySelectorAll('article').forEach((elt) => {
+            elt.addEventListener('dragenter', function (event) {
+                event.dataTransfer.dropEffect = 'copy';
+                if (event.target.localName === 'article') {
+                    console.log(event);
+                    event.preventDefault();
+                };
+            });
+        });
+    </script>
+{% endblock javascript %}
