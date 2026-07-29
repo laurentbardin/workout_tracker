@@ -95,7 +95,7 @@
         </menu>
         <menu id="select-workout" popover>
             {% for w in workouts %}
-            <button role="menuitem" name="workout" value="{{ w.id }}">{{ w }}</button>
+            <button role="menuitem" name="workout" class="ghost" value="{{ w.id }}">{{ w }}</button>
             {% endfor %}
         </menu>
     </ot-dropdown>
