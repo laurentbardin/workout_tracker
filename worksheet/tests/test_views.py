@@ -17,7 +17,7 @@ from worksheet.tests.base import WorksheetTestCase
 from worksheet.tests.mixins import ProgramSetupMixin, WorksheetMixin
 
 
-class IndexViewTests(WorksheetMixin, TestCase):
+class IndexViewTest(WorksheetMixin, TestCase):
     def test_index_display_current_month(self):
         """
         The index page displays a calendar for the current month
@@ -38,7 +38,7 @@ class IndexViewTests(WorksheetMixin, TestCase):
 
         response = self.client.get(reverse("worksheet:index"))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Test workout 1")
+        self.assertContains(response, "Default workout")
         self.assertContains(response, '<button title="Start today\'s workout" name="workout">' + self.workout.name + '</button>', 1)
 
     def test_workout_already_started(self):
@@ -53,7 +53,7 @@ class IndexViewTests(WorksheetMixin, TestCase):
 
         response = self.client.get(reverse("worksheet:index"))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Test workout 1")
+        self.assertContains(response, "Default workout")
         self.assertContains(response, worksheet.get_absolute_url())
         self.assertNotContains(response, '<button type="submit">' + self.workout.name + '</button>')
 
@@ -69,7 +69,7 @@ class IndexViewTests(WorksheetMixin, TestCase):
 
         response = self.client.get(reverse("worksheet:index"))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Test workout 1")
+        self.assertContains(response, "Default workout")
         self.assertContains(response, worksheet.get_absolute_url())
         self.assertNotContains(response, '<button type="submit">' + self.workout.name + '</button>')
 
@@ -162,7 +162,7 @@ class CalendarViewTest(WorksheetMixin, TestCase):
         response = self.client.get(reverse('worksheet:calendar', args=[ today.year, today.month ]))
         self.assertContains(response, '(2 / 5)')
 
-class CreateViewTest(ProgramSetupMixin, TestCase):
+class CreateViewTest(WorksheetMixin, TestCase):
     def test_automatic_creation_when_not_scheduled(self):
         """
         It isn't possible to create a workout when none are scheduled for the
@@ -183,7 +183,7 @@ class CreateViewTest(ProgramSetupMixin, TestCase):
         """
         response = self.client.post(
             reverse("worksheet:create"),
-            { 'workout': 1 },
+            { 'workout': self.workout.id },
             follow=True
         )
 
@@ -191,7 +191,7 @@ class CreateViewTest(ProgramSetupMixin, TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'worksheet/worksheet.html')
 
-        self.assertEqual(Worksheet.objects.count(), 1)
+        self.assertEqual(Worksheet.objects.filter(done=False).count(), 1)
 
     def test_creation_with_unknown_workout(self):
         """
@@ -243,12 +243,12 @@ class CreateViewTest(ProgramSetupMixin, TestCase):
         self.assertEqual(len(response.redirect_chain), 1)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'worksheet/worksheet.html')
-        self.assertContains(response, "Test workout 1")
-        self.assertContains(response, "1. Exercise 1")
-        self.assertContains(response, "2. Exercise 2")
-        self.assertContains(response, "3. Exercise 3")
-        self.assertContains(response, "4. Exercise 4")
-        self.assertContains(response, "5. Exercise 5")
+        self.assertContains(response, "Default workout")
+        self.assertContains(response, "1. Default workout - Exercise 1")
+        self.assertContains(response, "2. Default workout - Exercise 2")
+        self.assertContains(response, "3. Default workout - Exercise 3")
+        self.assertContains(response, "4. Default workout - Exercise 4")
+        self.assertContains(response, "5. Default workout - Exercise 5")
 
         worksheet = Worksheet.objects.get(
             workout=self.workout,
@@ -262,7 +262,7 @@ class CreateViewTest(ProgramSetupMixin, TestCase):
         It should be possible to start a different workout than the scheduled
         one.
         """
-        unscheduled_workout = self._create_workout()
+        unscheduled_workout = self._create_workout("Test workout")
 
         self.assertEqual(unscheduled_workout.id, 2)
 
@@ -276,12 +276,54 @@ class CreateViewTest(ProgramSetupMixin, TestCase):
 
         self.assertEqual(len(response.redirect_chain), 1)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Test workout 2")
-        self.assertContains(response, "1. Exercise 6")
-        self.assertContains(response, "2. Exercise 7")
-        self.assertContains(response, "3. Exercise 8")
-        self.assertContains(response, "4. Exercise 9")
-        self.assertContains(response, "5. Exercise 10")
+        self.assertContains(response, "Test workout")
+        self.assertContains(response, "1. Test workout - Exercise 1")
+        self.assertContains(response, "2. Test workout - Exercise 2")
+        self.assertContains(response, "3. Test workout - Exercise 3")
+        self.assertContains(response, "4. Test workout - Exercise 4")
+        self.assertContains(response, "5. Test workout - Exercise 5")
+
+    def test_create_worksheet_when_already_in_progress(self):
+        """
+        It should not be possible to create a worksheet while another one is
+        already in progress.
+        """
+        self.client.post(
+            reverse("worksheet:create"),
+            { 'workout': self.workout.id },
+            follow=True
+        )
+
+        self.assertEqual(Worksheet.objects.filter(done=False).count(), 1)
+
+        response = self.client.post(
+            reverse("worksheet:create"),
+            { 'workout': self.workout.id },
+            follow=True
+        )
+
+        self.assertEqual(Worksheet.objects.filter(done=False).count(), 1)
+        self.assertEqual(len(response.redirect_chain), 1)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'worksheet/index.html')
+        self.assertContains(response, escapejs("A workout session is already in progress (check the sidebar)"))
+
+        new_workout = self._create_workout()
+
+        self.assertNotEqual(new_workout.id, 1)
+
+        response = self.client.post(
+            reverse("worksheet:create"),
+            { 'workout': new_workout.id },
+            follow=True
+        )
+
+        self.assertEqual(Worksheet.objects.filter(done=False).count(), 1)
+        self.assertEqual(len(response.redirect_chain), 1)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'worksheet/index.html')
+        self.assertContains(response, escapejs("A workout session is already in progress (check the sidebar)"))
+
 
 class WorksheetViewTest(WorksheetMixin, WorksheetTestCase):
     def test_non_existing_worksheet(self):
@@ -317,7 +359,7 @@ class WorksheetViewTest(WorksheetMixin, WorksheetTestCase):
         ))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Test workout 1")
+        self.assertContains(response, "Default workout")
         self.assertContains(response, "Completed in <strong>0:37:42</strong>")
 
     def test_note_on_previous_result(self):

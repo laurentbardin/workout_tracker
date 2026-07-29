@@ -13,45 +13,32 @@ class ProgramSetupMixin:
     """
     This class sets up a workout with 5 associated exercises.
     """
-    exercise_id = None
-    workout_id = None
-
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-
-        if cls.exercise_id is None:
-            cls.exercise_id = 1
-
-        if cls.workout_id is None:
-            cls.workout_id = 1
 
         cls.workout = cls._create_workout()
 
         timezone.activate(getattr(settings, "USER_TIME_ZONE", settings.TIME_ZONE))
 
     @classmethod
-    def _create_workout(cls):
-        exercises = cls._create_exercises(5)
-
+    def _create_workout(cls, name="Default workout"):
         workout = Workout.objects.create(
-            name=f"Test workout {cls.workout_id}",
+            name=name,
             repeat=False,
         )
-        workout.exercises.set(exercises)
 
-        cls.workout_id += 1
+        cls._create_exercises(workout, 5)
 
         return workout
 
     @classmethod
-    def _create_exercises(cls, n):
+    def _create_exercises(cls, workout, n):
         exercises = []
         for i in range(n):
-            exercises.append(Exercise(name=f"Exercise {cls.exercise_id}", weight=not i%2))
-            cls.exercise_id += 1
+            exercises.append(Exercise(name=f"{workout.name} - Exercise {i+1}", weight=not i%2))
 
-        return Exercise.objects.bulk_create(exercises)
+        workout.exercises.set(Exercise.objects.bulk_create(exercises))
 
 class WorksheetMixin(ProgramSetupMixin):
     """

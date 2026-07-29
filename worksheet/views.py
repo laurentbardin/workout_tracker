@@ -84,10 +84,10 @@ class IndexView(TemplateView):
         # worksheet.
         if (
             (
-                self.month == self.today.month or            # showing the current month
+                self.month == self.today.month or          # showing the current month
                 any(self.today in week for week in weeks)  # or today is visible
             ) and
-            not worksheets.get(self.today)                   # and there are no active worksheet
+            not worksheets.get(self.today)                 # and there are no active worksheet
         ):
             if schedules.get(self.today.isoweekday()):
                 context['workouts'] = Workout.objects.exclude(
@@ -177,6 +177,7 @@ class CreateView(View):
         # If there's an older, active worksheet, bail and redirect to the index
         # where it will be listed
         if Worksheet.objects.get_active().exists():
+            messages.error(request, "A workout session is already in progress (check the sidebar)")
             return HttpResponseRedirect(reverse('worksheet:index'))
 
         # Likewise if the requested workout doesn't exist, or none is scheduled
