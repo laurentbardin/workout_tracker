@@ -13,7 +13,7 @@ class WorksheetTestCase(TestCase):
         self.assertIsNotNone(
             response.get(header),
             f'{msg_prefix}Header "{header}" not found in response.\n'
-            f'Available headers: {', '.join(sorted(response.headers.keys()))}'
+            f'Available headers: {', '.join(sorted(response.headers))}'
         )
 
     def assertHasNotHeader(self, response, header, msg_prefix=""):
