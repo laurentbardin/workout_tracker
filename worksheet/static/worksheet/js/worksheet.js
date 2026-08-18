@@ -103,11 +103,11 @@
     }
 
     w.worksheet = {
-        checkInput: checkInput,
-        initClock: initClock,
-        showNotePopover: showNotePopover,
-        updateSuccess: updateSuccess,
-        updateError: updateError,
-        notifySuccess: notifySuccess,
+        checkInput,
+        initClock,
+        showNotePopover,
+        updateSuccess,
+        updateError,
+        notifySuccess,
     };
 })(window);
