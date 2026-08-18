@@ -272,10 +272,6 @@ class CloseAction(View):
 
 class ResultAction(View):
     def post(self, request, worksheet_id, result_id, field):
-        # NOTE This should be a PUT request, but the CSRF middleware needs to
-        # be configured for this to work. Need to read
-        # https://docs.djangoproject.com/en/6.0/howto/csrf/ and
-        # https://docs.djangoproject.com/en/6.0/ref/csrf/
         import http
 
         filters = {
@@ -342,7 +338,6 @@ class ResultAction(View):
 
 class NoteAction(View):
     def post(self, request, worksheet_id, result_id):
-        # TODO Make this a PUT request
         note_form = ResultNoteForm(request.POST)
         context = {
             'note_form': note_form,
