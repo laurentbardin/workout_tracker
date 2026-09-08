@@ -20,5 +20,5 @@ def classes(**kwclasses):
     Depending on the value of those fields, this can produce any of the
     following strings: "read lent", "read", "lent", or "".
     """
-    return ' '.join([name for name, test in kwclasses.items() if test])
+    return ' '.join(name for name, test in kwclasses.items() if test)
 
