@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import views
+from worksheet import views
 
 app_name = 'worksheet'
 

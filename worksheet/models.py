@@ -7,7 +7,7 @@ from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 
-from .managers import ResultRelatedManager, WorksheetManager
+from worksheet.managers import ResultRelatedManager, WorksheetManager
 
 
 # Create your models here.

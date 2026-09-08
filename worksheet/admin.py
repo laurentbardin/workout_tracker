@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Exercise, Program, Schedule, Workout, Worksheet
+from worksheet.models import Exercise, Program, Schedule, Workout, Worksheet
 
 
 class ProgramInline(admin.TabularInline):
@@ -17,8 +17,8 @@ class WorkoutAdmin(admin.ModelAdmin):
     fields = [('name', 'repeat')]
     list_display = ['__str__', 'repeat']
     inlines = [
-        # This creates many duplicated SQL requests. Investigate to find out
-        # why, and how to prevent it.
+        # TODO This creates many duplicated SQL requests. Investigate to find
+        # out why, and how to prevent it.
         #
         # Check
         # https://docs.djangoproject.com/en/5.2/ref/models/querysets/#prefetch-related

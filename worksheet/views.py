@@ -13,8 +13,8 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.generic import TemplateView, View
 
-from .forms import ResultNoteForm
-from .models import Result, Schedule, Workout, Worksheet
+from worksheet.forms import ResultNoteForm
+from worksheet.models import Result, Schedule, Workout, Worksheet
 
 
 class IndexView(TemplateView):
